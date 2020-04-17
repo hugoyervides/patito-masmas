@@ -1,9 +1,10 @@
 import lex
+import yacc
 
 #list of token names
 
 reserved = {
-    'Programa' : 'PROGRAMA',
+    'programa' : 'PROGRAMA',
     'principal' : 'PRINCIPAL',
     'var' : 'VAR',
     'int' : 'INT',
@@ -52,11 +53,12 @@ t_RBRACKET  = r'}'
 t_AND       = r'&&'
 t_OR        = r'\|\|'
 t_COLON     = r':'
+t_SEMI_COLON= r';'
 t_DET       = r'\$'
 t_TRAN      = r'¡'
 t_INV       = r'\?'
 t_COMMA     = r','
-t_DOT       = r'.'
+t_DOT       = r'\.'
 t_NOT_EQ    = r'!='
 t_GREATER_EQ= r'>='
 t_LESS_EQ   = r'<='
@@ -65,15 +67,15 @@ t_LESS      = r'<'
 t_RSQ       = r'\]'
 t_LSQ       = r'\['
 t_CTE_C     = r'\'[A-Za-z]\''
-t_CTE_S     = r'".*."'
-t_LIST_ID_ONE=r'(\[)[1-9]+[0-9]*(\])'
+t_CTE_S     = r'".+"'
 t_LIST_ID_TWO=r'(\[)[1-9]+[0-9]*(\])(\[)[0-9]+[0-9]*(\])'
+t_LIST_ID_ONE=r'(\[)[1-9]+[0-9]*(\])'
 t_ignore  = ' \t'
 
 
 
 def t_ignore_COMMENT(t):
-    r'\%%.*'
+    r'%%.*'
     pass
 
 def t_ID(t):
@@ -100,7 +102,7 @@ def t_error(t):
 
 lexer = lex.lex()
 
-data = "3 + 4 = 10"
+data = "programa patito var int i,j,p[1],h[2][3];"
 
 lexer.input(data)
 
@@ -110,3 +112,49 @@ while True:
         break      # No more input
     print(tok)
 
+start = 'PROGRAMA'
+
+def p_EMPTY(p):
+    'EMPTY: '
+    pass
+
+def p_PROG(p):
+    'PROG: PROGRAMA ID SEMI_COLON VARS FUNCTION MAIN'
+    pass
+
+def p_VARS(p):
+    '''VARS: VAR TIPO
+    | EMPTY'''
+    pass
+
+def p_TIPO(p):
+    '''TIPO: INT ID VAR_INT SEMI_COLON TIPO
+    | INT ID LIST_ID_ONE VAR_INT SEMI_COLON TIPO
+    | INT ID LIST_ID_TWO VAR_INT SEMI_COLON TIPO
+    | FLOAT ID VAR_TIPO SEMI_COLON TIPO
+    | CHAR ID VAR_TIPO SEMI_COLON TIPO
+    | EMPTY'''
+    pass
+
+def p_VAR_INT(p):
+    '''VAR_INT: COMMA ID LIST_ID_ONE 
+    | COMMA ID LIST_ID_TWO 
+    | COMMA ID
+    | VAR_INT
+    | EMPTY'''
+    pass
+
+def p_VAR_TIPO(p):
+    '''VAR_TIPO: COMMA ID
+    | VAR_TIPO
+    | EMPTY'''
+    pass
+
+def p_FUNCTION(p):
+    '''FUNCTION: FUNCION TIPO_FUNC ID LPAREN PARAMETROS 
+                 RPAREN SEMI_COLON VARS LBRACKET ESTATUTOS
+                 RBRACKET FUNCTION
+    | EMPTY
+    '''
+def p_PARAMETROS(p):
+    '''PARAMETROS: '''
