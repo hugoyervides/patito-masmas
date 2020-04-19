@@ -11,6 +11,7 @@ reserved = {
     'float' : 'FLOAT',
     'char' : 'CHAR',
     'funcion' : 'FUNCION',
+    'void' : 'VOID',
     'lee' : 'LEE',
     'escribe' : 'ESCRIBE',
     'si' : 'SI',
@@ -149,6 +150,12 @@ def p_VAR_TIPO(p):
     | VAR_TIPO
     | EMPTY'''
     pass
+def p_TIPO_FUNC(p):
+    '''TIPO_FUNC: INT
+    | FLOAT 
+    | CHAR 
+    | VOID
+    '''
 
 def p_FUNCTION(p):
     '''FUNCTION: FUNCION TIPO_FUNC ID LPAREN PARAMETROS 
