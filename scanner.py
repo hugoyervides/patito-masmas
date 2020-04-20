@@ -155,7 +155,7 @@ def p_VAR_TIPO(p):
 
 def p_FUNCTION(p):
     '''FUNCTION: FUNCION TIPO_FUNC ID LPAREN PARAMETROS 
-                 RPAREN SEMI_COLON VARS LBRACKET ESTATUTOS
+                 RPAREN SEMI_COLON VARS LBRACKET BLOQUE
                  RBRACKET FUNCTION
                 | EMPTY'''
     pass
@@ -176,7 +176,7 @@ def p_PARAMETROS(p):
 
 def p_DESDE_CICLO(p):
     '''DESDE_CICLO: DESDE ID EQ CTE_I HASTA CTE_I 
-                    HACER LBRACKET ESTATUTOS RBRACKET
+                    HACER LBRACKET BLOQUE RBRACKET
                     | EMPTY'''
     pass
 
@@ -213,18 +213,18 @@ def p_TIPO_PARAMETROS(p):
 
 def p_ESTATUTO(p):
     '''ESTATUTO: SI LPAREN EXPRESION RPAREN ENTONCES
-                LBRACKET ESTATUTOS SEMI_COLON RBRACKET ESTATUTO_SINO
+                LBRACKET BLOQUE SEMI_COLON RBRACKET ESTATUTO_SINO
                 | EMPTY'''
     pass
 
 def p_ESTATUTO_SINO(p):
-    '''ESTATUTO_SINO: SINO LBRACKET ESTATUTOS SEMI_COLON RBRACKET
+    '''ESTATUTO_SINO: SINO LBRACKET BLOQUE SEMI_COLON RBRACKET
                     | EMPTY'''
     pass
 
 def p_MIENTRAS_CICLO(p):
     '''MIENTRAS_CICLO: MIENTRAS LPAREN EXPRESION RPAREN
-                    HAZ LBRACKET ESTATUTOS SEMI_COLON RBRACKET
+                    HAZ LBRACKET BLOQUE SEMI_COLON RBRACKET
                     | EMPTY'''
     pass
 
@@ -232,6 +232,6 @@ def p_EXPRESION(p):
     #TODO - Gramatica Expresion
     pass
 
-def p_ESTATUTOS(p):
-    #TODO - Gramatica estatutos
+def p_BLOQUE(p):
+    #TODO - Gramatica bloque
     pass
