@@ -120,7 +120,8 @@ def p_EMPTY(p):
     pass
 
 def p_MAIN(p):
-    #TODO - gramatica MAIN
+    '''MAIN: PROGRAMA LPAREN RPAREN 
+            LBRACKET BLOQUE RBRACKET'''
     pass
 
 def p_PROG(p):
@@ -229,9 +230,35 @@ def p_MIENTRAS_CICLO(p):
     pass
 
 def p_EXPRESION(p):
-    #TODO - Gramatica Expresion
+    '''EXPRESION: EXPRESION_ARITMETICA
+                | EXPRESION_LOGICA'''
+    pass
+
+def p_EXPRESION_ARITMETICA(p):
+    '''EXPRESION_ARITMETICA: ID PLUS EXPRESION_ARITMETICA
+                            | ID MINUS EXPRESION_ARITMETICA
+                            | ID MULT EXPRESION_ARITMETICA
+                            | ID DIV EXPRESION_ARITMETICA
+                            | ID'''
+    pass
+
+def p_EXPRESION_LOGICA(p):
+    '''EXPRESION_LOGICA: ID AND EXPRESION_LOGICA
+                        | ID OR EXPRESION_LOGICA
+                        | ID GREATER EXPRESION_LOGICA
+                        | ID LESS EXPRESION_LOGICA
+                        | ID GREATER_EQ EXPRESION_LOGICA
+                        | ID LESS_EQ EXPRESION_LOGICA
+                        | ID COMPAR
+                        | ID'''
     pass
 
 def p_BLOQUE(p):
-    #TODO - Gramatica bloque
+    '''BLOQUE: DESDE_CICLO BLOQUE
+            | LECTURA BLOQUE
+            | ESCRITURA BLOLQUE
+            | LLAMADA BLOQUE
+            | ESTATUTO BLOQUE
+            | MIENTRAS_CICLO BLOQUE
+            | EMPTY'''
     pass
