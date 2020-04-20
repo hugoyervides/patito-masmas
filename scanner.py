@@ -119,49 +119,119 @@ def p_EMPTY(p):
     'EMPTY: '
     pass
 
+def p_MAIN(p):
+    #TODO - gramatica MAIN
+    pass
+
 def p_PROG(p):
     'PROG: PROGRAMA ID SEMI_COLON VARS FUNCTION MAIN'
     pass
 
 def p_VARS(p):
     '''VARS: VAR TIPO
-    | EMPTY'''
+            | EMPTY'''
     pass
 
 def p_TIPO(p):
-    '''TIPO: INT ID VAR_INT SEMI_COLON TIPO
-    | INT ID LIST_ID_ONE VAR_INT SEMI_COLON TIPO
-    | INT ID LIST_ID_TWO VAR_INT SEMI_COLON TIPO
-    | FLOAT ID VAR_TIPO SEMI_COLON TIPO
-    | CHAR ID VAR_TIPO SEMI_COLON TIPO
-    | EMPTY'''
+    '''TIPO: INT VAR_INT SEMI_COLON TIPO
+            | FLOAT VAR_TIPO SEMI_COLON TIPO
+            | CHAR VAR_TIPO SEMI_COLON TIPO
+            | EMPTY'''
     pass
 
 def p_VAR_INT(p):
-    '''VAR_INT: COMMA ID LIST_ID_ONE 
-    | COMMA ID LIST_ID_TWO 
-    | COMMA ID
-    | VAR_INT
-    | EMPTY'''
+    '''VAR_INT: ID LIST_ID_ONE COMMA VAR_INT 
+                | ID LIST_ID_TWO COMMA VAR_INT 
+                | ID COMMA VAR_INT 
+                | ID LIST_ID_ONE 
+                | ID LIST_ID_TWO 
+                | ID'''
     pass
 
 def p_VAR_TIPO(p):
-    '''VAR_TIPO: COMMA ID
-    | VAR_TIPO
-    | EMPTY'''
+    '''VAR_TIPO: ID COMMA
+                | ID'''
     pass
-def p_TIPO_FUNC(p):
-    '''TIPO_FUNC: INT
-    | FLOAT 
-    | CHAR 
-    | VOID
-    '''
 
 def p_FUNCTION(p):
     '''FUNCTION: FUNCION TIPO_FUNC ID LPAREN PARAMETROS 
                  RPAREN SEMI_COLON VARS LBRACKET ESTATUTOS
                  RBRACKET FUNCTION
-    | EMPTY
-    '''
+                | EMPTY'''
+    pass
+
+def p_TIPO_FUNC(p):
+    '''TIPO_FUNC: INT
+                | FLOAT 
+                | CHAR 
+                | VOID'''
+    pass
+
 def p_PARAMETROS(p):
-    '''PARAMETROS: '''
+    '''PARAMETROS: INT ID
+                | FLOAT ID
+                | CHAR ID
+                | COMMA PARAMETROS'''
+    pass
+
+def p_DESDE_CICLO(p):
+    '''DESDE_CICLO: DESDE ID EQ CTE_I HASTA CTE_I 
+                    HACER LBRACKET ESTATUTOS RBRACKET
+                    | EMPTY'''
+    pass
+
+def p_LECTURA(p):
+    '''LECTURA: LEE LPAREN ID RPAREN SEMI_COLON
+    '''
+    pass
+
+
+def p_ESCRITURA(p):
+    '''ESCRITURA: ESCRIBE LPAREN TIPO_PARAMETROS RPAREN SEMI_COLON
+                | EMPTY'''
+    pass
+
+
+
+def p_LLAMADA(p):
+    '''LLAMADA: ID LPAREN TIPO_PARAMETROS RPAREN SEMI_COLON
+            | EMPTY'''
+    pass
+
+def p_TIPO_PARAMETROS(p):
+    '''TIPO_ESCRITURA: ID COMMA TIPO_ESCRITURA
+                    | CTE_I COMMA TIPO_ESCRITURA
+                    | CTE_F COMMA TIPO_ESCRITURA
+                    | CTE_C COMMA TIPO_ESCRITURA
+                    | CTE_S COMMA TIPO_ESCRITURA
+                    | ID
+                    | CTE_I
+                    | CTE_F
+                    | CTE_C
+                    | CTE_S'''
+    pass
+
+def p_ESTATUTO(p):
+    '''ESTATUTO: SI LPAREN EXPRESION RPAREN ENTONCES
+                LBRACKET ESTATUTOS SEMI_COLON RBRACKET ESTATUTO_SINO
+                | EMPTY'''
+    pass
+
+def p_ESTATUTO_SINO(p):
+    '''ESTATUTO_SINO: SINO LBRACKET ESTATUTOS SEMI_COLON RBRACKET
+                    | EMPTY'''
+    pass
+
+def p_MIENTRAS_CICLO(p):
+    '''MIENTRAS_CICLO: MIENTRAS LPAREN EXPRESION RPAREN
+                    HAZ LBRACKET ESTATUTOS SEMI_COLON RBRACKET
+                    | EMPTY'''
+    pass
+
+def p_EXPRESION(p):
+    #TODO - Gramatica Expresion
+    pass
+
+def p_ESTATUTOS(p):
+    #TODO - Gramatica estatutos
+    pass
