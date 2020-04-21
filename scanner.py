@@ -103,15 +103,60 @@ def t_error(t):
 
 lexer = lex.lex()
 
-data = "programa patito var int i,j,p[1],h[2][3];"
+data = "programa patito; var int i,j,p[1],h[2][3];"
 
 lexer.input(data)
 
-while True:
-    tok = lexer.token()
-    if not tok: 
-        break      # No more input
-    print(tok)
+funcTable = {}
+
+fill_funcTable(lexer)
+
+def fill_funcTable(lexer):
+    while True:
+        tok = lexer.token()
+        if not tok: 
+            break
+            # No more input
+        elif tok.type == 'PROGRAMA':
+            funcTable['global'] = ['global', 'void', '', fill_varTable(lexer)]
+        
+        elif tok.type == 'FUNCION':
+            type = lexer.token().value
+            name = lexer.token().value
+            params = getParams(lexer)
+            funcTable[name] = [name, type, params, fill_varTable(lexer)] 
+        
+def fill_varTable(lexer):
+    var_table = {}
+    var_lexer = lexer
+
+    while True:
+        tok = var_lexer.token()
+
+        if tok.type == 'VAR':
+            while True:
+                tok = var_lexer.token()
+                if tok.type == 'INT' or tok.type == 'CHAR' or tok.type == 'FLOAT':
+                    var_type = tok.type
+                    while not tok.type == 'SEMI_COLON':
+                        tok = var_lexer.token()
+                        if tok.type == 'ID':
+                            var_table[tok.value] = [tok.value, var_type, '']
+        elif tok.type == 'FUNCION' or tok.type == 'PRINCIPAL' or not tok:
+            break
+
+
+    return var_table
+
+
+
+    return var_table
+
+def getParams(lexer):
+    params = []
+
+
+    return params
 
 start = 'PROGRAMA'
 
