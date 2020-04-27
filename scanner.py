@@ -103,60 +103,78 @@ def t_error(t):
 
 lexer = lex.lex()
 
-data = "programa patito; var int i,j,p[1],h[2][3];"
+data = '''
+    programa patito; 
+    var 
+        int i,j,p[1],h[2][3];
+        float valor;
+        char valorChar;
+
+    funcion int fact(int i)
+    var int i;
+    {
+        i = 1 + 1;
+    }
+'''
 
 lexer.input(data)
 
-funcTable = {}
+while True:
+    tok = lexer.token()
+    if not tok: 
+        break      # No more input
+    print(tok)
 
-fill_funcTable(lexer)
+# funcTable = {}
 
-def fill_funcTable(lexer):
-    while True:
-        tok = lexer.token()
-        if not tok: 
-            break
-            # No more input
-        elif tok.type == 'PROGRAMA':
-            funcTable['global'] = ['global', 'void', '', fill_varTable(lexer)]
+# fill_funcTable(lexer)
+
+# def fill_funcTable(lexer):
+#     while True:
+#         tok = lexer.token()
+#         if not tok: 
+#             break
+#             # No more input
+#         elif tok.type == 'PROGRAMA':
+#             funcTable['global'] = ['global', 'void', '', fill_varTable(lexer)]
         
-        elif tok.type == 'FUNCION':
-            type = lexer.token().value
-            name = lexer.token().value
-            params = getParams(lexer)
-            funcTable[name] = [name, type, params, fill_varTable(lexer)] 
+#         elif tok.type == 'FUNCION':
+#             type = lexer.token().value
+#             name = lexer.token().value
+#             params = getParams(lexer)
+#             funcTable[name] = [name, type, params, fill_varTable(lexer)] 
         
-def fill_varTable(lexer):
-    var_table = {}
-    var_lexer = lexer
+# def fill_varTable(lexer):
+#     var_table = {}
+#     var_lexer = lexer
 
-    while True:
-        tok = var_lexer.token()
+#     while True:
+#         tok = var_lexer.token()
 
-        if tok.type == 'VAR':
-            while True:
-                tok = var_lexer.token()
-                if tok.type == 'INT' or tok.type == 'CHAR' or tok.type == 'FLOAT':
-                    var_type = tok.type
-                    while not tok.type == 'SEMI_COLON':
-                        tok = var_lexer.token()
-                        if tok.type == 'ID':
-                            var_table[tok.value] = [tok.value, var_type, '']
-        elif tok.type == 'FUNCION' or tok.type == 'PRINCIPAL' or not tok:
-            break
-
-
-    return var_table
+#         if tok.type == 'VAR':
+#             while True:
+#                 tok = var_lexer.token()
+#                 if tok.type == 'INT' or tok.type == 'CHAR' or tok.type == 'FLOAT':
+#                     var_type = tok.type
+#                     while not tok.type == 'SEMI_COLON':
+#                         tok = var_lexer.token()
+#                         if tok.type == 'ID':
+#                             var_table[tok.value] = [tok.value, var_type, '']
+#         elif tok.type == 'FUNCION' or tok.type == 'PRINCIPAL' or not tok:
+#             break
 
 
-
-    return var_table
-
-def getParams(lexer):
-    params = []
+#     return var_table
 
 
-    return params
+
+#     return var_table
+
+# def getParams(lexer):
+#     params = []
+
+
+#     return params
 
 start = 'PROGRAMA'
 
