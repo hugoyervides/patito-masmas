@@ -109,23 +109,25 @@ lexer.input(data)
 
 funcTable = {}
 
+"""
 fill_funcTable(lexer)
+
 
 def fill_funcTable(lexer):
     while True:
         tok = lexer.token()
-        if not tok: 
+        if not tok:
             break
             # No more input
         elif tok.type == 'PROGRAMA':
             funcTable['global'] = ['global', 'void', '', fill_varTable(lexer)]
-        
+
         elif tok.type == 'FUNCION':
             type = lexer.token().value
             name = lexer.token().value
             params = getParams(lexer)
-            funcTable[name] = [name, type, params, fill_varTable(lexer)] 
-        
+            funcTable[name] = [name, type, params, fill_varTable(lexer)]
+
 def fill_varTable(lexer):
     var_table = {}
     var_lexer = lexer
@@ -147,10 +149,10 @@ def fill_varTable(lexer):
 
 
     return var_table
+"""
 
+start = 'PROG'
 
-
-    return var_table
 
 def getParams(lexer):
     params = []
@@ -158,94 +160,96 @@ def getParams(lexer):
 
     return params
 
-start = 'PROGRAMA'
+
+
+def p_error(p):
+    if p:
+        print("Syntax error at token", p.type)
+        # Just discard the token and tell the parser it's okay.
+        parser.errok()
+    else:
+        print("Syntax error at EOF")
 
 def p_EMPTY(p):
-    'EMPTY: '
+    'EMPTY :'
     pass
 
 def p_MAIN(p):
-    '''MAIN: PROGRAMA LPAREN RPAREN 
-            LBRACKET BLOQUE RBRACKET'''
+    '''MAIN : PROGRAMA LPAREN RPAREN LBRACKET BLOQUE RBRACKET'''
     pass
 
 def p_PROG(p):
-    'PROG: PROGRAMA ID SEMI_COLON VARS FUNCTION MAIN'
+    'PROG : PROGRAMA ID SEMI_COLON VARS FUNCTION MAIN'
     pass
 
 def p_VARS(p):
-    '''VARS: VAR TIPO
+    '''VARS : VAR TIPO
             | EMPTY'''
     pass
 
 def p_TIPO(p):
-    '''TIPO: INT VAR_INT SEMI_COLON TIPO
+    '''TIPO : INT VAR_INT SEMI_COLON TIPO
             | FLOAT VAR_TIPO SEMI_COLON TIPO
             | CHAR VAR_TIPO SEMI_COLON TIPO
             | EMPTY'''
     pass
 
 def p_VAR_INT(p):
-    '''VAR_INT: ID LIST_ID_ONE COMMA VAR_INT 
-                | ID LIST_ID_TWO COMMA VAR_INT 
-                | ID COMMA VAR_INT 
-                | ID LIST_ID_ONE 
-                | ID LIST_ID_TWO 
+    '''VAR_INT : ID LIST_ID_ONE COMMA VAR_INT
+                | ID LIST_ID_TWO COMMA VAR_INT
+                | ID COMMA VAR_INT
+                | ID LIST_ID_ONE
+                | ID LIST_ID_TWO
                 | ID'''
     pass
 
 def p_VAR_TIPO(p):
-    '''VAR_TIPO: ID COMMA
+    '''VAR_TIPO : ID COMMA
                 | ID'''
     pass
 
 def p_FUNCTION(p):
-    '''FUNCTION: FUNCION TIPO_FUNC ID LPAREN PARAMETROS 
-                 RPAREN SEMI_COLON VARS LBRACKET BLOQUE
-                 RBRACKET FUNCTION
+    '''FUNCTION : FUNCION TIPO_FUNC ID LPAREN PARAMETROS RPAREN SEMI_COLON VARS LBRACKET BLOQUE RBRACKET FUNCTION
                 | EMPTY'''
     pass
 
 def p_TIPO_FUNC(p):
-    '''TIPO_FUNC: INT
-                | FLOAT 
-                | CHAR 
+    '''TIPO_FUNC : INT
+                | FLOAT
+                | CHAR
                 | VOID'''
     pass
 
 def p_PARAMETROS(p):
-    '''PARAMETROS: INT ID
+    '''PARAMETROS : INT ID
                 | FLOAT ID
                 | CHAR ID
                 | COMMA PARAMETROS'''
     pass
 
 def p_DESDE_CICLO(p):
-    '''DESDE_CICLO: DESDE ID EQ CTE_I HASTA CTE_I 
-                    HACER LBRACKET BLOQUE RBRACKET
+    '''DESDE_CICLO : DESDE ID EQ CTE_I HASTA CTE_I HACER LBRACKET BLOQUE RBRACKET
                     | EMPTY'''
     pass
 
 def p_LECTURA(p):
-    '''LECTURA: LEE LPAREN ID RPAREN SEMI_COLON
+    '''LECTURA : LEE LPAREN ID RPAREN SEMI_COLON
     '''
     pass
 
 
 def p_ESCRITURA(p):
-    '''ESCRITURA: ESCRIBE LPAREN TIPO_PARAMETROS RPAREN SEMI_COLON
+    '''ESCRITURA : ESCRIBE LPAREN TIPO_PARAMETROS RPAREN SEMI_COLON
                 | EMPTY'''
     pass
 
-
-
 def p_LLAMADA(p):
-    '''LLAMADA: ID LPAREN TIPO_PARAMETROS RPAREN SEMI_COLON
+    '''LLAMADA : ID LPAREN TIPO_PARAMETROS RPAREN SEMI_COLON
             | EMPTY'''
     pass
 
 def p_TIPO_PARAMETROS(p):
-    '''TIPO_ESCRITURA: ID COMMA TIPO_ESCRITURA
+    '''TIPO_PARAMETROS : ID COMMA TIPO_ESCRITURA
                     | CTE_I COMMA TIPO_ESCRITURA
                     | CTE_F COMMA TIPO_ESCRITURA
                     | CTE_C COMMA TIPO_ESCRITURA
@@ -258,29 +262,27 @@ def p_TIPO_PARAMETROS(p):
     pass
 
 def p_ESTATUTO(p):
-    '''ESTATUTO: SI LPAREN EXPRESION RPAREN ENTONCES
-                LBRACKET BLOQUE SEMI_COLON RBRACKET ESTATUTO_SINO
+    '''ESTATUTO : SI LPAREN EXPRESION RPAREN ENTONCES LBRACKET BLOQUE SEMI_COLON RBRACKET ESTATUTO_SINO
                 | EMPTY'''
     pass
 
 def p_ESTATUTO_SINO(p):
-    '''ESTATUTO_SINO: SINO LBRACKET BLOQUE SEMI_COLON RBRACKET
+    '''ESTATUTO_SINO : SINO LBRACKET BLOQUE SEMI_COLON RBRACKET
                     | EMPTY'''
     pass
 
 def p_MIENTRAS_CICLO(p):
-    '''MIENTRAS_CICLO: MIENTRAS LPAREN EXPRESION RPAREN
-                    HAZ LBRACKET BLOQUE SEMI_COLON RBRACKET
+    '''MIENTRAS_CICLO : MIENTRAS LPAREN EXPRESION RPAREN HAZ LBRACKET BLOQUE SEMI_COLON RBRACKET
                     | EMPTY'''
     pass
 
 def p_EXPRESION(p):
-    '''EXPRESION: EXPRESION_ARITMETICA
+    '''EXPRESION : EXPRESION_ARITMETICA
                 | EXPRESION_LOGICA'''
     pass
 
 def p_EXPRESION_ARITMETICA(p):
-    '''EXPRESION_ARITMETICA: ID PLUS EXPRESION_ARITMETICA
+    '''EXPRESION_ARITMETICA : ID PLUS EXPRESION_ARITMETICA
                             | ID MINUS EXPRESION_ARITMETICA
                             | ID MULT EXPRESION_ARITMETICA
                             | ID DIV EXPRESION_ARITMETICA
@@ -288,7 +290,7 @@ def p_EXPRESION_ARITMETICA(p):
     pass
 
 def p_EXPRESION_LOGICA(p):
-    '''EXPRESION_LOGICA: ID AND EXPRESION_LOGICA
+    '''EXPRESION_LOGICA : ID AND EXPRESION_LOGICA
                         | ID OR EXPRESION_LOGICA
                         | ID GREATER EXPRESION_LOGICA
                         | ID LESS EXPRESION_LOGICA
@@ -299,11 +301,13 @@ def p_EXPRESION_LOGICA(p):
     pass
 
 def p_BLOQUE(p):
-    '''BLOQUE: DESDE_CICLO BLOQUE
+    '''BLOQUE : DESDE_CICLO BLOQUE
             | LECTURA BLOQUE
-            | ESCRITURA BLOLQUE
+            | ESCRITURA BLOQUE
             | LLAMADA BLOQUE
             | ESTATUTO BLOQUE
             | MIENTRAS_CICLO BLOQUE
             | EMPTY'''
     pass
+
+parser = yacc.yacc()
