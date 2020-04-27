@@ -1,0 +1,175 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    COLON
+    COMMENT
+    DET
+    DOT
+    INV
+    LSQ
+    NOT_EQ
+    NULL
+    PRINCIPAL
+    RSQ
+    TRAN
+
+Grammar
+
+Rule 0     S' -> PROG
+Rule 1     EMPTY -> <empty>
+Rule 2     MAIN -> PROGRAMA LPAREN RPAREN LBRACKET BLOQUE RBRACKET
+Rule 3     PROG -> PROGRAMA ID SEMI_COLON VARS FUNCTION MAIN
+Rule 4     VARS -> VAR TIPO
+Rule 5     VARS -> EMPTY
+Rule 6     TIPO -> INT VAR_INT SEMI_COLON TIPO
+Rule 7     TIPO -> FLOAT VAR_TIPO SEMI_COLON TIPO
+Rule 8     TIPO -> CHAR VAR_TIPO SEMI_COLON TIPO
+Rule 9     TIPO -> EMPTY
+Rule 10    VAR_INT -> ID LIST_ID_ONE COMMA VAR_INT
+Rule 11    VAR_INT -> ID LIST_ID_TWO COMMA VAR_INT
+Rule 12    VAR_INT -> ID COMMA VAR_INT
+Rule 13    VAR_INT -> ID LIST_ID_ONE
+Rule 14    VAR_INT -> ID LIST_ID_TWO
+Rule 15    VAR_INT -> ID
+Rule 16    VAR_TIPO -> ID COMMA
+Rule 17    VAR_TIPO -> ID
+Rule 18    FUNCTION -> FUNCION TIPO_FUNC ID LPAREN PARAMETROS RPAREN SEMI_COLON VARS LBRACKET BLOQUE RBRACKET FUNCTION
+Rule 19    FUNCTION -> EMPTY
+Rule 20    TIPO_FUNC -> INT
+Rule 21    TIPO_FUNC -> FLOAT
+Rule 22    TIPO_FUNC -> CHAR
+Rule 23    TIPO_FUNC -> VOID
+Rule 24    PARAMETROS -> INT ID
+Rule 25    PARAMETROS -> FLOAT ID
+Rule 26    PARAMETROS -> CHAR ID
+Rule 27    PARAMETROS -> COMMA PARAMETROS
+Rule 28    DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I HACER LBRACKET BLOQUE RBRACKET
+Rule 29    DESDE_CICLO -> EMPTY
+Rule 30    LECTURA -> LEE LPAREN ID RPAREN SEMI_COLON
+Rule 31    ESCRITURA -> ESCRIBE LPAREN TIPO_PARAMETROS RPAREN SEMI_COLON
+Rule 32    ESCRITURA -> EMPTY
+Rule 33    LLAMADA -> ID LPAREN TIPO_PARAMETROS RPAREN SEMI_COLON
+Rule 34    LLAMADA -> EMPTY
+Rule 35    TIPO_PARAMETROS -> ID COMMA TIPO_ESCRITURA
+Rule 36    TIPO_PARAMETROS -> CTE_I COMMA TIPO_ESCRITURA
+Rule 37    TIPO_PARAMETROS -> CTE_F COMMA TIPO_ESCRITURA
+Rule 38    TIPO_PARAMETROS -> CTE_C COMMA TIPO_ESCRITURA
+Rule 39    TIPO_PARAMETROS -> CTE_S COMMA TIPO_ESCRITURA
+Rule 40    TIPO_PARAMETROS -> ID
+Rule 41    TIPO_PARAMETROS -> CTE_I
+Rule 42    TIPO_PARAMETROS -> CTE_F
+Rule 43    TIPO_PARAMETROS -> CTE_C
+Rule 44    TIPO_PARAMETROS -> CTE_S
+Rule 45    ESTATUTO -> SI LPAREN EXPRESION RPAREN ENTONCES LBRACKET BLOQUE SEMI_COLON RBRACKET ESTATUTO_SINO
+Rule 46    ESTATUTO -> EMPTY
+Rule 47    ESTATUTO_SINO -> SINO LBRACKET BLOQUE SEMI_COLON RBRACKET
+Rule 48    ESTATUTO_SINO -> EMPTY
+Rule 49    MIENTRAS_CICLO -> MIENTRAS LPAREN EXPRESION RPAREN HAZ LBRACKET BLOQUE SEMI_COLON RBRACKET
+Rule 50    MIENTRAS_CICLO -> EMPTY
+Rule 51    EXPRESION -> EXPRESION_ARITMETICA
+Rule 52    EXPRESION -> EXPRESION_LOGICA
+Rule 53    EXPRESION_ARITMETICA -> ID PLUS EXPRESION_ARITMETICA
+Rule 54    EXPRESION_ARITMETICA -> ID MINUS EXPRESION_ARITMETICA
+Rule 55    EXPRESION_ARITMETICA -> ID MULT EXPRESION_ARITMETICA
+Rule 56    EXPRESION_ARITMETICA -> ID DIV EXPRESION_ARITMETICA
+Rule 57    EXPRESION_ARITMETICA -> ID
+Rule 58    EXPRESION_LOGICA -> ID AND EXPRESION_LOGICA
+Rule 59    EXPRESION_LOGICA -> ID OR EXPRESION_LOGICA
+Rule 60    EXPRESION_LOGICA -> ID GREATER EXPRESION_LOGICA
+Rule 61    EXPRESION_LOGICA -> ID LESS EXPRESION_LOGICA
+Rule 62    EXPRESION_LOGICA -> ID GREATER_EQ EXPRESION_LOGICA
+Rule 63    EXPRESION_LOGICA -> ID LESS_EQ EXPRESION_LOGICA
+Rule 64    EXPRESION_LOGICA -> ID COMPAR
+Rule 65    EXPRESION_LOGICA -> ID
+Rule 66    BLOQUE -> DESDE_CICLO BLOQUE
+Rule 67    BLOQUE -> LECTURA BLOQUE
+Rule 68    BLOQUE -> ESCRITURA BLOQUE
+Rule 69    BLOQUE -> LLAMADA BLOQUE
+Rule 70    BLOQUE -> ESTATUTO BLOQUE
+Rule 71    BLOQUE -> MIENTRAS_CICLO BLOQUE
+Rule 72    BLOQUE -> EMPTY
+
+Terminals, with rules where they appear
+
+AND                  : 58
+CHAR                 : 8 22 26
+COLON                : 
+COMMA                : 10 11 12 16 27 35 36 37 38 39
+COMMENT              : 
+COMPAR               : 64
+CTE_C                : 38 43
+CTE_F                : 37 42
+CTE_I                : 28 28 36 41
+CTE_S                : 39 44
+DESDE                : 28
+DET                  : 
+DIV                  : 56
+DOT                  : 
+ENTONCES             : 45
+EQ                   : 28
+ESCRIBE              : 31
+FLOAT                : 7 21 25
+FUNCION              : 18
+GREATER              : 60
+GREATER_EQ           : 62
+HACER                : 28
+HASTA                : 28
+HAZ                  : 49
+ID                   : 3 10 11 12 13 14 15 16 17 18 24 25 26 28 30 33 35 40 53 54 55 56 57 58 59 60 61 62 63 64 65
+INT                  : 6 20 24
+INV                  : 
+LBRACKET             : 2 18 28 45 47 49
+LEE                  : 30
+LESS                 : 61
+LESS_EQ              : 63
+LIST_ID_ONE          : 10 13
+LIST_ID_TWO          : 11 14
+LPAREN               : 2 18 30 31 33 45 49
+LSQ                  : 
+MIENTRAS             : 49
+MINUS                : 54
+MULT                 : 55
+NOT_EQ               : 
+NULL                 : 
+OR                   : 59
+PLUS                 : 53
+PRINCIPAL            : 
+PROGRAMA             : 2 3
+RBRACKET             : 2 18 28 45 47 49
+RPAREN               : 2 18 30 31 33 45 49
+RSQ                  : 
+SEMI_COLON           : 3 6 7 8 18 30 31 33 45 47 49
+SI                   : 45
+SINO                 : 47
+TRAN                 : 
+VAR                  : 4
+VOID                 : 23
+error                : 
+
+Nonterminals, with rules where they appear
+
+BLOQUE               : 2 18 28 45 47 49 66 67 68 69 70 71
+DESDE_CICLO          : 66
+EMPTY                : 5 9 19 29 32 34 46 48 50 72
+ESCRITURA            : 68
+ESTATUTO             : 70
+ESTATUTO_SINO        : 45
+EXPRESION            : 45 49
+EXPRESION_ARITMETICA : 51 53 54 55 56
+EXPRESION_LOGICA     : 52 58 59 60 61 62 63
+FUNCTION             : 3 18
+LECTURA              : 67
+LLAMADA              : 69
+MAIN                 : 3
+MIENTRAS_CICLO       : 71
+PARAMETROS           : 18 27
+PROG                 : 0
+TIPO                 : 4 6 7 8
+TIPO_ESCRITURA       : 35 36 37 38 39
+TIPO_FUNC            : 18
+TIPO_PARAMETROS      : 31 33
+VARS                 : 3 18
+VAR_INT              : 6 10 11 12
+VAR_TIPO             : 7 8
+
