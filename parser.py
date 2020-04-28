@@ -23,7 +23,7 @@ def p_EMPTY(p):
     pass
 
 def p_MAIN(p):
-    '''MAIN : PROGRAMA LPAREN RPAREN LBRACKET BLOQUE RBRACKET'''
+    '''MAIN : PRINCIPAL LPAREN RPAREN BLOQUE'''
     pass
 
 def p_PROG(p):
@@ -57,7 +57,7 @@ def p_VAR_TIPO(p):
     pass
 
 def p_FUNCTION(p):
-    '''FUNCTION : FUNCION TIPO_FUNC ID LPAREN PARAMETROS RPAREN SEMI_COLON VARS LBRACKET BLOQUE RBRACKET FUNCTION
+    '''FUNCTION : FUNCION TIPO_FUNC ID LPAREN PARAMETROS RPAREN VARS BLOQUE FUNCTION
                 | EMPTY'''
     pass
 
@@ -76,86 +76,173 @@ def p_PARAMETROS(p):
     pass
 
 def p_DESDE_CICLO(p):
-    '''DESDE_CICLO : DESDE ID EQ CTE_I HASTA CTE_I HACER LBRACKET BLOQUE RBRACKET
-                    | EMPTY'''
+    '''DESDE_CICLO : DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE'''
     pass
 
 def p_LECTURA(p):
-    '''LECTURA : LEE LPAREN ID RPAREN SEMI_COLON
-    '''
+    '''LECTURA : LEE LPAREN ID RPAREN SEMI_COLON'''
     pass
 
 
 def p_ESCRITURA(p):
-    '''ESCRITURA : ESCRIBE LPAREN TIPO_PARAMETROS RPAREN SEMI_COLON
-                | EMPTY'''
+    '''ESCRITURA : ESCRIBE LPAREN TIPO_PARAMETROS RPAREN SEMI_COLON'''
     pass
 
 def p_LLAMADA(p):
-    '''LLAMADA : ID LPAREN TIPO_PARAMETROS RPAREN SEMI_COLON
-            | EMPTY'''
+    '''LLAMADA : ID LPAREN TIPO_PARAMETROS RPAREN SEMI_COLON'''
     pass
 
 def p_TIPO_PARAMETROS(p):
-    '''TIPO_PARAMETROS : ID COMMA TIPO_ESCRITURA
-                    | CTE_I COMMA TIPO_ESCRITURA
-                    | CTE_F COMMA TIPO_ESCRITURA
-                    | CTE_C COMMA TIPO_ESCRITURA
-                    | CTE_S COMMA TIPO_ESCRITURA
+    '''TIPO_PARAMETROS : ID COMMA TIPO_PARAMETROS
+                    | CTE_I COMMA TIPO_PARAMETROS
+                    | CTE_F COMMA TIPO_PARAMETROS
+                    | CTE_C COMMA TIPO_PARAMETROS
+                    | CTE_S COMMA TIPO_PARAMETROS
+                    | EXPRESION COMMA TIPO_PARAMETROS
                     | ID
                     | CTE_I
                     | CTE_F
                     | CTE_C
-                    | CTE_S'''
+                    | CTE_S
+                    | EXPRESION'''
     pass
 
 def p_ESTATUTO(p):
-    '''ESTATUTO : SI LPAREN EXPRESION RPAREN ENTONCES LBRACKET BLOQUE SEMI_COLON RBRACKET ESTATUTO_SINO
-                | EMPTY'''
+    '''ESTATUTO : SI LPAREN EXPRESION RPAREN ENTONCES BLOQUE ESTATUTO_SINO'''
     pass
 
 def p_ESTATUTO_SINO(p):
-    '''ESTATUTO_SINO : SINO LBRACKET BLOQUE SEMI_COLON RBRACKET
+    '''ESTATUTO_SINO : SINO BLOQUE
                     | EMPTY'''
     pass
 
 def p_MIENTRAS_CICLO(p):
-    '''MIENTRAS_CICLO : MIENTRAS LPAREN EXPRESION RPAREN HAZ LBRACKET BLOQUE SEMI_COLON RBRACKET
-                    | EMPTY'''
+    '''MIENTRAS_CICLO : MIENTRAS LPAREN EXPRESION RPAREN HAZ BLOQUE'''
     pass
 
 def p_EXPRESION(p):
-    '''EXPRESION : EXPRESION_ARITMETICA
-                | EXPRESION_LOGICA'''
+    '''EXPRESION : ID OPERADOR_LOGICO EXPRESION
+                | ID OPERADOR_ARITMETICO EXPRESION
+                | ID LIST_ID_TWO OPERADOR_LOGICO EXPRESION
+                | ID LIST_ID_TWO OPERADOR_ARITMETICO EXPRESION
+                | ID LIST_ID_ONE OPERADOR_LOGICO EXPRESION
+                | ID LIST_ID_ONE OPERADOR_ARITMETICO EXPRESION
+                | CONSTANTE OPERADOR_LOGICO EXPRESION
+                | CONSTANTE OPERADOR_ARITMETICO EXPRESION
+                | LLAMADA_ASIGNACION OPERADOR_LOGICO EXPRESION
+                | LLAMADA_ASIGNACION OPERADOR_ARITMETICO EXPRESION
+                | LPAREN EXPRESION RPAREN EXPRESION
+                | LPAREN EXPRESION RPAREN
+                | ID
+                | ID LIST_ID_TWO
+                | ID LIST_ID_ONE
+                | LLAMADA_ASIGNACION
+                | CONSTANTE'''
     pass
 
-def p_EXPRESION_ARITMETICA(p):
-    '''EXPRESION_ARITMETICA : ID PLUS EXPRESION_ARITMETICA
-                            | ID MINUS EXPRESION_ARITMETICA
-                            | ID MULT EXPRESION_ARITMETICA
-                            | ID DIV EXPRESION_ARITMETICA
-                            | ID'''
+def p_CONSTANTE(p):
+    '''CONSTANTE : CTE_I
+                | CTE_F
+                | CTE_C
+                | CTE_S
+    '''
+
+def p_OPERADOR_ARITMETICO(p):
+    '''OPERADOR_ARITMETICO : PLUS
+                            | MINUS
+                            | MULT
+                            | DIV
+    '''
+
+def p_OPERADOR_LOGICO(p):
+    '''OPERADOR_LOGICO : AND
+                        | OR
+                        | GREATER
+                        | LESS
+                        | GREATER_EQ
+                        | LESS_EQ
+                        | COMPAR
+    '''
     pass
 
-def p_EXPRESION_LOGICA(p):
-    '''EXPRESION_LOGICA : ID AND EXPRESION_LOGICA
-                        | ID OR EXPRESION_LOGICA
-                        | ID GREATER EXPRESION_LOGICA
-                        | ID LESS EXPRESION_LOGICA
-                        | ID GREATER_EQ EXPRESION_LOGICA
-                        | ID LESS_EQ EXPRESION_LOGICA
-                        | ID COMPAR
-                        | ID'''
+def p_ASIGNACION(p):
+    '''ASIGNACION : ID EQ ASIGNACION_AUX SEMI_COLON
+                | ID LIST_ID_TWO EQ ASIGNACION_AUX SEMI_COLON
+                | ID LIST_ID_ONE EQ ASIGNACION_AUX SEMI_COLON
+    '''
+    pass
+
+def p_ASIGNACION_AUX(p):
+    '''ASIGNACION_AUX : ID
+                        | ID LIST_ID_TWO
+                        | ID LIST_ID_ONE
+                        | LLAMADA_ASIGNACION
+                        | EXPRESION
+    '''
+    pass
+
+def p_LLAMADA_ASIGNACION(p):
+    '''LLAMADA_ASIGNACION : ID LPAREN TIPO_PARAMETROS RPAREN'''
     pass
 
 def p_BLOQUE(p):
-    '''BLOQUE : DESDE_CICLO BLOQUE
-            | LECTURA BLOQUE
-            | ESCRITURA BLOQUE
-            | LLAMADA BLOQUE
-            | ESTATUTO BLOQUE
-            | MIENTRAS_CICLO BLOQUE
-            | EMPTY'''
+    '''BLOQUE : LBRACKET OPCION_BLOQUE RBRACKET'''
+    pass
+
+def p_OPCION_BLOQUE(p):
+    '''OPCION_BLOQUE : LECTURA OPCION_BLOQUE
+                    | ESCRITURA OPCION_BLOQUE
+                    | LLAMADA OPCION_BLOQUE
+                    | ESTATUTO OPCION_BLOQUE
+                    | MIENTRAS_CICLO OPCION_BLOQUE
+                    | DESDE_CICLO OPCION_BLOQUE
+                    | ASIGNACION OPCION_BLOQUE
+                    | EMPTY
+    '''
     pass
 
 parser = yacc.yacc()
+
+testScript = '''
+    programa patito; 
+    var 
+        int i,j,p[1],h[2][3];
+        int Arreglo[10], OtroArreglo[10];
+        float valor;
+        int Matriz[3][8], OtraMatriz[3][3];
+    funcion void inicia(int y)
+    var int i;
+    {
+        i = j + (p - j*2 + j);
+        si( j == 1 ) entonces{
+            regresa(j);
+        }sino{
+            regresa(j * fact( j - 1 ));
+        }
+    }
+    funcion void inicia( int j)
+    var int x;
+    {
+        x=0;
+        mientras (x < 11) haz{
+            Arreglo[3] = y * x;
+            x = x +1;
+        }
+    }
+    principal(){
+        lee(p);
+        j=p*2;
+        desde i = 0 hasta 9 hacer{
+            Arreglo[2] = Arreglo[2] * fact(Arreglo[1] - p);
+        }
+        OtroArreglo = Arreglo;
+        desde j = 0 hasta 2 hacer{
+            desde k = 0 hasta 2 hacer{
+                Matriz[3][3] = OtroArreglo[1] * p + j;
+            }
+        }
+        
+    }
+'''
+
+parser.parse(testScript)
