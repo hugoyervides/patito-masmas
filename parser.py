@@ -241,7 +241,11 @@ testScript = '''
                 Matriz[3][3] = OtroArreglo[1] * p + j;
             }
         }
-        
+        escribe("el determinante es:", valor);
+        mientras ( i >= 0) haz{
+            escribe("resultado", Arreglo[1], fact(i+2)*valor);
+            i = i - 1;
+        }
     }
 '''
 
