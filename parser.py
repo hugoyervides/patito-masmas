@@ -18,6 +18,10 @@ def p_error(p):
     else:
         print("Syntax error at EOF")
 
+# =====================================================================
+# ------------------- GRAMATICA PRINCIPAL ----------------------
+# =====================================================================
+
 def p_EMPTY(p):
     'EMPTY :'
     pass
@@ -43,11 +47,9 @@ def p_TIPO(p):
     pass
 
 def p_VAR_INT(p):
-    '''VAR_INT : ID LIST_ID_ONE COMMA VAR_INT
-                | ID LIST_ID_TWO COMMA VAR_INT
+    '''VAR_INT : LIST_ID COMMA VAR_INT
                 | ID COMMA VAR_INT
-                | ID LIST_ID_ONE
-                | ID LIST_ID_TWO
+                | LIST_ID
                 | ID'''
     pass
 
@@ -56,6 +58,85 @@ def p_VAR_TIPO(p):
                 | ID'''
     pass
 
+def p_LIST_ID(p):
+    '''LIST_ID : ID LSQ TIR_EXPRESION RSQ
+                | ID LSQ TIR_EXPRESION RSQ LSQ TIR_EXPRESION RSQ
+    '''
+    pass
+
+# =====================================================================
+# ------------------- GRAMATICA PARA EXPRESIONES ----------------------
+# =====================================================================
+def p_EXPRESION(p):
+    '''EXPRESION : SEC_EXPRESION
+                | SEC_EXPRESION COMPAR EXPRESION
+                | SEC_EXPRESION AND EXPRESION
+                | SEC_EXPRESION OR EXPRESION'''
+    pass
+
+def p_SEC_EXPRESION(p):
+    '''SEC_EXPRESION : TIR_EXPRESION
+                    | TIR_EXPRESION NOT_EQ SEC_EXPRESION
+                    | TIR_EXPRESION GREATER_EQ SEC_EXPRESION
+                    | TIR_EXPRESION LESS_EQ SEC_EXPRESION
+                    | TIR_EXPRESION GREATER SEC_EXPRESION
+                    | TIR_EXPRESION LESS SEC_EXPRESION'''
+    pass
+
+def p_TIR_EXPRESION(p):
+    '''TIR_EXPRESION : FOR_EXPRESION
+                    | FOR_EXPRESION PLUS TIR_EXPRESION
+                    | FOR_EXPRESION MINUS TIR_EXPRESION'''
+    pass
+
+def p_FOR_EXPRESION(p):
+    '''FOR_EXPRESION : FIF_EXPRESION
+                    | FIF_EXPRESION MULT FOR_EXPRESION
+                    | FIF_EXPRESION DIV FOR_EXPRESION'''
+    pass
+ 
+def p_FIF_EXPRESION(p):
+    '''FIF_EXPRESION : ID
+                    | ID DET
+                    | LIST_ID
+                    | CONSTANTE
+                    | LLAMADA
+                    | LPAREN EXPRESION RPAREN
+    '''
+    pass
+
+def p_CONSTANTE(p):
+    '''CONSTANTE : CTE_I
+                | CTE_F
+                | CTE_C
+                | CTE_S
+    '''
+    pass
+
+# =====================================================================
+# --------------- GRAMATICA PARA BLOQUE ----------------
+# =====================================================================
+def p_BLOQUE(p):
+    '''BLOQUE : LBRACKET OPCION_BLOQUE RBRACKET'''
+    pass
+
+def p_OPCION_BLOQUE(p):
+    '''OPCION_BLOQUE : LECTURA SEMI_COLON OPCION_BLOQUE
+                    | ESCRITURA SEMI_COLON OPCION_BLOQUE
+                    | LLAMADA SEMI_COLON OPCION_BLOQUE
+                    | ESTATUTO OPCION_BLOQUE
+                    | MIENTRAS_CICLO OPCION_BLOQUE
+                    | DESDE_CICLO OPCION_BLOQUE
+                    | ASIGNACION SEMI_COLON OPCION_BLOQUE
+                    | EMPTY
+    '''
+    pass
+
+# =====================================================================
+# --------------- GRAMATICA PARA ELEMENTOS DEL BLOQUE ----------------
+# =====================================================================
+
+# FUNCIONES
 def p_FUNCTION(p):
     '''FUNCTION : FUNCION TIPO_FUNC ID LPAREN PARAMETROS RPAREN VARS BLOQUE FUNCTION
                 | EMPTY'''
@@ -75,38 +156,37 @@ def p_PARAMETROS(p):
                 | COMMA PARAMETROS'''
     pass
 
+#CICLO DESDE
 def p_DESDE_CICLO(p):
     '''DESDE_CICLO : DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE'''
     pass
 
+#CICLO MIENTRAS
+def p_MIENTRAS_CICLO(p):
+    '''MIENTRAS_CICLO : MIENTRAS LPAREN EXPRESION RPAREN HAZ BLOQUE'''
+    pass
+
+#LECTURA
 def p_LECTURA(p):
-    '''LECTURA : LEE LPAREN ID RPAREN SEMI_COLON'''
+    '''LECTURA : LEE LPAREN ID RPAREN'''
     pass
 
-
+#ESCRITURA
 def p_ESCRITURA(p):
-    '''ESCRITURA : ESCRIBE LPAREN TIPO_PARAMETROS RPAREN SEMI_COLON'''
+    '''ESCRITURA : ESCRIBE LPAREN TIPO_PARAMETROS RPAREN'''
     pass
 
+#LLAMADA
 def p_LLAMADA(p):
-    '''LLAMADA : ID LPAREN TIPO_PARAMETROS RPAREN SEMI_COLON'''
+    '''LLAMADA : ID LPAREN TIPO_PARAMETROS RPAREN'''
     pass
 
 def p_TIPO_PARAMETROS(p):
-    '''TIPO_PARAMETROS : ID COMMA TIPO_PARAMETROS
-                    | CTE_I COMMA TIPO_PARAMETROS
-                    | CTE_F COMMA TIPO_PARAMETROS
-                    | CTE_C COMMA TIPO_PARAMETROS
-                    | CTE_S COMMA TIPO_PARAMETROS
-                    | EXPRESION COMMA TIPO_PARAMETROS
-                    | ID
-                    | CTE_I
-                    | CTE_F
-                    | CTE_C
-                    | CTE_S
-                    | EXPRESION'''
+    '''TIPO_PARAMETROS : EXPRESION
+                        | EXPRESION COMMA TIPO_PARAMETROS'''
     pass
 
+#ESTATUTO
 def p_ESTATUTO(p):
     '''ESTATUTO : SI LPAREN EXPRESION RPAREN ENTONCES BLOQUE ESTATUTO_SINO'''
     pass
@@ -116,89 +196,10 @@ def p_ESTATUTO_SINO(p):
                     | EMPTY'''
     pass
 
-def p_MIENTRAS_CICLO(p):
-    '''MIENTRAS_CICLO : MIENTRAS LPAREN EXPRESION RPAREN HAZ BLOQUE'''
-    pass
-
-def p_EXPRESION(p):
-    '''EXPRESION : ID OPERADOR_LOGICO EXPRESION
-                | ID OPERADOR_ARITMETICO EXPRESION
-                | ID LIST_ID_TWO OPERADOR_LOGICO EXPRESION
-                | ID LIST_ID_TWO OPERADOR_ARITMETICO EXPRESION
-                | ID LIST_ID_ONE OPERADOR_LOGICO EXPRESION
-                | ID LIST_ID_ONE OPERADOR_ARITMETICO EXPRESION
-                | CONSTANTE OPERADOR_LOGICO EXPRESION
-                | CONSTANTE OPERADOR_ARITMETICO EXPRESION
-                | LLAMADA_ASIGNACION OPERADOR_LOGICO EXPRESION
-                | LLAMADA_ASIGNACION OPERADOR_ARITMETICO EXPRESION
-                | LPAREN EXPRESION RPAREN EXPRESION
-                | LPAREN EXPRESION RPAREN
-                | ID
-                | ID LIST_ID_TWO
-                | ID LIST_ID_ONE
-                | LLAMADA_ASIGNACION
-                | CONSTANTE'''
-    pass
-
-def p_CONSTANTE(p):
-    '''CONSTANTE : CTE_I
-                | CTE_F
-                | CTE_C
-                | CTE_S
-    '''
-
-def p_OPERADOR_ARITMETICO(p):
-    '''OPERADOR_ARITMETICO : PLUS
-                            | MINUS
-                            | MULT
-                            | DIV
-    '''
-
-def p_OPERADOR_LOGICO(p):
-    '''OPERADOR_LOGICO : AND
-                        | OR
-                        | GREATER
-                        | LESS
-                        | GREATER_EQ
-                        | LESS_EQ
-                        | COMPAR
-    '''
-    pass
-
+#ASIGNACION
 def p_ASIGNACION(p):
-    '''ASIGNACION : ID EQ ASIGNACION_AUX SEMI_COLON
-                | ID LIST_ID_TWO EQ ASIGNACION_AUX SEMI_COLON
-                | ID LIST_ID_ONE EQ ASIGNACION_AUX SEMI_COLON
-    '''
-    pass
-
-def p_ASIGNACION_AUX(p):
-    '''ASIGNACION_AUX : ID
-                        | ID LIST_ID_TWO
-                        | ID LIST_ID_ONE
-                        | LLAMADA_ASIGNACION
-                        | EXPRESION
-    '''
-    pass
-
-def p_LLAMADA_ASIGNACION(p):
-    '''LLAMADA_ASIGNACION : ID LPAREN TIPO_PARAMETROS RPAREN'''
-    pass
-
-def p_BLOQUE(p):
-    '''BLOQUE : LBRACKET OPCION_BLOQUE RBRACKET'''
-    pass
-
-def p_OPCION_BLOQUE(p):
-    '''OPCION_BLOQUE : LECTURA OPCION_BLOQUE
-                    | ESCRITURA OPCION_BLOQUE
-                    | LLAMADA OPCION_BLOQUE
-                    | ESTATUTO OPCION_BLOQUE
-                    | MIENTRAS_CICLO OPCION_BLOQUE
-                    | DESDE_CICLO OPCION_BLOQUE
-                    | ASIGNACION OPCION_BLOQUE
-                    | EMPTY
-    '''
+    '''ASIGNACION : ID EQ EXPRESION
+                    | LIST_ID EQ EXPRESION'''
     pass
 
 parser = yacc.yacc()
@@ -214,7 +215,7 @@ testScript = '''
     var int i;
     {
         i = j + (p - j*2 + j);
-        si( j == 1 ) entonces{
+        si( j == 1 )entonces{
             regresa(j);
         }sino{
             regresa(j * fact( j - 1 ));
@@ -225,25 +226,31 @@ testScript = '''
     {
         x=0;
         mientras (x < 11) haz{
-            Arreglo[3] = y * x;
+            Arreglo[x] = y * x;
             x = x +1;
         }
     }
     principal(){
         lee(p);
-        j=p*2;
-        desde i = 0 hasta 9 hacer{
-            Arreglo[2] = Arreglo[2] * fact(Arreglo[1] - p);
+        j = p*2;
+        desde i=0 hasta 9 hacer{
+            Arreglo[i] = Arreglo[i] * fact(Arreglo[i]-p);
         }
         OtroArreglo = Arreglo;
-        desde j = 0 hasta 2 hacer{
-            desde k = 0 hasta 2 hacer{
-                Matriz[3][3] = OtroArreglo[1] * p + j;
+        desde j=0 hasta 2 hacer{
+            desde k=0 hasta 7 hacer{
+                Matriz[j][k] = OtroArreglo[j+k-fact(p)+p*k] * p + j;
             }
         }
-        escribe("el determinante es:", valor);
-        mientras ( i >= 0) haz{
-            escribe("resultado", Arreglo[1], fact(i+2)*valor);
+        desde j=0 hasta 2 hacer{
+            desde k=0 hasta 2 hacer{
+                OtraMatriz[j][k]=k+j;
+            }
+        }
+        valor = OtraMatriz$;
+        escribe("El determinante es: ", valor);
+        mientras(i >= 0 ) haz{
+            escribe("resultado" , Arreglo[i], fact(i+2) * valor);
             i = i - 1;
         }
     }

@@ -33,8 +33,7 @@ tokens = [
     'COLON','DET','TRAN',
     'INV','EQ','NOT_EQ',
     'GREATER','LESS','GREATER_EQ',
-    'LESS_EQ','MULT','ID',
-    'LIST_ID_ONE','LIST_ID_TWO','SEMI_COLON',
+    'LESS_EQ','MULT','ID','SEMI_COLON',
     'COMMA','DOT', 'RSQ', 'LSQ'
 ] + list(reserved.values())
 
@@ -68,8 +67,6 @@ t_RSQ       = r'\]'
 t_LSQ       = r'\['
 t_CTE_C     = r'\'[A-Za-z]\''
 t_CTE_S     = r'".+"'
-t_LIST_ID_TWO=r'(\[)[1-9]+[0-9]*(\])(\[)[0-9]+[0-9]*(\])'
-t_LIST_ID_ONE=r'(\[)[1-9]+[0-9]*(\])'
 t_ignore  = ' \t'
 
 
