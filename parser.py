@@ -1,6 +1,11 @@
 import yacc
 from scanner import tokens, reserved
+from stacks import Stacks
 
+#Varaible declaration
+poper = []
+variables = []
+stacks = Stacks()
 
 start = 'PROG'
 
@@ -59,8 +64,8 @@ def p_VAR_TIPO(p):
     pass
 
 def p_LIST_ID(p):
-    '''LIST_ID : ID LSQ TIR_EXPRESION RSQ
-                | ID LSQ TIR_EXPRESION RSQ LSQ TIR_EXPRESION RSQ
+    '''LIST_ID : ID LSQ SLEVEL_EXPRESION RSQ
+                | ID LSQ SLEVEL_EXPRESION RSQ LSQ SLEVEL_EXPRESION RSQ
     '''
     pass
 
@@ -68,45 +73,60 @@ def p_LIST_ID(p):
 # ------------------- GRAMATICA PARA EXPRESIONES ----------------------
 # =====================================================================
 def p_EXPRESION(p):
-    '''EXPRESION : SEC_EXPRESION
-                | SEC_EXPRESION COMPAR EXPRESION
-                | SEC_EXPRESION AND EXPRESION
-                | SEC_EXPRESION OR EXPRESION'''
+    '''EXPRESION : TLEVEL_EXPRESION r_new_quadruple EXPRESION_AUX'''
     pass
 
-def p_SEC_EXPRESION(p):
-    '''SEC_EXPRESION : TIR_EXPRESION
-                    | TIR_EXPRESION NOT_EQ SEC_EXPRESION
-                    | TIR_EXPRESION GREATER_EQ SEC_EXPRESION
-                    | TIR_EXPRESION LESS_EQ SEC_EXPRESION
-                    | TIR_EXPRESION GREATER SEC_EXPRESION
-                    | TIR_EXPRESION LESS SEC_EXPRESION'''
+def p_EXPRESION_AUX(p):
+    '''EXPRESION_AUX : COMPAR r_new_operator EXPRESION
+                    | AND r_new_operator EXPRESION
+                    | OR r_new_operator EXPRESION
+                    | EMPTY'''
     pass
 
-def p_TIR_EXPRESION(p):
-    '''TIR_EXPRESION : FOR_EXPRESION
-                    | FOR_EXPRESION PLUS TIR_EXPRESION
-                    | FOR_EXPRESION MINUS TIR_EXPRESION'''
+def p_TLEVEL_EXPRESION(p):
+    '''TLEVEL_EXPRESION : SLEVEL_EXPRESION r_new_quadruple_tlevel TLEVEL_EXPRESION_AUX'''
     pass
 
-def p_FOR_EXPRESION(p):
-    '''FOR_EXPRESION : FIF_EXPRESION
-                    | FIF_EXPRESION MULT FOR_EXPRESION
-                    | FIF_EXPRESION DIV FOR_EXPRESION'''
+def p_TLEVEL_EXPRESION_AUX(p):
+    '''TLEVEL_EXPRESION_AUX : NOT_EQ r_new_operator TLEVEL_EXPRESION
+                            | GREATER_EQ r_new_operator TLEVEL_EXPRESION
+                            | LESS_EQ r_new_operator TLEVEL_EXPRESION
+                            | GREATER r_new_operator TLEVEL_EXPRESION
+                            | LESS r_new_operator TLEVEL_EXPRESION
+                            | EMPTY'''
     pass
- 
-def p_FIF_EXPRESION(p):
-    '''FIF_EXPRESION : ID
+
+def p_SLEVEL_EXPRESION(p):
+    '''SLEVEL_EXPRESION : FLEVEL_EXPRESION r_new_quadruple_slevel SLEVEL_EXPRESION_AUX'''
+    pass
+
+def p_SLEVEL_EXPRESION_AUX(p):
+    '''SLEVEL_EXPRESION_AUX : PLUS r_new_operator SLEVEL_EXPRESION
+                            | MINUS r_new_operator SLEVEL_EXPRESION
+                            | EMPTY'''
+    pass
+
+def p_FLEVEL_EXPRESION(p):
+    '''FLEVEL_EXPRESION : VALUE_EXPRESION r_new_quadruple_flevel FLEVEL_EXPRESION_AUX'''
+    pass
+
+def p_FLEVEL_EXPRESION_AUX(p):
+    '''FLEVEL_EXPRESION_AUX : MULT r_new_operator FLEVEL_EXPRESION
+                            | DIV r_new_operator FLEVEL_EXPRESION
+                            | EMPTY'''
+    pass
+
+def p_VALUE_EXPRESION(p):
+    '''VALUE_EXPRESION : ID r_new_id
                     | ID DET
                     | LIST_ID
                     | CONSTANTE
                     | LLAMADA
-                    | LPAREN EXPRESION RPAREN
+                    | r_new_lparen LPAREN EXPRESION RPAREN r_new_rparen
     '''
-    pass
 
 def p_CONSTANTE(p):
-    '''CONSTANTE : CTE_I
+    '''CONSTANTE : CTE_I 
                 | CTE_F
                 | CTE_C
                 | CTE_S
@@ -202,58 +222,68 @@ def p_ASIGNACION(p):
                     | LIST_ID EQ EXPRESION'''
     pass
 
+
+# =====================================================================
+# --------------- PUNTOS NEURALGICOS ----------------
+# =====================================================================
+def p_r_new_id(p):
+    'r_new_id : '
+    stacks.register_variable(p[-1])
+
+def p_r_new_lparen(p):
+    'r_new_lparen : '
+    #TODO
+
+def p_r_new_rparen(p):
+    'r_new_rparen : '
+    #TODO
+
+def p_r_new_operator(p):
+    'r_new_operator : '
+    stacks.register_operator(p[-1])    
+
+def p_r_new_quadruple_flevel(p):
+    'r_new_quadruple_flevel : '
+    try:
+        if stacks.top_operators() in ['*', '/']:
+            stacks.generate_quadruple()
+    except:
+        pass
+
+def p_r_new_quadruple_slevel(p):
+    'r_new_quadruple_slevel : '
+    try:
+        if stacks.top_operators() in ['+', '-']:
+            stacks.generate_quadruple()
+    except:
+        pass
+
+def p_r_new_quadruple_tlevel(p):
+    'r_new_quadruple_tlevel : '
+    try:
+        if stacks.top_operators() in ['!=', '>=', '<=', '>', '<']:
+            stacks.generate_quadruple()
+    except:
+        pass
+
+def p_r_new_quadruple(p):
+    'r_new_quadruple : '
+    try:
+        if stacks.top_operators() in ['==','&&','||']:
+            stacks.generate_quadruple()
+    except:
+        pass
+
 parser = yacc.yacc()
 
 testScript = '''
     programa patito; 
     var 
-        int i,j,p[1],h[2][3];
-        int Arreglo[10], OtroArreglo[10];
-        float valor;
-        int Matriz[3][8], OtraMatriz[3][3];
-    funcion void inicia(int y)
-    var int i;
-    {
-        i = j + (p - j*2 + j);
-        si( j == 1 )entonces{
-            regresa(j);
-        }sino{
-            regresa(j * fact( j - 1 ));
-        }
-    }
-    funcion void inicia( int j)
-    var int x;
-    {
-        x=0;
-        mientras (x < 11) haz{
-            Arreglo[x] = y * x;
-            x = x +1;
-        }
-    }
+
     principal(){
-        lee(p);
-        j = p*2;
-        desde i=0 hasta 9 hacer{
-            Arreglo[i] = Arreglo[i] * fact(Arreglo[i]-p);
-        }
-        OtroArreglo = Arreglo;
-        desde j=0 hasta 2 hacer{
-            desde k=0 hasta 7 hacer{
-                Matriz[j][k] = OtroArreglo[j+k-fact(p)+p*k] * p + j;
-            }
-        }
-        desde j=0 hasta 2 hacer{
-            desde k=0 hasta 2 hacer{
-                OtraMatriz[j][k]=k+j;
-            }
-        }
-        valor = OtraMatriz$;
-        escribe("El determinante es: ", valor);
-        mientras(i >= 0 ) haz{
-            escribe("resultado" , Arreglo[i], fact(i+2) * valor);
-            i = i - 1;
-        }
+        a = variable2 * ses * variable + otra * esta > comparar * otraComp + estaComp && variable2 * ses * variable + otra * esta > comparar * otraComp + estaComp;
     }
 '''
 
 parser.parse(testScript)
+stacks.quadruples.display_quadruples()
