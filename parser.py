@@ -1,11 +1,14 @@
 import yacc
 from scanner import tokens, reserved
-from classes/stacks import Stacks
+from stacks import Stacks
+from fun_table import Funtable
+from var_table import Vartable
 
 #Variable declaration
 poper = []
-variables = []
 stacks = Stacks()
+funTable = Funtable()
+varTableCache = Vartable()
 
 #Values for var table
 context_func = 'global'
@@ -128,16 +131,16 @@ def p_VALUE_EXPRESION(p):
     '''VALUE_EXPRESION : ID r_new_id
                     | ID DET
                     | LIST_ID
-                    | CONSTANTE
+                    | CONSTANTE 
                     | LLAMADA
                     | r_new_lparen LPAREN EXPRESION RPAREN r_new_rparen
     '''
 
 def p_CONSTANTE(p):
-    '''CONSTANTE : CTE_I 
-                | CTE_F
-                | CTE_C
-                | CTE_S
+    '''CONSTANTE : CTE_I r_new_constant
+                | CTE_F r_new_constant
+                | CTE_C r_new_constant
+                | CTE_S r_new_constant
     '''
     pass
 
@@ -244,15 +247,20 @@ def p_ASIGNACION(p):
 # =====================================================================
 def p_r_new_id(p):
     'r_new_id : '
-    stacks.register_variable(p[-1])
+    stacks.register_operand(p[-1])
+
+def p_r_new_constant(p):
+    'r_new_constant : '
+    stacks.register_operand(p[-1])
 
 def p_r_new_lparen(p):
     'r_new_lparen : '
-    #TODO
+    stacks.register_separator()
 
 def p_r_new_rparen(p):
     'r_new_rparen : '
-    #TODO
+    if not stacks.pop_separator():
+        print("Invalid Construction of expr")
 
 def p_r_new_operator(p):
     'r_new_operator : '
@@ -260,35 +268,24 @@ def p_r_new_operator(p):
 
 def p_r_new_quadruple_flevel(p):
     'r_new_quadruple_flevel : '
-    try:
-        if stacks.top_operators() in ['*', '/']:
-            stacks.generate_quadruple()
-    except:
-        pass
+    if stacks.top_operators() in ['*', '/']:
+        stacks.generate_quadruple()
 
 def p_r_new_quadruple_slevel(p):
     'r_new_quadruple_slevel : '
-    try:
-        if stacks.top_operators() in ['+', '-']:
-            stacks.generate_quadruple()
-    except:
-        pass
+    if stacks.top_operators() in ['+', '-']:
+        stacks.generate_quadruple()
 
 def p_r_new_quadruple_tlevel(p):
     'r_new_quadruple_tlevel : '
-    try:
-        if stacks.top_operators() in ['!=', '>=', '<=', '>', '<']:
-            stacks.generate_quadruple()
-    except:
-        pass
-
+    if stacks.top_operators() in ['!=', '>=', '<=', '>', '<']:
+        stacks.generate_quadruple()
+    
 def p_r_new_quadruple(p):
     'r_new_quadruple : '
-    try:
-        if stacks.top_operators() in ['==','&&','||']:
-            stacks.generate_quadruple()
-    except:
-        pass
+    if stacks.top_operators() in ['==','&&','||']:
+        stacks.generate_quadruple()
+
 
 
 
@@ -348,7 +345,7 @@ testScript = '''
     var
     int id1, id2, id3;
     principal(){
-        a = variable2 * ses * variable + otra * esta > comparar * otraComp + estaComp && variable2 * ses * variable + otra * esta > comparar * otraComp + estaComp;
+        a =  1 + id2 * (10 * (id1 + 55)) * id3;
     }
 '''
 
