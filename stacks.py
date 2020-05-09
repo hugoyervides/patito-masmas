@@ -1,6 +1,6 @@
 # Stacks class
 # Victor Hugo Oyervides Covarrubias - A01382836
-# Obed Gonzalez Morneo - A0138
+# Obed Gonzalez Morneo - A01382900
 from quadruples import Quadruples
 
 class Stacks:

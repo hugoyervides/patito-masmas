@@ -2,24 +2,32 @@ import yacc
 from scanner import tokens, reserved
 from stacks import Stacks
 
-#Varaible declaration
+#Variable declaration
 poper = []
 variables = []
 stacks = Stacks()
 
-start = 'PROG'
+#Values for var table
+context_func = 'global'
+func_type = ''
+dir_type = ''
+dir_var = ''
 
-symbol_table = {
+#Var and Func Table
+var_table = {
         'global' : {
-            'vars' : {},
+            'var' : {}
         }
 }
+
+
+start = 'PROG'
 
 def p_error(p):
     if p:
         print("Syntax error at token", p.type)
         # Just discard the token and tell the parser it's okay.
-        parser.errok()
+        parser.error()
     else:
         print("Syntax error at EOF")
 
@@ -32,7 +40,7 @@ def p_EMPTY(p):
     pass
 
 def p_MAIN(p):
-    '''MAIN : PRINCIPAL LPAREN RPAREN BLOQUE'''
+    '''MAIN : PRINCIPAL push_main LPAREN RPAREN BLOQUE'''
     pass
 
 def p_PROG(p):
@@ -45,27 +53,27 @@ def p_VARS(p):
     pass
 
 def p_TIPO(p):
-    '''TIPO : INT VAR_INT SEMI_COLON TIPO
-            | FLOAT VAR_TIPO SEMI_COLON TIPO
-            | CHAR VAR_TIPO SEMI_COLON TIPO
+    '''TIPO : INT push_type VAR_INT SEMI_COLON TIPO
+            | FLOAT push_type VAR_TIPO SEMI_COLON TIPO
+            | CHAR push_type VAR_TIPO SEMI_COLON TIPO
             | EMPTY'''
     pass
 
 def p_VAR_INT(p):
-    '''VAR_INT : LIST_ID COMMA VAR_INT
-                | ID COMMA VAR_INT
-                | LIST_ID
-                | ID'''
+    '''VAR_INT : LIST_ID push_var COMMA VAR_INT
+                | ID push_var COMMA VAR_INT
+                | LIST_ID push_var
+                | ID push_var'''
     pass
 
 def p_VAR_TIPO(p):
-    '''VAR_TIPO : ID COMMA
-                | ID'''
+    '''VAR_TIPO : ID push_var COMMA
+                | ID push_var'''
     pass
 
 def p_LIST_ID(p):
-    '''LIST_ID : ID LSQ SLEVEL_EXPRESION RSQ
-                | ID LSQ SLEVEL_EXPRESION RSQ LSQ SLEVEL_EXPRESION RSQ
+    '''LIST_ID : ID push_var LSQ SLEVEL_EXPRESION RSQ
+                | ID push_var LSQ SLEVEL_EXPRESION RSQ LSQ SLEVEL_EXPRESION RSQ
     '''
     pass
 
@@ -158,7 +166,7 @@ def p_OPCION_BLOQUE(p):
 
 # FUNCIONES
 def p_FUNCTION(p):
-    '''FUNCTION : FUNCION TIPO_FUNC ID LPAREN PARAMETROS RPAREN VARS BLOQUE FUNCTION
+    '''FUNCTION : FUNCION TIPO_FUNC ID push_func LPAREN PARAMETROS RPAREN VARS BLOQUE FUNCTION
                 | EMPTY'''
     pass
 
@@ -170,11 +178,19 @@ def p_TIPO_FUNC(p):
     pass
 
 def p_PARAMETROS(p):
-    '''PARAMETROS : INT ID
-                | FLOAT ID
-                | CHAR ID
-                | COMMA PARAMETROS'''
+    '''PARAMETROS : AUX_PARAM
+                | EMPTY'''
     pass
+
+def p_AUX_PARAM(p):
+    '''AUX_PARAM : INT ID NEXT_PARAM
+                | FLOAT ID NEXT_PARAM
+                | CHAR ID NEXT_PARAM'''
+    pass
+
+def p_NEXT_PARAM(p):
+    '''NEXT_PARAM : COMMA AUX_PARAM
+                    | EMPTY '''
 
 #CICLO DESDE
 def p_DESDE_CICLO(p):
@@ -274,16 +290,70 @@ def p_r_new_quadruple(p):
     except:
         pass
 
+
+
+# =====================================================================
+# --------------- Tabla de Variables ----------------
+# =====================================================================
+
+def p_r_push_type(p):
+    'push_type : '
+    global dir_type
+    dir_type = p[-1]
+
+    print(dir_type)
+
+def p_r_push_func(p):
+    'push_func : '
+    global context_func
+    global func_type
+    global var_table
+
+    context_func = p[-1]
+    func_type = p[-2]
+
+    var_table[context_func] = {
+        'type': func_type,
+        'var': {},
+    }
+
+def p_r_push_var(p):
+    'push_var : '
+    global dir_var
+    global var_table
+
+    dir_var = p[-1]
+
+    var_table[context_func]['var'][dir_var] = {
+        'type': dir_type,
+    }
+
+def p_r_push_main(p):
+    'push_main : '
+    global var_table
+
+    var_table['main'] = {
+        'var': {}
+    }
+
+def printTable():
+    print(var_table)
+
+
+
 parser = yacc.yacc()
 
 testScript = '''
     programa patito; 
-    var 
-
+    var
+    int id1, id2, id3;
     principal(){
         a = variable2 * ses * variable + otra * esta > comparar * otraComp + estaComp && variable2 * ses * variable + otra * esta > comparar * otraComp + estaComp;
     }
 '''
 
 parser.parse(testScript)
+printTable()
 stacks.quadruples.display_quadruples()
+
+
