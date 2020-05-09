@@ -1,6 +1,6 @@
 import yacc
 from scanner import tokens, reserved
-from stacks import Stacks
+from classes/stacks import Stacks
 
 #Variable declaration
 poper = []
