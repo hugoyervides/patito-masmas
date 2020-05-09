@@ -4,7 +4,6 @@
 from quadruples import Quadruples
 
 class Stacks:
-    
     def __init__(self):
         self.operatorStack = []
         self.variableStack = []
