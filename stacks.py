@@ -50,3 +50,10 @@ class Stacks:
         result = self.get_result_var()
         self.operandStack.append(result)
         self.quadruples.add_quadruple(operator,l_operand,r_operand,result)
+
+    def generate_asignation(self):
+        r_operand = self.operandStack.pop()
+        result = self.operandStack.pop()
+        operator = self.operatorStack.pop()
+        self.operandStack.append(result)
+        self.quadruples.add_quadruple(operator,r_operand, None, result)

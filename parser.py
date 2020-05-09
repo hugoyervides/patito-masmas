@@ -237,9 +237,13 @@ def p_ESTATUTO_SINO(p):
 
 #ASIGNACION
 def p_ASIGNACION(p):
-    '''ASIGNACION : ID EQ EXPRESION
-                    | LIST_ID EQ EXPRESION'''
+    '''ASIGNACION : EXPRESION ASIGNACION_AUX r_new_equal'''
     pass
+
+def p_ASIGNACION_AUX(p):
+    '''ASIGNACION_AUX : EQ r_new_operator ASIGNACION
+                    | EMPTY
+    '''
 
 
 # =====================================================================
@@ -286,7 +290,10 @@ def p_r_new_quadruple(p):
     if stacks.top_operators() in ['==','&&','||']:
         stacks.generate_quadruple()
 
-
+def p_r_new_equal(p):
+    'r_new_equal : '
+    if stacks.top_operators() in ['=']:
+        stacks.generate_asignation()
 
 
 # =====================================================================
@@ -345,7 +352,7 @@ testScript = '''
     var
     int id1, id2, id3;
     principal(){
-        a =  1 + id2 * (10 * (id1 + 55)) * id3;
+        a =  b = 1 + id2 * (10 * (id1 + 55)) * id3;
     }
 '''
 
