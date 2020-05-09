@@ -5,7 +5,6 @@ from fun_table import Funtable
 from var_table import Vartable
 
 #Variable declaration
-poper = []
 stacks = Stacks()
 funTable = Funtable()
 varTableCache = Vartable()
@@ -47,7 +46,7 @@ def p_MAIN(p):
     pass
 
 def p_PROG(p):
-    'PROG : PROGRAMA ID SEMI_COLON VARS FUNCTION MAIN'
+    'PROG : r_new_goto PROGRAMA ID SEMI_COLON VARS FUNCTION r_complete_goto MAIN'
     pass
 
 def p_VARS(p):
@@ -155,7 +154,8 @@ def p_OPCION_BLOQUE(p):
     '''OPCION_BLOQUE : LECTURA SEMI_COLON OPCION_BLOQUE
                     | ESCRITURA SEMI_COLON OPCION_BLOQUE
                     | LLAMADA SEMI_COLON OPCION_BLOQUE
-                    | ESTATUTO OPCION_BLOQUE
+                    | IF_STMT OPCION_BLOQUE
+                    | IF_ELSE_STMT OPCION_BLOQUE
                     | MIENTRAS_CICLO OPCION_BLOQUE
                     | DESDE_CICLO OPCION_BLOQUE
                     | ASIGNACION SEMI_COLON OPCION_BLOQUE
@@ -202,7 +202,7 @@ def p_DESDE_CICLO(p):
 
 #CICLO MIENTRAS
 def p_MIENTRAS_CICLO(p):
-    '''MIENTRAS_CICLO : MIENTRAS LPAREN EXPRESION RPAREN HAZ BLOQUE'''
+    '''MIENTRAS_CICLO : MIENTRAS r_new_migajita LPAREN EXPRESION RPAREN r_new_gotof HAZ BLOQUE r_new_goto r_complete_gotof'''
     pass
 
 #LECTURA
@@ -226,13 +226,13 @@ def p_TIPO_PARAMETROS(p):
     pass
 
 #ESTATUTO
-def p_ESTATUTO(p):
-    '''ESTATUTO : SI LPAREN EXPRESION RPAREN ENTONCES BLOQUE ESTATUTO_SINO'''
+def p_IF_STMT(p):
+    '''IF_STMT : SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_complete_gotof'''
     pass
 
-def p_ESTATUTO_SINO(p):
-    '''ESTATUTO_SINO : SINO BLOQUE
-                    | EMPTY'''
+#ESTATUTO IF ELSE
+def p_IF_ELSE_STMT(p):
+    'IF_ELSE_STMT : SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO BLOQUE r_complete_goto'
     pass
 
 #ASIGNACION
@@ -247,7 +247,7 @@ def p_ASIGNACION_AUX(p):
 
 
 # =====================================================================
-# --------------- PUNTOS NEURALGICOS ----------------
+# --------------- PUNTOS NEURALGICOS LINEALES ----------------
 # =====================================================================
 def p_r_new_id(p):
     'r_new_id : '
@@ -295,6 +295,29 @@ def p_r_new_equal(p):
     if stacks.top_operators() in ['=']:
         stacks.generate_asignation()
 
+# =====================================================================
+# --------------- PUNTOS NEURALGICOS NO LINEALES ----------------
+# =====================================================================
+
+def p_r_new_goto(p):
+    'r_new_goto : '
+    stacks.generate_jump("GOTO")
+
+def p_r_complete_goto(p):
+    'r_complete_goto : '
+    stacks.complete_jump("GOTO")
+
+def p_r_new_gotof(p):
+    'r_new_gotof : '
+    stacks.generate_jump("GOTOF")
+
+def p_r_complete_gotof(p):
+    'r_complete_gotof : '
+    stacks.complete_jump("GOTOF")
+
+def p_r_new_migajita(p):
+    'r_new_migajita : '
+    stacks.new_migajita("GOTO")
 
 # =====================================================================
 # --------------- Tabla de Variables ----------------
@@ -352,7 +375,17 @@ testScript = '''
     var
     int id1, id2, id3;
     principal(){
+        si ( a > b ) entonces {
+            a = a+1;
+            b = (10 + 15) * 7;
+        } sino {
+            b = 1 +1;
+        }
         a =  b = 1 + id2 * (10 * (id1 + 55)) * id3;
+        mientras (a > b) haz{
+            a = a + 1;
+        }
+        a = 2;
     }
 '''
 
