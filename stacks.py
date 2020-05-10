@@ -2,6 +2,8 @@
 # Victor Hugo Oyervides Covarrubias - A01382836
 # Obed Gonzalez Morneo - A01382900
 from quadruples import Quadruples
+from var_table import Vartable
+from fun_table import Funtable
 
 class Stacks:
     def __init__(self):
@@ -15,9 +17,12 @@ class Stacks:
             'GOTOF' : [],
             'GOTO' : []
         }
+        self.funcTable = Funtable()
         self.quadruples = Quadruples() 
         self.resultCounter = 0
-    
+        self.var_table = Vartable()
+        self.current_function = {}
+
     #Method to register a new oeprator into our stackl
     def register_operator(self, operator):
         self.operatorStack.append(operator)
@@ -99,3 +104,30 @@ class Stacks:
     #Method to leve migajita de pan
     def new_migajita(self, jumpType):
         self.migajitas[jumpType].append(len(self.quadruples.quadruples))
+
+    #Method to change current scoped function
+    def updateFunction(self, key, value):
+        self.current_function[key] = value
+    
+    #Method to update the function quadruple address
+    def update_fun_address(self):
+        self.current_function["quadrupleAddress"] = len(self.quadruples.quadruples)
+
+    #Method to flush current function
+    def flushFunctionTable(self):
+        self.current_function = {}
+
+    #Method to insert the current function into the table
+    def insertToFunTable(self):
+        self.funcTable.newFunction(self.current_function["name"],
+                                    self.current_function["varType"],
+                                    self.current_function["quadrupleAddress"])
+
+    #Method to add the end function to que quadruples
+    def add_fun_quadruple(self):
+        self.quadruples.add_quadruple('EBDOROC', None, None, None)
+        
+    #Method to flush current var table
+    def flush_var_table(self):
+        self.var_table = Vartable()
+    

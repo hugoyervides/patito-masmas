@@ -7,6 +7,9 @@ from var_table import Vartable
 #Variable declaration
 stacks = Stacks()
 funTable = Funtable()
+
+#Cache variables
+currentFunctionScope = {}
 varTableCache = Vartable()
 
 #Values for var table
@@ -169,15 +172,15 @@ def p_OPCION_BLOQUE(p):
 
 # FUNCIONES
 def p_FUNCTION(p):
-    '''FUNCTION : FUNCION TIPO_FUNC ID push_func LPAREN PARAMETROS RPAREN VARS BLOQUE FUNCTION
+    '''FUNCTION : r_new_function FUNCION TIPO_FUNC ID r_set_fun_name LPAREN PARAMETROS RPAREN r_new_vartable VARS BLOQUE r_end_function FUNCTION 
                 | EMPTY'''
     pass
 
 def p_TIPO_FUNC(p):
-    '''TIPO_FUNC : INT
-                | FLOAT
-                | CHAR
-                | VOID'''
+    '''TIPO_FUNC : INT r_set_fun_type
+                | FLOAT r_set_fun_type
+                | CHAR r_set_fun_type
+                | VOID r_set_fun_type'''
     pass
 
 def p_PARAMETROS(p):
@@ -320,6 +323,33 @@ def p_r_new_migajita(p):
     stacks.new_migajita("GOTO")
 
 # =====================================================================
+# --------------- PUNTOS NEURALGICOS FUNCIONES  ----------------
+# =====================================================================
+
+def p_r_new_function(p):
+    'r_new_function : '
+    stacks.update_fun_address()
+
+def p_r_set_fun_type(p):
+    'r_set_fun_type : '
+    stacks.updateFunction('varType',p[-1])
+
+def p_r_set_fun_name(p):
+    'r_set_fun_name : '
+    stacks.updateFunction('name',p[-1])
+
+def p_r_new_vartable(p):
+    'r_new_vartable : '
+    stacks.flush_var_table()
+    stacks.insertToFunTable()
+
+def p_r_end_function(p):
+    'r_end_function : '
+    stacks.add_fun_quadruple()
+    stacks.flushFunctionTable()
+
+
+# =====================================================================
 # --------------- Tabla de Variables ----------------
 # =====================================================================
 
@@ -374,6 +404,17 @@ testScript = '''
     programa patito; 
     var
     int id1, id2, id3;
+    funcion void prueba(int y)
+    var int i;
+    {
+        i = j + 1;
+        si ( a > b ) entonces {
+            a = a+1;
+            b = (10 + 15) * 7;
+        } sino {
+            b = 1 +1;
+        }
+    }
     principal(){
         si ( a > b ) entonces {
             a = a+1;
@@ -392,5 +433,5 @@ testScript = '''
 parser.parse(testScript)
 printTable()
 stacks.quadruples.display_quadruples()
-
+stacks.funcTable.display_fun_table()
 

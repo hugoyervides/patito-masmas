@@ -1,14 +1,12 @@
 # Function Table Class
 # Victor Hugo Oyervides Covarrubias - A01382836
 # Obed Gonzalez Morneo - A01382900
-from var_table import Vartable
-
 class Funtable:
     def __init__(self):
         self.table = []
     
     #Methods
-    def newFunction(self, name, returnType, varTable):
+    def newFunction(self, name, returnType, quadrupleAddress):
         #Check if the function does not exists already
         for i in self.table:
             if i["name"] == name:
@@ -16,7 +14,16 @@ class Funtable:
         newFun = {
             'name' : name,
             'returnType' : returnType,
-            'varTable' : varTable
+            'quadrupleAddress': quadrupleAddress
         }
         self.table.append(newFun)
         return True
+    
+    #Method to display fun table
+    def display_fun_table(self):
+        print("FUNCTIOON TABLE")
+        print("FunName \t FunType \t QuadAddr")
+        for i in self.table:
+            print( str(i['name']) + '\t' +
+                    str(i['returnType']) + '\t' +
+                    str(i['quadrupleAddress']) + '\t')
