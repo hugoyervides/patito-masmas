@@ -199,6 +199,7 @@ def p_NEXT_PARAM(p):
                     | EMPTY '''
 
 #CICLO DESDE
+#TODO
 def p_DESDE_CICLO(p):
     '''DESDE_CICLO : DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE'''
     pass
@@ -425,6 +426,9 @@ testScript = '''
         a =  b = 1 + id2 * (10 * (id1 + 55)) * id3;
         mientras (a > b) haz{
             a = a + 1;
+        }
+        mientras ( c > a) haz{
+            a = 2 + 1;
         }
         a = 2;
     }

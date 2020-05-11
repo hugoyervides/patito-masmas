@@ -88,9 +88,10 @@ class Stacks:
         jumpTo = None
         if len(self.migajitas[jumpType]) > 0:
             jumpTo = self.migajitas[jumpType].pop()
+        else:
+            self.jumpStack[jumpType].append(len(self.quadruples.quadruples))
         if jumpType != 'GOTO':
             variable = self.operandStack.pop()
-        self.jumpStack[jumpType].append(len(self.quadruples.quadruples))
         self.quadruples.add_quadruple(jumpType, variable, None, jumpTo)
     
     #Method to complete a goto
