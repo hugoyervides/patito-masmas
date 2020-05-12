@@ -82,7 +82,7 @@ Rule 67    AUX_PARAM -> FLOAT ID NEXT_PARAM
 Rule 68    AUX_PARAM -> CHAR ID NEXT_PARAM
 Rule 69    NEXT_PARAM -> COMMA AUX_PARAM
 Rule 70    NEXT_PARAM -> EMPTY
-Rule 71    DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE
+Rule 71    DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
 Rule 72    MIENTRAS_CICLO -> MIENTRAS r_new_migajita LPAREN EXPRESION RPAREN r_new_gotof HAZ BLOQUE r_new_goto r_complete_gotof
 Rule 73    LECTURA -> LEE LPAREN ID RPAREN
 Rule 74    ESCRITURA -> ESCRIBE LPAREN TIPO_PARAMETROS RPAREN
@@ -109,15 +109,19 @@ Rule 94    r_complete_goto -> <empty>
 Rule 95    r_new_gotof -> <empty>
 Rule 96    r_complete_gotof -> <empty>
 Rule 97    r_new_migajita -> <empty>
-Rule 98    r_new_function -> <empty>
-Rule 99    r_set_fun_type -> <empty>
-Rule 100   r_set_fun_name -> <empty>
-Rule 101   r_new_vartable -> <empty>
-Rule 102   r_end_function -> <empty>
-Rule 103   push_type -> <empty>
-Rule 104   push_func -> <empty>
-Rule 105   push_var -> <empty>
-Rule 106   push_main -> <empty>
+Rule 98    r_new_id_for -> <empty>
+Rule 99    r_compara_for -> <empty>
+Rule 100   r_update_for -> <empty>
+Rule 101   r_clear_for -> <empty>
+Rule 102   r_new_function -> <empty>
+Rule 103   r_set_fun_type -> <empty>
+Rule 104   r_set_fun_name -> <empty>
+Rule 105   r_new_vartable -> <empty>
+Rule 106   r_end_function -> <empty>
+Rule 107   push_type -> <empty>
+Rule 108   push_func -> <empty>
+Rule 109   push_var -> <empty>
+Rule 110   push_main -> <empty>
 
 Terminals, with rules where they appear
 
@@ -215,18 +219,21 @@ push_func            :
 push_main            : 2
 push_type            : 6 7 8
 push_var             : 10 11 12 13 14 15 16 17
+r_clear_for          : 71
+r_compara_for        : 71
 r_complete_goto      : 3 79
-r_complete_gotof     : 72 78 79
+r_complete_gotof     : 71 72 78 79
 r_end_function       : 58
-r_new_constant       : 44 45 46 47
-r_new_equal          : 80
+r_new_constant       : 44 45 46 47 71 71
+r_new_equal          : 71 80
 r_new_function       : 58
-r_new_goto           : 3 72 79
-r_new_gotof          : 72 78 79
+r_new_goto           : 3 71 72 79
+r_new_gotof          : 71 72 78 79
 r_new_id             : 38
+r_new_id_for         : 71
 r_new_lparen         : 43
-r_new_migajita       : 72
-r_new_operator       : 19 20 21 24 25 26 27 28 31 32 35 36 81
+r_new_migajita       : 71 72
+r_new_operator       : 19 20 21 24 25 26 27 28 31 32 35 36 71 81
 r_new_quadruple      : 18
 r_new_quadruple_flevel : 34
 r_new_quadruple_slevel : 30
@@ -235,6 +242,7 @@ r_new_rparen         : 43
 r_new_vartable       : 58
 r_set_fun_name       : 58
 r_set_fun_type       : 60 61 62 63
+r_update_for         : 71
 
 Parsing method: LALR
 
@@ -295,10 +303,10 @@ state 6
     (3) PROG -> r_new_goto PROGRAMA ID SEMI_COLON VARS . FUNCTION r_complete_goto MAIN
     (58) FUNCTION -> . r_new_function FUNCION TIPO_FUNC ID r_set_fun_name LPAREN PARAMETROS RPAREN r_new_vartable VARS BLOQUE r_end_function FUNCTION
     (59) FUNCTION -> . EMPTY
-    (98) r_new_function -> .
+    (102) r_new_function -> .
     (1) EMPTY -> .
 
-    FUNCION         reduce using rule 98 (r_new_function -> .)
+    FUNCION         reduce using rule 102 (r_new_function -> .)
     PRINCIPAL       reduce using rule 1 (EMPTY -> .)
 
     FUNCTION                       shift and go to state 9
@@ -368,27 +376,27 @@ state 12
 state 13
 
     (6) TIPO -> INT . push_type VAR_INT SEMI_COLON TIPO
-    (103) push_type -> .
+    (107) push_type -> .
 
-    ID              reduce using rule 103 (push_type -> .)
+    ID              reduce using rule 107 (push_type -> .)
 
     push_type                      shift and go to state 19
 
 state 14
 
     (7) TIPO -> FLOAT . push_type VAR_TIPO SEMI_COLON TIPO
-    (103) push_type -> .
+    (107) push_type -> .
 
-    ID              reduce using rule 103 (push_type -> .)
+    ID              reduce using rule 107 (push_type -> .)
 
     push_type                      shift and go to state 20
 
 state 15
 
     (8) TIPO -> CHAR . push_type VAR_TIPO SEMI_COLON TIPO
-    (103) push_type -> .
+    (107) push_type -> .
 
-    ID              reduce using rule 103 (push_type -> .)
+    ID              reduce using rule 107 (push_type -> .)
 
     push_type                      shift and go to state 21
 
@@ -470,9 +478,9 @@ state 22
 state 23
 
     (2) MAIN -> PRINCIPAL . push_main LPAREN RPAREN BLOQUE
-    (106) push_main -> .
+    (110) push_main -> .
 
-    LPAREN          reduce using rule 106 (push_main -> .)
+    LPAREN          reduce using rule 110 (push_main -> .)
 
     push_main                      shift and go to state 35
 
@@ -486,36 +494,36 @@ state 24
 state 25
 
     (60) TIPO_FUNC -> INT . r_set_fun_type
-    (99) r_set_fun_type -> .
+    (103) r_set_fun_type -> .
 
-    ID              reduce using rule 99 (r_set_fun_type -> .)
+    ID              reduce using rule 103 (r_set_fun_type -> .)
 
     r_set_fun_type                 shift and go to state 37
 
 state 26
 
     (61) TIPO_FUNC -> FLOAT . r_set_fun_type
-    (99) r_set_fun_type -> .
+    (103) r_set_fun_type -> .
 
-    ID              reduce using rule 99 (r_set_fun_type -> .)
+    ID              reduce using rule 103 (r_set_fun_type -> .)
 
     r_set_fun_type                 shift and go to state 38
 
 state 27
 
     (62) TIPO_FUNC -> CHAR . r_set_fun_type
-    (99) r_set_fun_type -> .
+    (103) r_set_fun_type -> .
 
-    ID              reduce using rule 99 (r_set_fun_type -> .)
+    ID              reduce using rule 103 (r_set_fun_type -> .)
 
     r_set_fun_type                 shift and go to state 39
 
 state 28
 
     (63) TIPO_FUNC -> VOID . r_set_fun_type
-    (99) r_set_fun_type -> .
+    (103) r_set_fun_type -> .
 
-    ID              reduce using rule 99 (r_set_fun_type -> .)
+    ID              reduce using rule 103 (r_set_fun_type -> .)
 
     r_set_fun_type                 shift and go to state 40
 
@@ -530,10 +538,10 @@ state 30
 
     (10) VAR_INT -> LIST_ID . push_var COMMA VAR_INT
     (12) VAR_INT -> LIST_ID . push_var
-    (105) push_var -> .
+    (109) push_var -> .
 
-    COMMA           reduce using rule 105 (push_var -> .)
-    SEMI_COLON      reduce using rule 105 (push_var -> .)
+    COMMA           reduce using rule 109 (push_var -> .)
+    SEMI_COLON      reduce using rule 109 (push_var -> .)
 
     push_var                       shift and go to state 42
 
@@ -543,11 +551,11 @@ state 31
     (13) VAR_INT -> ID . push_var
     (16) LIST_ID -> ID . push_var LSQ SLEVEL_EXPRESION RSQ
     (17) LIST_ID -> ID . push_var LSQ SLEVEL_EXPRESION RSQ LSQ SLEVEL_EXPRESION RSQ
-    (105) push_var -> .
+    (109) push_var -> .
 
-    COMMA           reduce using rule 105 (push_var -> .)
-    LSQ             reduce using rule 105 (push_var -> .)
-    SEMI_COLON      reduce using rule 105 (push_var -> .)
+    COMMA           reduce using rule 109 (push_var -> .)
+    LSQ             reduce using rule 109 (push_var -> .)
+    SEMI_COLON      reduce using rule 109 (push_var -> .)
 
     push_var                       shift and go to state 43
 
@@ -562,10 +570,10 @@ state 33
 
     (14) VAR_TIPO -> ID . push_var COMMA
     (15) VAR_TIPO -> ID . push_var
-    (105) push_var -> .
+    (109) push_var -> .
 
-    COMMA           reduce using rule 105 (push_var -> .)
-    SEMI_COLON      reduce using rule 105 (push_var -> .)
+    COMMA           reduce using rule 109 (push_var -> .)
+    SEMI_COLON      reduce using rule 109 (push_var -> .)
 
     push_var                       shift and go to state 45
 
@@ -586,9 +594,9 @@ state 35
 state 36
 
     (58) FUNCTION -> r_new_function FUNCION TIPO_FUNC ID . r_set_fun_name LPAREN PARAMETROS RPAREN r_new_vartable VARS BLOQUE r_end_function FUNCTION
-    (100) r_set_fun_name -> .
+    (104) r_set_fun_name -> .
 
-    LPAREN          reduce using rule 100 (r_set_fun_name -> .)
+    LPAREN          reduce using rule 104 (r_set_fun_name -> .)
 
     r_set_fun_name                 shift and go to state 48
 
@@ -871,7 +879,7 @@ state 60
     (17) LIST_ID -> ID . push_var LSQ SLEVEL_EXPRESION RSQ LSQ SLEVEL_EXPRESION RSQ
     (75) LLAMADA -> ID . LPAREN TIPO_PARAMETROS RPAREN
     (83) r_new_id -> .
-    (105) push_var -> .
+    (109) push_var -> .
 
     DET             shift and go to state 81
     LPAREN          shift and go to state 83
@@ -892,7 +900,7 @@ state 60
     RPAREN          reduce using rule 83 (r_new_id -> .)
     EQ              reduce using rule 83 (r_new_id -> .)
     SEMI_COLON      reduce using rule 83 (r_new_id -> .)
-    LSQ             reduce using rule 105 (push_var -> .)
+    LSQ             reduce using rule 109 (push_var -> .)
 
     r_new_id                       shift and go to state 80
     push_var                       shift and go to state 82
@@ -1154,7 +1162,7 @@ state 73
     (78) IF_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_complete_gotof
     (79) IF_ELSE_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO BLOQUE r_complete_goto
     (72) MIENTRAS_CICLO -> . MIENTRAS r_new_migajita LPAREN EXPRESION RPAREN r_new_gotof HAZ BLOQUE r_new_goto r_complete_gotof
-    (71) DESDE_CICLO -> . DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE
+    (71) DESDE_CICLO -> . DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
     (80) ASIGNACION -> . EXPRESION ASIGNACION_AUX r_new_equal
     (1) EMPTY -> .
     (18) EXPRESION -> . TLEVEL_EXPRESION r_new_quadruple EXPRESION_AUX
@@ -1620,7 +1628,7 @@ state 96
     (78) IF_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_complete_gotof
     (79) IF_ELSE_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO BLOQUE r_complete_goto
     (72) MIENTRAS_CICLO -> . MIENTRAS r_new_migajita LPAREN EXPRESION RPAREN r_new_gotof HAZ BLOQUE r_new_goto r_complete_gotof
-    (71) DESDE_CICLO -> . DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE
+    (71) DESDE_CICLO -> . DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
     (80) ASIGNACION -> . EXPRESION ASIGNACION_AUX r_new_equal
     (1) EMPTY -> .
     (18) EXPRESION -> . TLEVEL_EXPRESION r_new_quadruple EXPRESION_AUX
@@ -1691,7 +1699,7 @@ state 97
     (78) IF_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_complete_gotof
     (79) IF_ELSE_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO BLOQUE r_complete_goto
     (72) MIENTRAS_CICLO -> . MIENTRAS r_new_migajita LPAREN EXPRESION RPAREN r_new_gotof HAZ BLOQUE r_new_goto r_complete_gotof
-    (71) DESDE_CICLO -> . DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE
+    (71) DESDE_CICLO -> . DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
     (80) ASIGNACION -> . EXPRESION ASIGNACION_AUX r_new_equal
     (1) EMPTY -> .
     (18) EXPRESION -> . TLEVEL_EXPRESION r_new_quadruple EXPRESION_AUX
@@ -1762,7 +1770,7 @@ state 98
     (78) IF_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_complete_gotof
     (79) IF_ELSE_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO BLOQUE r_complete_goto
     (72) MIENTRAS_CICLO -> . MIENTRAS r_new_migajita LPAREN EXPRESION RPAREN r_new_gotof HAZ BLOQUE r_new_goto r_complete_gotof
-    (71) DESDE_CICLO -> . DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE
+    (71) DESDE_CICLO -> . DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
     (80) ASIGNACION -> . EXPRESION ASIGNACION_AUX r_new_equal
     (1) EMPTY -> .
     (18) EXPRESION -> . TLEVEL_EXPRESION r_new_quadruple EXPRESION_AUX
@@ -1833,7 +1841,7 @@ state 99
     (78) IF_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_complete_gotof
     (79) IF_ELSE_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO BLOQUE r_complete_goto
     (72) MIENTRAS_CICLO -> . MIENTRAS r_new_migajita LPAREN EXPRESION RPAREN r_new_gotof HAZ BLOQUE r_new_goto r_complete_gotof
-    (71) DESDE_CICLO -> . DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE
+    (71) DESDE_CICLO -> . DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
     (80) ASIGNACION -> . EXPRESION ASIGNACION_AUX r_new_equal
     (1) EMPTY -> .
     (18) EXPRESION -> . TLEVEL_EXPRESION r_new_quadruple EXPRESION_AUX
@@ -1915,7 +1923,7 @@ state 103
     (16) LIST_ID -> ID . push_var LSQ SLEVEL_EXPRESION RSQ
     (17) LIST_ID -> ID . push_var LSQ SLEVEL_EXPRESION RSQ LSQ SLEVEL_EXPRESION RSQ
     (83) r_new_id -> .
-    (105) push_var -> .
+    (109) push_var -> .
 
     LPAREN          shift and go to state 83
     DET             shift and go to state 81
@@ -1933,7 +1941,7 @@ state 103
     OR              reduce using rule 83 (r_new_id -> .)
     EQ              reduce using rule 83 (r_new_id -> .)
     SEMI_COLON      reduce using rule 83 (r_new_id -> .)
-    LSQ             reduce using rule 105 (push_var -> .)
+    LSQ             reduce using rule 109 (push_var -> .)
 
     r_new_id                       shift and go to state 80
     push_var                       shift and go to state 82
@@ -1977,7 +1985,7 @@ state 107
 
 state 108
 
-    (71) DESDE_CICLO -> DESDE . ID EQ CTE_I HASTA CTE_I HACER BLOQUE
+    (71) DESDE_CICLO -> DESDE . ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
 
     ID              shift and go to state 143
 
@@ -2020,10 +2028,10 @@ state 110
 state 111
 
     (58) FUNCTION -> r_new_function FUNCION TIPO_FUNC ID r_set_fun_name LPAREN PARAMETROS RPAREN . r_new_vartable VARS BLOQUE r_end_function FUNCTION
-    (101) r_new_vartable -> .
+    (105) r_new_vartable -> .
 
-    VAR             reduce using rule 101 (r_new_vartable -> .)
-    LBRACKET        reduce using rule 101 (r_new_vartable -> .)
+    VAR             reduce using rule 105 (r_new_vartable -> .)
+    LBRACKET        reduce using rule 105 (r_new_vartable -> .)
 
     r_new_vartable                 shift and go to state 146
 
@@ -2300,7 +2308,7 @@ state 128
     (78) IF_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_complete_gotof
     (79) IF_ELSE_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO BLOQUE r_complete_goto
     (72) MIENTRAS_CICLO -> . MIENTRAS r_new_migajita LPAREN EXPRESION RPAREN r_new_gotof HAZ BLOQUE r_new_goto r_complete_gotof
-    (71) DESDE_CICLO -> . DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE
+    (71) DESDE_CICLO -> . DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
     (80) ASIGNACION -> . EXPRESION ASIGNACION_AUX r_new_equal
     (1) EMPTY -> .
     (18) EXPRESION -> . TLEVEL_EXPRESION r_new_quadruple EXPRESION_AUX
@@ -2371,7 +2379,7 @@ state 129
     (78) IF_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_complete_gotof
     (79) IF_ELSE_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO BLOQUE r_complete_goto
     (72) MIENTRAS_CICLO -> . MIENTRAS r_new_migajita LPAREN EXPRESION RPAREN r_new_gotof HAZ BLOQUE r_new_goto r_complete_gotof
-    (71) DESDE_CICLO -> . DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE
+    (71) DESDE_CICLO -> . DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
     (80) ASIGNACION -> . EXPRESION ASIGNACION_AUX r_new_equal
     (1) EMPTY -> .
     (18) EXPRESION -> . TLEVEL_EXPRESION r_new_quadruple EXPRESION_AUX
@@ -2442,7 +2450,7 @@ state 130
     (78) IF_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_complete_gotof
     (79) IF_ELSE_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO BLOQUE r_complete_goto
     (72) MIENTRAS_CICLO -> . MIENTRAS r_new_migajita LPAREN EXPRESION RPAREN r_new_gotof HAZ BLOQUE r_new_goto r_complete_gotof
-    (71) DESDE_CICLO -> . DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE
+    (71) DESDE_CICLO -> . DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
     (80) ASIGNACION -> . EXPRESION ASIGNACION_AUX r_new_equal
     (1) EMPTY -> .
     (18) EXPRESION -> . TLEVEL_EXPRESION r_new_quadruple EXPRESION_AUX
@@ -2541,7 +2549,7 @@ state 135
     (78) IF_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_complete_gotof
     (79) IF_ELSE_STMT -> . SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO BLOQUE r_complete_goto
     (72) MIENTRAS_CICLO -> . MIENTRAS r_new_migajita LPAREN EXPRESION RPAREN r_new_gotof HAZ BLOQUE r_new_goto r_complete_gotof
-    (71) DESDE_CICLO -> . DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE
+    (71) DESDE_CICLO -> . DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
     (80) ASIGNACION -> . EXPRESION ASIGNACION_AUX r_new_equal
     (1) EMPTY -> .
     (18) EXPRESION -> . TLEVEL_EXPRESION r_new_quadruple EXPRESION_AUX
@@ -2722,10 +2730,12 @@ state 142
 
 state 143
 
-    (71) DESDE_CICLO -> DESDE ID . EQ CTE_I HASTA CTE_I HACER BLOQUE
+    (71) DESDE_CICLO -> DESDE ID . r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
+    (98) r_new_id_for -> .
 
-    EQ              shift and go to state 170
+    EQ              reduce using rule 98 (r_new_id_for -> .)
 
+    r_new_id_for                   shift and go to state 170
 
 state 144
 
@@ -3200,9 +3210,9 @@ state 169
 
 state 170
 
-    (71) DESDE_CICLO -> DESDE ID EQ . CTE_I HASTA CTE_I HACER BLOQUE
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for . EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
 
-    CTE_I           shift and go to state 197
+    EQ              shift and go to state 197
 
 
 state 171
@@ -3552,10 +3562,12 @@ state 196
 
 state 197
 
-    (71) DESDE_CICLO -> DESDE ID EQ CTE_I . HASTA CTE_I HACER BLOQUE
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ . r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
+    (87) r_new_operator -> .
 
-    HASTA           shift and go to state 209
+    CTE_I           reduce using rule 87 (r_new_operator -> .)
 
+    r_new_operator                 shift and go to state 209
 
 state 198
 
@@ -3862,10 +3874,10 @@ state 205
 state 206
 
     (58) FUNCTION -> r_new_function FUNCION TIPO_FUNC ID r_set_fun_name LPAREN PARAMETROS RPAREN r_new_vartable VARS BLOQUE . r_end_function FUNCTION
-    (102) r_end_function -> .
+    (106) r_end_function -> .
 
-    FUNCION         reduce using rule 102 (r_end_function -> .)
-    PRINCIPAL       reduce using rule 102 (r_end_function -> .)
+    FUNCION         reduce using rule 106 (r_end_function -> .)
+    PRINCIPAL       reduce using rule 106 (r_end_function -> .)
 
     r_end_function                 shift and go to state 218
 
@@ -3888,7 +3900,7 @@ state 208
 
 state 209
 
-    (71) DESDE_CICLO -> DESDE ID EQ CTE_I HASTA . CTE_I HACER BLOQUE
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator . CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
 
     CTE_I           shift and go to state 221
 
@@ -3993,10 +4005,10 @@ state 218
     (58) FUNCTION -> r_new_function FUNCION TIPO_FUNC ID r_set_fun_name LPAREN PARAMETROS RPAREN r_new_vartable VARS BLOQUE r_end_function . FUNCTION
     (58) FUNCTION -> . r_new_function FUNCION TIPO_FUNC ID r_set_fun_name LPAREN PARAMETROS RPAREN r_new_vartable VARS BLOQUE r_end_function FUNCTION
     (59) FUNCTION -> . EMPTY
-    (98) r_new_function -> .
+    (102) r_new_function -> .
     (1) EMPTY -> .
 
-    FUNCION         reduce using rule 98 (r_new_function -> .)
+    FUNCION         reduce using rule 102 (r_new_function -> .)
     PRINCIPAL       reduce using rule 1 (EMPTY -> .)
 
     r_new_function                 shift and go to state 10
@@ -4022,10 +4034,12 @@ state 220
 
 state 221
 
-    (71) DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I . HACER BLOQUE
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I . r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
+    (84) r_new_constant -> .
 
-    HACER           shift and go to state 225
+    HASTA           reduce using rule 84 (r_new_constant -> .)
 
+    r_new_constant                 shift and go to state 225
 
 state 222
 
@@ -4069,12 +4083,12 @@ state 224
 
 state 225
 
-    (71) DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I HACER . BLOQUE
-    (48) BLOQUE -> . LBRACKET OPCION_BLOQUE RBRACKET
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant . r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
+    (92) r_new_equal -> .
 
-    LBRACKET        shift and go to state 73
+    HASTA           reduce using rule 92 (r_new_equal -> .)
 
-    BLOQUE                         shift and go to state 229
+    r_new_equal                    shift and go to state 229
 
 state 226
 
@@ -4125,27 +4139,16 @@ state 228
 
 state 229
 
-    (71) DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE .
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal . HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
 
-    LEE             reduce using rule 71 (DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE .)
-    ESCRIBE         reduce using rule 71 (DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE .)
-    ID              reduce using rule 71 (DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE .)
-    SI              reduce using rule 71 (DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE .)
-    MIENTRAS        reduce using rule 71 (DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE .)
-    DESDE           reduce using rule 71 (DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE .)
-    CTE_I           reduce using rule 71 (DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE .)
-    CTE_F           reduce using rule 71 (DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE .)
-    CTE_C           reduce using rule 71 (DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE .)
-    CTE_S           reduce using rule 71 (DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE .)
-    LPAREN          reduce using rule 71 (DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE .)
-    RBRACKET        reduce using rule 71 (DESDE_CICLO -> DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE .)
+    HASTA           shift and go to state 232
 
 
 state 230
 
     (79) IF_ELSE_STMT -> SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof . SINO BLOQUE r_complete_goto
 
-    SINO            shift and go to state 232
+    SINO            shift and go to state 233
 
 
 state 231
@@ -4166,18 +4169,25 @@ state 231
     LPAREN          reduce using rule 96 (r_complete_gotof -> .)
     RBRACKET        reduce using rule 96 (r_complete_gotof -> .)
 
-    r_complete_gotof               shift and go to state 233
+    r_complete_gotof               shift and go to state 234
 
 state 232
+
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA . CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
+
+    CTE_I           shift and go to state 235
+
+
+state 233
 
     (79) IF_ELSE_STMT -> SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO . BLOQUE r_complete_goto
     (48) BLOQUE -> . LBRACKET OPCION_BLOQUE RBRACKET
 
     LBRACKET        shift and go to state 73
 
-    BLOQUE                         shift and go to state 234
+    BLOQUE                         shift and go to state 236
 
-state 233
+state 234
 
     (72) MIENTRAS_CICLO -> MIENTRAS r_new_migajita LPAREN EXPRESION RPAREN r_new_gotof HAZ BLOQUE r_new_goto r_complete_gotof .
 
@@ -4195,7 +4205,16 @@ state 233
     RBRACKET        reduce using rule 72 (MIENTRAS_CICLO -> MIENTRAS r_new_migajita LPAREN EXPRESION RPAREN r_new_gotof HAZ BLOQUE r_new_goto r_complete_gotof .)
 
 
-state 234
+state 235
+
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I . r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
+    (84) r_new_constant -> .
+
+    HACER           reduce using rule 84 (r_new_constant -> .)
+
+    r_new_constant                 shift and go to state 237
+
+state 236
 
     (79) IF_ELSE_STMT -> SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO BLOQUE . r_complete_goto
     (94) r_complete_goto -> .
@@ -4213,9 +4232,18 @@ state 234
     LPAREN          reduce using rule 94 (r_complete_goto -> .)
     RBRACKET        reduce using rule 94 (r_complete_goto -> .)
 
-    r_complete_goto                shift and go to state 235
+    r_complete_goto                shift and go to state 238
 
-state 235
+state 237
+
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant . r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
+    (97) r_new_migajita -> .
+
+    HACER           reduce using rule 97 (r_new_migajita -> .)
+
+    r_new_migajita                 shift and go to state 239
+
+state 238
 
     (79) IF_ELSE_STMT -> SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO BLOQUE r_complete_goto .
 
@@ -4231,6 +4259,138 @@ state 235
     CTE_S           reduce using rule 79 (IF_ELSE_STMT -> SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO BLOQUE r_complete_goto .)
     LPAREN          reduce using rule 79 (IF_ELSE_STMT -> SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO BLOQUE r_complete_goto .)
     RBRACKET        reduce using rule 79 (IF_ELSE_STMT -> SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO BLOQUE r_complete_goto .)
+
+
+state 239
+
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita . r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
+    (99) r_compara_for -> .
+
+    HACER           reduce using rule 99 (r_compara_for -> .)
+
+    r_compara_for                  shift and go to state 240
+
+state 240
+
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for . HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
+
+    HACER           shift and go to state 241
+
+
+state 241
+
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER . r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
+    (95) r_new_gotof -> .
+
+    LBRACKET        reduce using rule 95 (r_new_gotof -> .)
+
+    r_new_gotof                    shift and go to state 242
+
+state 242
+
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof . BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
+    (48) BLOQUE -> . LBRACKET OPCION_BLOQUE RBRACKET
+
+    LBRACKET        shift and go to state 73
+
+    BLOQUE                         shift and go to state 243
+
+state 243
+
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE . r_update_for r_new_goto r_complete_gotof r_clear_for
+    (100) r_update_for -> .
+
+    LEE             reduce using rule 100 (r_update_for -> .)
+    ESCRIBE         reduce using rule 100 (r_update_for -> .)
+    ID              reduce using rule 100 (r_update_for -> .)
+    SI              reduce using rule 100 (r_update_for -> .)
+    MIENTRAS        reduce using rule 100 (r_update_for -> .)
+    DESDE           reduce using rule 100 (r_update_for -> .)
+    CTE_I           reduce using rule 100 (r_update_for -> .)
+    CTE_F           reduce using rule 100 (r_update_for -> .)
+    CTE_C           reduce using rule 100 (r_update_for -> .)
+    CTE_S           reduce using rule 100 (r_update_for -> .)
+    LPAREN          reduce using rule 100 (r_update_for -> .)
+    RBRACKET        reduce using rule 100 (r_update_for -> .)
+
+    r_update_for                   shift and go to state 244
+
+state 244
+
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for . r_new_goto r_complete_gotof r_clear_for
+    (93) r_new_goto -> .
+
+    LEE             reduce using rule 93 (r_new_goto -> .)
+    ESCRIBE         reduce using rule 93 (r_new_goto -> .)
+    ID              reduce using rule 93 (r_new_goto -> .)
+    SI              reduce using rule 93 (r_new_goto -> .)
+    MIENTRAS        reduce using rule 93 (r_new_goto -> .)
+    DESDE           reduce using rule 93 (r_new_goto -> .)
+    CTE_I           reduce using rule 93 (r_new_goto -> .)
+    CTE_F           reduce using rule 93 (r_new_goto -> .)
+    CTE_C           reduce using rule 93 (r_new_goto -> .)
+    CTE_S           reduce using rule 93 (r_new_goto -> .)
+    LPAREN          reduce using rule 93 (r_new_goto -> .)
+    RBRACKET        reduce using rule 93 (r_new_goto -> .)
+
+    r_new_goto                     shift and go to state 245
+
+state 245
+
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto . r_complete_gotof r_clear_for
+    (96) r_complete_gotof -> .
+
+    LEE             reduce using rule 96 (r_complete_gotof -> .)
+    ESCRIBE         reduce using rule 96 (r_complete_gotof -> .)
+    ID              reduce using rule 96 (r_complete_gotof -> .)
+    SI              reduce using rule 96 (r_complete_gotof -> .)
+    MIENTRAS        reduce using rule 96 (r_complete_gotof -> .)
+    DESDE           reduce using rule 96 (r_complete_gotof -> .)
+    CTE_I           reduce using rule 96 (r_complete_gotof -> .)
+    CTE_F           reduce using rule 96 (r_complete_gotof -> .)
+    CTE_C           reduce using rule 96 (r_complete_gotof -> .)
+    CTE_S           reduce using rule 96 (r_complete_gotof -> .)
+    LPAREN          reduce using rule 96 (r_complete_gotof -> .)
+    RBRACKET        reduce using rule 96 (r_complete_gotof -> .)
+
+    r_complete_gotof               shift and go to state 246
+
+state 246
+
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof . r_clear_for
+    (101) r_clear_for -> .
+
+    LEE             reduce using rule 101 (r_clear_for -> .)
+    ESCRIBE         reduce using rule 101 (r_clear_for -> .)
+    ID              reduce using rule 101 (r_clear_for -> .)
+    SI              reduce using rule 101 (r_clear_for -> .)
+    MIENTRAS        reduce using rule 101 (r_clear_for -> .)
+    DESDE           reduce using rule 101 (r_clear_for -> .)
+    CTE_I           reduce using rule 101 (r_clear_for -> .)
+    CTE_F           reduce using rule 101 (r_clear_for -> .)
+    CTE_C           reduce using rule 101 (r_clear_for -> .)
+    CTE_S           reduce using rule 101 (r_clear_for -> .)
+    LPAREN          reduce using rule 101 (r_clear_for -> .)
+    RBRACKET        reduce using rule 101 (r_clear_for -> .)
+
+    r_clear_for                    shift and go to state 247
+
+state 247
+
+    (71) DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for .
+
+    LEE             reduce using rule 71 (DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for .)
+    ESCRIBE         reduce using rule 71 (DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for .)
+    ID              reduce using rule 71 (DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for .)
+    SI              reduce using rule 71 (DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for .)
+    MIENTRAS        reduce using rule 71 (DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for .)
+    DESDE           reduce using rule 71 (DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for .)
+    CTE_I           reduce using rule 71 (DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for .)
+    CTE_F           reduce using rule 71 (DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for .)
+    CTE_C           reduce using rule 71 (DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for .)
+    CTE_S           reduce using rule 71 (DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for .)
+    LPAREN          reduce using rule 71 (DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for .)
+    RBRACKET        reduce using rule 71 (DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for .)
 
 WARNING: 
 WARNING: Conflicts:

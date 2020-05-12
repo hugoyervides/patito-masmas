@@ -3,6 +3,7 @@ from scanner import tokens, reserved
 from stacks import Stacks
 from fun_table import Funtable
 from var_table import Vartable
+from semantic import cubo_semantico
 
 #Variable declaration
 stacks = Stacks()
@@ -17,6 +18,8 @@ context_func = 'global'
 func_type = ''
 dir_type = ''
 dir_var = ''
+for_var = 0
+
 
 #Var and Func Table
 var_table = {
@@ -200,7 +203,7 @@ def p_NEXT_PARAM(p):
 
 #CICLO DESDE
 def p_DESDE_CICLO(p):
-    '''DESDE_CICLO : DESDE ID EQ CTE_I HASTA CTE_I HACER BLOQUE'''
+    '''DESDE_CICLO : DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for'''
     pass
 
 #CICLO MIENTRAS
@@ -259,6 +262,8 @@ def p_r_new_id(p):
 def p_r_new_constant(p):
     'r_new_constant : '
     stacks.register_operand(p[-1])
+    print(stacks.operandStack)
+
 
 def p_r_new_lparen(p):
     'r_new_lparen : '
@@ -297,6 +302,9 @@ def p_r_new_equal(p):
     'r_new_equal : '
     if stacks.top_operators() in ['=']:
         stacks.generate_asignation()
+    
+    print(stacks.operandStack)
+
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS NO LINEALES ----------------
@@ -321,6 +329,39 @@ def p_r_complete_gotof(p):
 def p_r_new_migajita(p):
     'r_new_migajita : '
     stacks.new_migajita("GOTO")
+
+def p_r_new_id_for(p):
+    'r_new_id_for : '
+    
+    stacks.register_operand(p[-1])
+
+    global for_var
+    for_var = p[-1]
+
+def p_r_compara_for(p):
+    'r_compara_for : '
+    stacks.operatorStack.append('<=')
+    stacks.generate_quadruple()
+
+def p_r_update_for(p):
+    'r_update_for : '
+    
+    global for_var
+
+    stacks.operandStack.append(for_var)
+    stacks.operandStack.append('1')
+    stacks.operatorStack.append('+')
+    stacks.operandStack.append(for_var)
+    stacks.generate_quadruple()
+
+
+    stacks.operatorStack.append('=')
+    stacks.generate_asignation()
+
+def p_r_clear_for(p):
+    'r_clear_for : '
+    stacks.operandStack.pop()
+
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS FUNCIONES  ----------------
@@ -427,6 +468,12 @@ testScript = '''
             a = a + 1;
         }
         a = 2;
+
+        desde i = 0 hasta 9 hacer{
+            a = 10;
+        }
+
+        a = 12;
     }
 '''
 

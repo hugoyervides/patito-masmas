@@ -21,7 +21,7 @@ class Funtable:
     
     #Method to display fun table
     def display_fun_table(self):
-        print("FUNCTIOON TABLE")
+        print("FUNCTION TABLE")
         print("FunName \t FunType \t QuadAddr")
         for i in self.table:
             print( str(i['name']) + '\t' +
