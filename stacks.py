@@ -6,6 +6,8 @@
 #Operator Stack, Operand Stack, Type Stack, jump_stack, Migajitas and quadruples
 
 from quadruples import Quadruples
+from semantic import cubo_semantico
+import parser
 
 class Stacks:
     def __init__(self):
@@ -72,11 +74,18 @@ class Stacks:
     #The name of this method is really obvious but will it generates a new quadruple when we reach certain neuralgic point
     def generate_quadruple(self):
         r_operand = self.operand_stack.pop()
+        r_type = self.type_stack.pop()
         l_operand = self.operand_stack.pop()
+        l_type = self.type_stack.pop()
         operator = self.operator_stack.pop()
         result = self.get_result_var()
-        self.operand_stack.append(result)
-        self.quadruples.add_quadruple(operator,l_operand,r_operand,result)
+        if(type_quad := cubo_semantico[r_type][l_type][operator] != 'Error'):
+            self.operand_stack.append(result)
+            self.type_stack.append(type_quad)
+            self.quadruples.add_quadruple(operator,l_operand,r_operand,result)
+        else:
+            print('Type error')
+            
 
     #This does the same as the previus method but formats the quadruple for asignation ( = NEW_VALUE NULL RESULT)
     def generate_asignation(self):
