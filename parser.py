@@ -224,12 +224,18 @@ def p_ESCRITURA(p):
 
 #LLAMADA
 def p_LLAMADA(p):
-    '''LLAMADA : ID LPAREN TIPO_PARAMETROS RPAREN'''
+    '''LLAMADA : ID r_verify_function r_generate_era LPAREN TIPO_PARAMETROS RPAREN r_verify_last_parameter r_generate_gosub'''
     pass
 
 def p_TIPO_PARAMETROS(p):
-    '''TIPO_PARAMETROS : EXPRESION
-                        | EXPRESION COMMA TIPO_PARAMETROS'''
+    '''TIPO_PARAMETROS : TIPO_PARAMETROS_AUX
+                        | EMPTY'''
+    pass
+
+def p_TIPO_PARAMETROS_AUX(p):
+    '''TIPO_PARAMETROS_AUX : EXPRESION r_verify_parameter
+                            | EXPRESION r_verify_parameter COMMA r_next_parameter TIPO_PARAMETROS_AUX
+    '''
     pass
 
 #ESTATUTO
@@ -394,22 +400,56 @@ def p_r_end_function(p):
     stacks.flushFunctionTable()
 
 # =====================================================================
-# --------------- PUNTOS NEURALGICOS VARIABLES  ----------------
+# --------------- PUNTOS NEURALGICOS LLAMADA FUNCIONES  ----------------
+# =====================================================================
+def p_r_verify_function(p):
+    'r_verify_function : '
+    if not stacks.check_function(p[-1]):
+        print("Error: funtion does not exist")
+
+def p_r_generate_era(p):
+    'r_generate_era : '
+    #TODO
+
+def p_r_verify_parameter(p):
+    'r_verify_parameter : '
+    #TODO
+
+def p_r_next_parameter(p):
+    'r_next_parameter :'
+    #TODO
+
+def p_r_verify_last_parameter(p):
+    'r_verify_last_parameter : '
+    #TODO
+
+def p_r_generate_gosub(p):
+    'r_generate_gosub : '
+    #TODO
+
+
+
+# =====================================================================
+# --------------- PUNTOS NEURALGICOS TABLA VARIABLES  ----------------
 # =====================================================================
 
 def p_r_set_var_type(p):
     'r_set_var_type : '
     stacks.set_var_type(p[-1])
+
 def p_r_new_variable(p):
     'r_new_variable : '
     if not stacks.insert_variable(p[-1]):
         print("Error: variable already exists")
+
 def p_r_change_local_context(p):
     'r_change_local_context : '
     stacks.change_context('local')
+
 def p_r_change_global_context(p):
     'r_change_global_context : '
     stacks.change_context('global')
+
 def p_r_display_var_table(p):
     'r_display_var_table : '
     stacks.display_var_table('global')

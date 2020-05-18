@@ -22,6 +22,15 @@ class Funtable:
         self.table.append(newFun)
         return True
     
+    #Method to check if a function exists
+    def exists(self, name):
+        #Check if the function exists
+        for i in self.table:
+            if i['name'] == name:
+                return True
+        return False
+
+
     #Method to display fun table
     def display_fun_table(self):
         print("FUNCTION TABLE")

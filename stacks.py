@@ -172,3 +172,7 @@ class Stacks:
     #Method to change the context
     def change_context(self, new_context):
         self.context = new_context
+    
+    #Method to check a function name inside the function table
+    def check_function(self, name):
+        return self.funcTable.exists(name)
