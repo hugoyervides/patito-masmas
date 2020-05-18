@@ -14,10 +14,6 @@ var_tables = Vartables()
 fun_handler = Funhandler()
 constant_table = Constanttable()
 
-#Cache variables
-globalVarTable = Vartable()
-tempVarTable = Vartable()
-
 #Values for var table
 context_func = 'global'
 func_type = ''
