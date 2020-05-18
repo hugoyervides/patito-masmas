@@ -1,7 +1,11 @@
 # Variable table class
 # Victor Hugo Oyervides Covarrubias - A01382836
 # Obed Gonzalez Morneo - A01382900
+
+#Vartable data structure used to store the variables
+
 class Vartable:
+    #Declaration of atributes
     def __init__(self):
         self.table = []
 
@@ -13,10 +17,10 @@ class Vartable:
                 return False
         #Insert the new function
         self.table.append({
-            'name' : name,
-            'type' : varType,
-            'vAddr' : vAddr,
-            'dims' : dims
+            'name' :    name, #Name of the variable
+            'type' :    varType, #Type of the variable
+            'vAddr' :   vAddr, #TODO Virtual Address for the variable
+            'dims' :    dims #TODO List of dimensions
         })
         return True
 
@@ -24,7 +28,7 @@ class Vartable:
     def size(self):
         return len(self.table)
 
-    #Method to display the var table
+    #Method to display the var table (used for DEBUGING)
     def display_vars(self):
         print("Name \t Type \t Addres")
         for i in self.table:

@@ -2,12 +2,17 @@ import yacc
 from scanner import tokens, reserved
 from stacks import Stacks
 from fun_table import Funtable
-from var_table import Vartable
 from semantic import cubo_semantico
+from var_tables import Vartables
+from fun_handler import Funhandler
+from constant_table import Constanttable
 
 #Variable declaration
 stacks = Stacks()
 funTable = Funtable()
+var_tables = Vartables()
+fun_handler = Funhandler()
+constant_table = Constanttable()
 
 #Cache variables
 globalVarTable = Vartable()
@@ -19,14 +24,6 @@ func_type = ''
 dir_type = ''
 dir_var = ''
 for_stack = []
-
-
-#Var and Func Table
-var_table = {
-        'global' : {
-            'var' : {}
-        }
-}
 
 
 start = 'PROG'
@@ -48,11 +45,11 @@ def p_EMPTY(p):
     pass
 
 def p_MAIN(p):
-    '''MAIN : PRINCIPAL push_main LPAREN RPAREN BLOQUE'''
+    '''MAIN : PRINCIPAL LPAREN RPAREN BLOQUE'''
     pass
 
 def p_PROG(p):
-    'PROG : r_new_goto PROGRAMA ID SEMI_COLON VARS r_change_local_context FUNCTION r_complete_goto r_change_global_context r_display_var_table MAIN'
+    'PROG : r_new_goto PROGRAMA ID SEMI_COLON VARS r_change_local_context FUNCTION r_complete_goto r_change_global_context r_display_var_table MAIN r_display_const'
     pass
 
 def p_VARS(p):
@@ -142,10 +139,10 @@ def p_VALUE_EXPRESION(p):
     '''
 
 def p_CONSTANTE(p):
-    '''CONSTANTE : CTE_I r_new_constant
-                | CTE_F r_new_constant
-                | CTE_C r_new_constant
-                | CTE_S r_new_constant
+    '''CONSTANTE : CTE_I r_new_c_int
+                | CTE_F r_new_c_float
+                | CTE_C r_new_c_char
+                | CTE_S r_new_c_string
     '''
     pass
 
@@ -204,7 +201,7 @@ def p_NEXT_PARAM(p):
 #CICLO DESDE
 #TODO
 def p_DESDE_CICLO(p):
-    '''DESDE_CICLO : DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_constant r_new_equal HASTA CTE_I r_new_constant r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for'''
+    '''DESDE_CICLO : DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_c_int r_new_equal HASTA CTE_I r_new_c_int r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for'''
     pass
 
 #CICLO MIENTRAS
@@ -266,10 +263,25 @@ def p_r_new_id(p):
     'r_new_id : '
     stacks.register_operand(p[-1])
 
-def p_r_new_constant(p):
-    'r_new_constant : '
-    stacks.register_operand(p[-1])
-    stacks.operandStack
+def p_r_new_c_int(p):
+    'r_new_c_int : '
+    v_add = constant_table.insert_constant(p[-1],'int')
+    stacks.register_operand(v_add)
+
+def p_r_new_c_char(p):
+    'r_new_c_char : '
+    v_add = constant_table.insert_constant(p[-1],'char')
+    stacks.register_operand(v_add)
+
+def p_r_new_c_float(p):
+    'r_new_c_float : '
+    v_add = constant_table.insert_constant(p[-1],'float')
+    stacks.register_operand(v_add)
+
+def p_r_new_c_string(p):
+    'r_new_c_string : '
+    v_add = constant_table.insert_constant(p[-1],'string')
+    stacks.register_operand(v_add)
 
 def p_r_new_lparen(p):
     'r_new_lparen : '
@@ -341,18 +353,18 @@ def p_r_new_id_for(p):
 
 def p_r_compara_for(p):
     'r_compara_for : '
-    stacks.operatorStack.append('<=')
+    stacks.operator_stack.append('<=')
     stacks.generate_quadruple()
 
 def p_r_update_for(p):
     'r_update_for : '
     global for_stack
-    stacks.operandStack.append(for_stack[len(for_stack) - 1])
-    stacks.operandStack.append('1')
-    stacks.operatorStack.append('+')
-    stacks.operandStack.append(for_stack[len(for_stack) - 1])
+    stacks.operand_stack.append(for_stack[len(for_stack) - 1])
+    stacks.operand_stack.append('1')
+    stacks.operator_stack.append('+')
+    stacks.operand_stack.append(for_stack[len(for_stack) - 1])
     stacks.generate_quadruple()
-    stacks.operatorStack.append('=')
+    stacks.operator_stack.append('=')
     stacks.generate_asignation()
 
 def p_r_clear_for(p):
@@ -367,45 +379,46 @@ def p_r_clear_for(p):
 
 def p_r_new_function(p):
     'r_new_function : '
-    stacks.update_fun_address()
+    function_address = stacks.current_quadruple_address() + 1
+    fun_handler.update_fun_address(function_address)
     #Create a new parameter array to store param types
     parameters = []
-    stacks.updateFunction('parameters', parameters)
+    fun_handler.updateFunction('parameters', parameters)
 
 #Neurlagic point to insert the type to the parameter table
 def p_r_insert_type(p):
     'r_insert_type : '
-    stacks.insert_type()
+    fun_handler.insert_type(var_tables.current_type)
 
 def p_r_set_fun_type(p):
     'r_set_fun_type : '
-    stacks.updateFunction('varType',p[-1])
+    fun_handler.updateFunction('varType',p[-1])
 
 def p_r_set_fun_name(p):
     'r_set_fun_name : '
-    stacks.updateFunction('name',p[-1])
+    fun_handler.updateFunction('name',p[-1])
 
 def p_r_new_vartable(p):
     'r_new_vartable : '
-    stacks.flush_var_table()
+    var_tables.flush_var_table('local')
 
 def p_r_end_function(p):
     'r_end_function : '
     #Insert the number of variables and parameters into the function table
-    stacks.insert_number_param()
-    stacks.insert_number_variables()
+    fun_handler.insert_number_param()
+    fun_handler.insert_number_variables(var_tables.local_var_table.size())
     #DEBUGN 
-    stacks.display_var_table('local')
-    stacks.insertToFunTable()
-    stacks.add_fun_quadruple()
-    stacks.flushFunctionTable()
+    var_tables.display_var_table('local')
+    fun_handler.insertToFunTable()
+    stacks.add_fun_quadruple() #TODO
+    fun_handler.flushFunctionTable()
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS LLAMADA FUNCIONES  ----------------
 # =====================================================================
 def p_r_verify_function(p):
     'r_verify_function : '
-    if not stacks.check_function(p[-1]):
+    if not fun_handler.check_function(p[-1]):
         print("Error: funtion does not exist")
 
 def p_r_generate_era(p):
@@ -428,79 +441,34 @@ def p_r_generate_gosub(p):
     'r_generate_gosub : '
     #TODO
 
-
-
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS TABLA VARIABLES  ----------------
 # =====================================================================
 
 def p_r_set_var_type(p):
     'r_set_var_type : '
-    stacks.set_var_type(p[-1])
+    var_tables.set_var_type(p[-1])
 
 def p_r_new_variable(p):
     'r_new_variable : '
-    if not stacks.insert_variable(p[-1]):
+    if not var_tables.insert_variable(p[-1]):
         print("Error: variable already exists")
 
 def p_r_change_local_context(p):
     'r_change_local_context : '
-    stacks.change_context('local')
+    var_tables.change_context('local')
 
 def p_r_change_global_context(p):
     'r_change_global_context : '
-    stacks.change_context('global')
+    var_tables.change_context('global')
 
 def p_r_display_var_table(p):
     'r_display_var_table : '
-    stacks.display_var_table('global')
-# =====================================================================
-# --------------- Tabla de Variables ----------------
-# =====================================================================
+    var_tables.display_var_table('global')
 
-def p_r_push_type(p):
-    'push_type : '
-    global dir_type
-    dir_type = p[-1]
-
-    print(dir_type)
-
-def p_r_push_func(p):
-    'push_func : '
-    global context_func
-    global func_type
-    global var_table
-
-    context_func = p[-1]
-    func_type = p[-2]
-
-    var_table[context_func] = {
-        'type': func_type,
-        'var': {},
-    }
-
-def p_r_push_var(p):
-    'push_var : '
-    global dir_var
-    global var_table
-
-    dir_var = p[-1]
-
-    var_table[context_func]['var'][dir_var] = {
-        'type': dir_type,
-    }
-
-def p_r_push_main(p):
-    'push_main : '
-    global var_table
-
-    var_table['main'] = {
-        'var': {}
-    }
-
-def printTable():
-    print(var_table)
-
+def p_r_display_const(p):
+    'r_display_const : '
+    constant_table.display_table()
 
 
 parser = yacc.yacc()
@@ -556,5 +524,5 @@ testScript = '''
 parser.parse(testScript)
 #printTable()
 stacks.quadruples.display_quadruples()
-stacks.funcTable.display_fun_table()
+fun_handler.funcTable.display_fun_table()
 
