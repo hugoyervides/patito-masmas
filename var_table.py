@@ -35,3 +35,11 @@ class Vartable:
             print(str(i["name"]) + '\t' +
                 str(i["type"]) + '\t' +
                 str(i["vAddr"]) + '\t')
+
+
+    def get_type(self, name):
+        for var in self.table:
+            if(var['name'] == name):
+                return var['type']
+            
+        return None
