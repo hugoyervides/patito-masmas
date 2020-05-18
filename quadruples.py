@@ -9,11 +9,11 @@ class Quadruples:
     #Methods
     def add_quadruple(self, operator, l_operand, r_operand, result):
         self.quadruples.append({
-            'quadruple_no': len(self.quadruples),
-            'operator': operator,
-            'l_operand': l_operand,
-            'r_operand': r_operand,
-            'result': result
+            'quadruple_no':     len(self.quadruples),
+            'operator':         operator,
+            'l_operand':        l_operand,
+            'r_operand':        r_operand,
+            'result':           result
         })
     
     def display_quadruples(self):
