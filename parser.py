@@ -3,7 +3,7 @@ from scanner import tokens, reserved
 from stacks import Stacks
 from fun_table import Funtable
 from semantic import cubo_semantico
-from var_tables import Vartables
+from var_table_handler import Vartables
 from fun_handler import Funhandler
 from constant_table import Constanttable
 
@@ -13,7 +13,6 @@ funTable = Funtable()
 var_tables = Vartables()
 fun_handler = Funhandler()
 constant_table = Constanttable()
-
 for_stack = []
 
 
@@ -252,27 +251,34 @@ def p_ASIGNACION_AUX(p):
 # =====================================================================
 def p_r_new_id(p):
     'r_new_id : '
+    type_var = var_tables.get_var_type(p[-1])
     stacks.register_operand(p[-1])
+    stacks.register_type(type_var)
+
 
 def p_r_new_c_int(p):
     'r_new_c_int : '
     v_add = constant_table.insert_constant(p[-1],'int')
     stacks.register_operand(v_add)
+    stacks.register_type('int')
 
 def p_r_new_c_char(p):
     'r_new_c_char : '
     v_add = constant_table.insert_constant(p[-1],'char')
     stacks.register_operand(v_add)
+    stacks.register_type('char')
 
 def p_r_new_c_float(p):
     'r_new_c_float : '
     v_add = constant_table.insert_constant(p[-1],'float')
     stacks.register_operand(v_add)
+    stacks.register_type('float')
 
 def p_r_new_c_string(p):
     'r_new_c_string : '
     v_add = constant_table.insert_constant(p[-1],'string')
     stacks.register_operand(v_add)
+    stacks.register_type('string')
 
 def p_r_new_lparen(p):
     'r_new_lparen : '
@@ -487,6 +493,10 @@ testScript = '''
         char e;
     {
         x = 1 + 1;
+
+        e = 'E';
+
+        y = x + e;
     }
     principal(){
         si ( a > b ) entonces {
