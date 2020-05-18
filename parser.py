@@ -18,7 +18,7 @@ context_func = 'global'
 func_type = ''
 dir_type = ''
 dir_var = ''
-for_var = 0
+for_stack = []
 
 
 #Var and Func Table
@@ -336,8 +336,8 @@ def p_r_new_migajita(p):
 def p_r_new_id_for(p):
     'r_new_id_for : '
     stacks.register_operand(p[-1])
-    global for_var
-    for_var = p[-1]
+    global for_stack
+    for_stack.append(p[-1])
 
 def p_r_compara_for(p):
     'r_compara_for : '
@@ -346,18 +346,19 @@ def p_r_compara_for(p):
 
 def p_r_update_for(p):
     'r_update_for : '
-    global for_var
-    stacks.operandStack.append(for_var)
+    global for_stack
+    stacks.operandStack.append(for_stack[len(for_stack) - 1])
     stacks.operandStack.append('1')
     stacks.operatorStack.append('+')
-    stacks.operandStack.append(for_var)
+    stacks.operandStack.append(for_stack[len(for_stack) - 1])
     stacks.generate_quadruple()
     stacks.operatorStack.append('=')
     stacks.generate_asignation()
 
 def p_r_clear_for(p):
     'r_clear_for : '
-    stacks.operandStack.pop()
+    global for_stack
+    for_stack.pop()
 
 
 # =====================================================================
