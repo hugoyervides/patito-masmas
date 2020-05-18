@@ -10,8 +10,8 @@ stacks = Stacks()
 funTable = Funtable()
 
 #Cache variables
-currentFunctionScope = {}
-varTableCache = Vartable()
+globalVarTable = Vartable()
+tempVarTable = Vartable()
 
 #Values for var table
 context_func = 'global'
@@ -52,7 +52,7 @@ def p_MAIN(p):
     pass
 
 def p_PROG(p):
-    'PROG : r_new_goto PROGRAMA ID SEMI_COLON VARS FUNCTION r_complete_goto MAIN'
+    'PROG : r_new_goto PROGRAMA ID SEMI_COLON VARS r_change_local_context FUNCTION r_complete_goto r_change_global_context r_display_var_table MAIN'
     pass
 
 def p_VARS(p):
@@ -61,27 +61,27 @@ def p_VARS(p):
     pass
 
 def p_TIPO(p):
-    '''TIPO : INT push_type VAR_INT SEMI_COLON TIPO
-            | FLOAT push_type VAR_TIPO SEMI_COLON TIPO
-            | CHAR push_type VAR_TIPO SEMI_COLON TIPO
+    '''TIPO : INT r_set_var_type VAR_INT SEMI_COLON TIPO
+            | FLOAT r_set_var_type VAR_TIPO SEMI_COLON TIPO
+            | CHAR r_set_var_type VAR_TIPO SEMI_COLON TIPO
             | EMPTY'''
     pass
 
 def p_VAR_INT(p):
-    '''VAR_INT : LIST_ID push_var COMMA VAR_INT
-                | ID push_var COMMA VAR_INT
-                | LIST_ID push_var
-                | ID push_var'''
+    '''VAR_INT : LIST_ID COMMA VAR_INT
+                | ID r_new_variable COMMA VAR_INT
+                | LIST_ID
+                | ID r_new_variable'''
     pass
 
 def p_VAR_TIPO(p):
-    '''VAR_TIPO : ID push_var COMMA
-                | ID push_var'''
+    '''VAR_TIPO : ID r_new_variable COMMA
+                | ID r_new_variable'''
     pass
 
 def p_LIST_ID(p):
-    '''LIST_ID : ID push_var LSQ SLEVEL_EXPRESION RSQ
-                | ID push_var LSQ SLEVEL_EXPRESION RSQ LSQ SLEVEL_EXPRESION RSQ
+    '''LIST_ID : ID r_new_variable LSQ SLEVEL_EXPRESION RSQ
+                | ID r_new_variable LSQ SLEVEL_EXPRESION RSQ LSQ SLEVEL_EXPRESION RSQ
     '''
     pass
 
@@ -175,7 +175,7 @@ def p_OPCION_BLOQUE(p):
 
 # FUNCIONES
 def p_FUNCTION(p):
-    '''FUNCTION : r_new_function FUNCION TIPO_FUNC ID r_set_fun_name LPAREN PARAMETROS RPAREN r_new_vartable VARS BLOQUE r_end_function FUNCTION 
+    '''FUNCTION : r_new_function FUNCION TIPO_FUNC ID r_set_fun_name r_new_vartable LPAREN PARAMETROS RPAREN VARS BLOQUE r_end_function FUNCTION 
                 | EMPTY'''
     pass
 
@@ -192,9 +192,9 @@ def p_PARAMETROS(p):
     pass
 
 def p_AUX_PARAM(p):
-    '''AUX_PARAM : INT ID NEXT_PARAM
-                | FLOAT ID NEXT_PARAM
-                | CHAR ID NEXT_PARAM'''
+    '''AUX_PARAM : INT r_set_var_type r_insert_type ID r_new_variable NEXT_PARAM
+                | FLOAT r_set_var_type  r_insert_type ID r_new_variable NEXT_PARAM
+                | CHAR r_set_var_type r_insert_type ID r_new_variable NEXT_PARAM'''
     pass
 
 def p_NEXT_PARAM(p):
@@ -263,8 +263,7 @@ def p_r_new_id(p):
 def p_r_new_constant(p):
     'r_new_constant : '
     stacks.register_operand(p[-1])
-    print(stacks.operandStack)
-
+    stacks.operandStack
 
 def p_r_new_lparen(p):
     'r_new_lparen : '
@@ -303,9 +302,6 @@ def p_r_new_equal(p):
     'r_new_equal : '
     if stacks.top_operators() in ['=']:
         stacks.generate_asignation()
-    
-    print(stacks.operandStack)
-
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS NO LINEALES ----------------
@@ -333,9 +329,7 @@ def p_r_new_migajita(p):
 
 def p_r_new_id_for(p):
     'r_new_id_for : '
-    
     stacks.register_operand(p[-1])
-
     global for_var
     for_var = p[-1]
 
@@ -346,16 +340,12 @@ def p_r_compara_for(p):
 
 def p_r_update_for(p):
     'r_update_for : '
-    
     global for_var
-
     stacks.operandStack.append(for_var)
     stacks.operandStack.append('1')
     stacks.operatorStack.append('+')
     stacks.operandStack.append(for_var)
     stacks.generate_quadruple()
-
-
     stacks.operatorStack.append('=')
     stacks.generate_asignation()
 
@@ -371,6 +361,14 @@ def p_r_clear_for(p):
 def p_r_new_function(p):
     'r_new_function : '
     stacks.update_fun_address()
+    #Create a new parameter array to store param types
+    parameters = []
+    stacks.updateFunction('parameters', parameters)
+
+#Neurlagic point to insert the type to the parameter table
+def p_r_insert_type(p):
+    'r_insert_type : '
+    stacks.insert_type()
 
 def p_r_set_fun_type(p):
     'r_set_fun_type : '
@@ -383,14 +381,38 @@ def p_r_set_fun_name(p):
 def p_r_new_vartable(p):
     'r_new_vartable : '
     stacks.flush_var_table()
-    stacks.insertToFunTable()
 
 def p_r_end_function(p):
     'r_end_function : '
+    #Insert the number of variables and parameters into the function table
+    stacks.insert_number_param()
+    stacks.insert_number_variables()
+    #DEBUGN 
+    stacks.display_var_table('local')
+    stacks.insertToFunTable()
     stacks.add_fun_quadruple()
     stacks.flushFunctionTable()
 
+# =====================================================================
+# --------------- PUNTOS NEURALGICOS VARIABLES  ----------------
+# =====================================================================
 
+def p_r_set_var_type(p):
+    'r_set_var_type : '
+    stacks.set_var_type(p[-1])
+def p_r_new_variable(p):
+    'r_new_variable : '
+    if not stacks.insert_variable(p[-1]):
+        print("Error: variable already exists")
+def p_r_change_local_context(p):
+    'r_change_local_context : '
+    stacks.change_context('local')
+def p_r_change_global_context(p):
+    'r_change_global_context : '
+    stacks.change_context('global')
+def p_r_display_var_table(p):
+    'r_display_var_table : '
+    stacks.display_var_table('global')
 # =====================================================================
 # --------------- Tabla de Variables ----------------
 # =====================================================================
@@ -446,8 +468,9 @@ testScript = '''
     programa patito; 
     var
     int id1, id2, id3;
-    funcion void prueba(int y)
-    var int i;
+    funcion void prueba(int y, float x)
+    var 
+        int i;
     {
         i = j + 1;
         si ( a > b ) entonces {
@@ -456,6 +479,14 @@ testScript = '''
         } sino {
             b = 1 +1;
         }
+    }
+    funcion int patito(int x1)
+    var
+        float x;
+        int y;
+        char e;
+    {
+        x = 1 + 1;
     }
     principal(){
         si ( a > b ) entonces {
@@ -482,7 +513,7 @@ testScript = '''
 '''
 
 parser.parse(testScript)
-printTable()
+#printTable()
 stacks.quadruples.display_quadruples()
 stacks.funcTable.display_fun_table()
 

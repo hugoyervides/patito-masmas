@@ -6,7 +6,7 @@ class Funtable:
         self.table = []
     
     #Methods
-    def newFunction(self, name, returnType, quadrupleAddress):
+    def newFunction(self, name, returnType, quadrupleAddress, number_param, number_variables, param):
         #Check if the function does not exists already
         for i in self.table:
             if i["name"] == name:
@@ -14,7 +14,10 @@ class Funtable:
         newFun = {
             'name' : name,
             'returnType' : returnType,
-            'quadrupleAddress': quadrupleAddress
+            'quadrupleAddress': quadrupleAddress,
+            'numberParam' : number_param,
+            'numberVariables' : number_variables,
+            'parameters' : param
         }
         self.table.append(newFun)
         return True
@@ -22,8 +25,13 @@ class Funtable:
     #Method to display fun table
     def display_fun_table(self):
         print("FUNCTION TABLE")
-        print("FunName \t FunType \t QuadAddr")
+        print("Name \t Type \t Addr \t #Par \t #Var \t Parameters")
         for i in self.table:
-            print( str(i['name']) + '\t' +
+            print( str(i['name']) + '\t' + 
                     str(i['returnType']) + '\t' +
-                    str(i['quadrupleAddress']) + '\t')
+                    str(i['quadrupleAddress']) + '\t' +
+                    str(i['numberParam']) + '\t' +
+                    str(i['numberVariables']) + '\t', end='')
+            for k in i['parameters']:
+                print(str(k) + ' ,' , end = '')
+            print()

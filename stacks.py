@@ -20,8 +20,12 @@ class Stacks:
         self.funcTable = Funtable()
         self.quadruples = Quadruples() 
         self.resultCounter = 0
-        self.var_table = Vartable()
+        self.local_var_table = Vartable()
+        self.global_var_table = Vartable()
+        self.context = "global"
+        self.current_type = ""
         self.current_function = {}
+        self.parameters = []
 
     #Method to register a new oeprator into our stackl
     def register_operator(self, operator):
@@ -114,6 +118,16 @@ class Stacks:
     def update_fun_address(self):
         self.current_function["quadrupleAddress"] = len(self.quadruples.quadruples)
 
+    #Method to insert type to function table
+    def insert_type(self):
+        self.current_function['parameters'].append(self.current_type)
+    
+    def insert_number_param(self):
+        self.current_function["numberParam"] = len(self.current_function['parameters'])
+
+    def insert_number_variables(self):
+        self.current_function['numberVariables'] =  self.local_var_table.size() - len(self.current_function['parameters'])
+
     #Method to flush current function
     def flushFunctionTable(self):
         self.current_function = {}
@@ -122,7 +136,10 @@ class Stacks:
     def insertToFunTable(self):
         self.funcTable.newFunction(self.current_function["name"],
                                     self.current_function["varType"],
-                                    self.current_function["quadrupleAddress"])
+                                    self.current_function["quadrupleAddress"],
+                                    self.current_function["numberParam"],
+                                    self.current_function["numberVariables"],
+                                    self.current_function["parameters"])
 
     #Method to add the end function to que quadruples
     def add_fun_quadruple(self):
@@ -130,5 +147,28 @@ class Stacks:
         
     #Method to flush current var table
     def flush_var_table(self):
-        self.var_table = Vartable()
+        self.local_var_table = Vartable()
     
+    #Method to set the variable type
+    def set_var_type(self, var_type):
+        self.current_type = var_type
+    
+    #Method to insert a new variable to the var table
+    def insert_variable(self, variable):
+        #Check if we are in global or local context
+        if self.context == "global":
+            return self.global_var_table.newVariable(variable, self.current_type, None, None)
+        elif self.context == "local":
+            return self.local_var_table.newVariable(variable, self.current_type, None, None)
+
+    def display_var_table(self, var_type):
+        if var_type == "local":
+            print("Displaying Var table of function " + self.current_function["name"])
+            self.local_var_table.display_vars()
+        elif var_type == "global":
+            print("Displaying global Var table")
+            self.global_var_table.display_vars()
+
+    #Method to change the context
+    def change_context(self, new_context):
+        self.context = new_context
