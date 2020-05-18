@@ -14,11 +14,6 @@ var_tables = Vartables()
 fun_handler = Funhandler()
 constant_table = Constanttable()
 
-#Values for var table
-context_func = 'global'
-func_type = ''
-dir_type = ''
-dir_var = ''
 for_stack = []
 
 
