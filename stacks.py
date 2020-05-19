@@ -79,7 +79,8 @@ class Stacks:
         l_type = self.type_stack.pop()
         operator = self.operator_stack.pop()
         result = self.get_result_var()
-        if(type_quad := cubo_semantico[r_type][l_type][operator] != 'Error'):
+        type_quad = cubo_semantico[r_type][l_type][operator]
+        if(type_quad != 'Error'):
             self.operand_stack.append(result)
             self.type_stack.append(type_quad)
             self.quadruples.add_quadruple(operator,l_operand,r_operand,result)
@@ -90,6 +91,7 @@ class Stacks:
     #This does the same as the previus method but formats the quadruple for asignation ( = NEW_VALUE NULL RESULT)
     def generate_asignation(self):
         r_operand = self.operand_stack.pop()
+        r_type = self.type_stack.pop()
         result = self.operand_stack.pop()
         operator = self.operator_stack.pop()
         self.operand_stack.append(result)
