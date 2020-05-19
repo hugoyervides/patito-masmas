@@ -347,6 +347,7 @@ def p_r_new_id_for(p):
     stacks.register_operand(p[-1])
     global for_stack
     for_stack.append(p[-1])
+    stacks.register_type('int')
 
 def p_r_compara_for(p):
     'r_compara_for : '
@@ -357,7 +358,7 @@ def p_r_update_for(p):
     'r_update_for : '
     global for_stack
     stacks.operand_stack.append(for_stack[len(for_stack) - 1])
-    stacks.operand_stack.append('1')
+    stacks.operand_stack.append(constant_table.insert_constant(1, 'int'))
     stacks.operator_stack.append('+')
     stacks.operand_stack.append(for_stack[len(for_stack) - 1])
     stacks.generate_quadruple()
