@@ -17,6 +17,8 @@ class Vartables:
         self.global_var_table = Vartable() #Used to store the global var table used in main
         self.context = "global" #Used to define the context (in the main (global) or in the local function)
         self.current_type = "" #Used to define the current type of variables that we are pushing into the tables
+        self.global_mem = 1000
+        self.local_mem = 8001
 
     #Method to flush current var table when we change the function
     def flush_var_table(self, var_type):
@@ -39,10 +41,17 @@ class Vartables:
     def insert_variable(self, variable):
         #Check if we are in global or local context
         if self.context == "global":
-            return self.global_var_table.newVariable(variable, self.current_type, None, None)
+            if(self.global_mem <= 8000):
+                self.global_mem += 1
+                return self.global_var_table.newVariable(variable, self.current_type, self.global_mem - 1, None)
+            #TODO: error handling for memory
 
         elif self.context == "local":
-            return self.local_var_table.newVariable(variable, self.current_type, None, None)
+            if(self.local_mem <= 15000):
+                self.local_mem += 1
+                return self.local_var_table.newVariable(variable, self.current_type, self.local_mem - 1, None)
+            #TODO: error handling for memory
+
 
     #Used for DEBUGING ONLY!
     def display_var_table(self, var_type):
@@ -57,3 +66,14 @@ class Vartables:
     def change_context(self, new_context):
         self.context = new_context # global or local
     
+#variables globales - 1000 -> 8000
+#int - 1000 -> 5000
+#float - 5001 -> 6000
+#char - 6001 -> 7000
+#string - 7001 -> 8000
+
+#variables locales - 8001 -> 15000
+#int - 8001 -> 12000
+#float - 12001 -> 13000
+#char - 13001 -> 14000
+#string - 14001 -> 15000
