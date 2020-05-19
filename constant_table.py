@@ -1,13 +1,13 @@
 #Constat table data structure used to store constants
 # Victor Hugo Oyervides Covarrubias - A01382836
-# Obed Gonzalez Morneo - A01382900
+# Obed Gonzalez Moreno - A01382900
 
 #This datastructure is used to store the constants in a table and generate its address
 
 class Constanttable:
     def __init__(self):
         self.table = []
-        self.start_address = 10000
+        self.start_address = 15001
     
     def insert_constant(self, constant, const_type):
         #Check if the constant already exists
