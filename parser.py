@@ -433,7 +433,9 @@ def p_r_end_function(p):
     fun_handler.insert_number_variables(var_tables.local_var_table.size())
     #DEBUGN 
     var_tables.display_var_table('local')
-    fun_handler.insertToFunTable()
+    e = fun_handler.insertToFunTable()
+    if e:
+        error_handler(p.lineno(-1), e)
     stacks.add_fun_quadruple() #TODO
     fun_handler.flushFunctionTable()
 
@@ -442,8 +444,9 @@ def p_r_end_function(p):
 # =====================================================================
 def p_r_verify_function(p):
     'r_verify_function : '
-    if not fun_handler.check_function(p[-1]):
-        print("Error: funtion does not exist")
+    e = fun_handler.check_function(p[-1])
+    if e:
+        error_handler(p.lineno(-1), e)
 
 def p_r_generate_era(p):
     'r_generate_era : '
@@ -506,7 +509,7 @@ testScript = '''
     var 
         int i, a, b, j;
     {
-        i = j + 1;
+        i = j + i;
         si ( a > b ) entonces {
             a = a+1;
             b = (10 + 15) * 7;

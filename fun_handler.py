@@ -14,7 +14,10 @@ class Funhandler:
 
     #Method to check a function name inside the function table
     def check_function(self, name):
-        return self.funcTable.exists(name)
+        e = None
+        if not self.funcTable.exists(name):
+            e = "Function " + str(name) + ' does not exist!'
+        return e  
 
     #Method to change current scoped function
     def updateFunction(self, key, value):
@@ -40,9 +43,10 @@ class Funhandler:
 
     #Method to insert the current function into the table
     def insertToFunTable(self):
-        self.funcTable.newFunction(self.current_function["name"],
-                                    self.current_function["varType"],
-                                    self.current_function["quadrupleAddress"],
-                                    self.current_function["numberParam"],
-                                    self.current_function["numberVariables"],
-                                    self.current_function["parameters"])
+        return self.funcTable.newFunction(
+                    self.current_function["name"],
+                    self.current_function["varType"],
+                    self.current_function["quadrupleAddress"],
+                    self.current_function["numberParam"],
+                    self.current_function["numberVariables"],
+                    self.current_function["parameters"])
