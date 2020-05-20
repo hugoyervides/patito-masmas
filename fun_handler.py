@@ -63,11 +63,20 @@ class Funhandler:
         self.called_function = function
         return self.called_function, e
 
+    def check_param_counter(self):
+        e = None
+        if len(self.called_function['parameters']) != self.param_counter:
+            e = "Parameter missmatch for function " + str(self.called_function['name'])
+        return e
+
     def check_param_type(self, param_type):
         e = None
-        if param_type == self.called_function['parameters'][self.param_counter]:
+        #Check the parameters
+        if len(self.called_function['parameters']) <= self.param_counter:
+            e = "Parameter missmatch for function " + str(self.called_function['name'])
+        elif param_type == self.called_function['parameters'][self.param_counter]:
             self.param_counter += 1
-            return e
-        e = "Parameter " + str(self.param_counter) + ' missmatch for function ' + str(self.called_function["name"])
+        else:
+            e = "Parameter " + str(self.param_counter) + ' missmatch for function ' + str(self.called_function["name"])
         return e
         

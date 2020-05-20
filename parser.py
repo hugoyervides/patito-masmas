@@ -16,7 +16,6 @@ fun_handler = Funhandler()
 constant_table = Constanttable()
 for_stack = []
 
-
 start = 'PROG'
 
 # =====================================================================
@@ -204,7 +203,7 @@ def p_ESCRITURA(p):
 
 #LLAMADA
 def p_LLAMADA(p):
-    '''LLAMADA : ID r_verify_function r_generate_era LPAREN TIPO_PARAMETROS RPAREN r_verify_last_parameter r_generate_gosub'''
+    '''LLAMADA : ID r_verify_function r_generate_era LPAREN r_new_lparen TIPO_PARAMETROS r_new_rparen RPAREN r_verify_last_parameter r_generate_gosub'''
     pass
 
 def p_TIPO_PARAMETROS(p):
@@ -214,7 +213,7 @@ def p_TIPO_PARAMETROS(p):
 
 def p_TIPO_PARAMETROS_AUX(p):
     '''TIPO_PARAMETROS_AUX : EXPRESION r_verify_parameter
-                            | EXPRESION r_verify_parameter COMMA r_next_parameter TIPO_PARAMETROS_AUX
+                            | EXPRESION r_verify_parameter COMMA TIPO_PARAMETROS_AUX
     '''
     pass
 
@@ -454,24 +453,29 @@ def p_r_verify_function(p):
 
 def p_r_generate_era(p):
     'r_generate_era : '
-    #TODO
+    stacks.generate_eka_quadruple(fun_handler.called_function['name'])
 
 def p_r_verify_parameter(p):
     'r_verify_parameter : '
-    
-    #TODO
-
-def p_r_next_parameter(p):
-    'r_next_parameter :'
-    #TODO
+    e = None
+    operand_type = stacks.top_types()
+    #Check if the type of the parameter matches
+    e = fun_handler.check_param_type(operand_type)
+    if e:
+        error_handler(p.lineno(-1), e)
+    #Generate the parameter cuadruple
+    stacks.generate_param_quadruple(fun_handler.param_counter)
 
 def p_r_verify_last_parameter(p):
     'r_verify_last_parameter : '
-    #TODO
+    e = None
+    e = fun_handler.check_param_counter()
+    if e:
+        error_handler(p.lineno(-1), e)
 
 def p_r_generate_gosub(p):
     'r_generate_gosub : '
-    #TODO
+    stacks.generate_gosub_quadruple(fun_handler.called_function['name'])
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS TABLA VARIABLES  ----------------
@@ -510,6 +514,8 @@ testScript = '''
     programa patito; 
     var
     int id1, id2, id3, a, b, c;
+    float flo;
+    char letra;
     funcion void prueba(int y, float x)
     var 
         int i, a, b, j;
@@ -522,7 +528,7 @@ testScript = '''
             b = 1 +1;
         }
     }
-    funcion int patito(int x1)
+    funcion int patito(int x1, int f, char s)
     var
         float x;
         int y;
@@ -535,6 +541,8 @@ testScript = '''
         e = 'S';
     }
     principal(){
+        patito(3 + id1, 5 * id2 + id1 , 'e');
+        prueba(id1, flo);
         si ( id1 >= id2) entonces {
             a = a+1;
             b = (10 + 15) * 7;

@@ -25,6 +25,12 @@ class Stacks:
         self.quadruples = Quadruples() 
         self.result_counter = 0
 
+    #Method to get an operand with its type
+    def pop_operand(self):
+        operand = self.operand_stack.pop()
+        operand_type = self.type_stack.pop()
+        return operand, operand_type
+
     #Method to register a new oeprator into our stackl
     def register_operator(self, operator):
         self.operator_stack.append(operator)
@@ -63,6 +69,12 @@ class Stacks:
     def top_operand(self):
         if len(self.operand_stack) > 0:
             return self.operand_stack[-1]
+        else:
+            return None
+
+    def top_types(self):
+        if len(self.type_stack) > 0:
+            return self.type_stack[-1]
         else:
             return None
 
@@ -115,6 +127,20 @@ class Stacks:
             e = "Canot asign " + str(r_type) + ' to ' + str(result_type) + '!'
         return e
     
+    def generate_param_quadruple(self, param_number):
+        #Get the right operand and type
+        operand = self.operand_stack.pop()
+        #Pop the type (we wont need it)
+        self.type_stack.pop()
+        #Generate the cuadruple
+        self.quadruples.add_quadruple("PARAM", operand, None, "PARAM" + str(param_number))
+
+    def generate_gosub_quadruple(self, function_name):
+        self.quadruples.add_quadruple("GOSUB", None, None, function_name)
+
+    def generate_eka_quadruple(self, function_name):
+        self.quadruples.add_quadruple("EKA", None, None, function_name)
+
     #Method to generate a Goto quadruple
     def generate_jump(self, jumpType):
         e = None
