@@ -11,6 +11,8 @@ class Funhandler:
     def __init__(self):
         self.funcTable = Funtable()
         self.current_function = {}
+        self.called_function = {}
+        self.param_counter = 0
 
     #Method to check a function name inside the function table
     def check_function(self, name):
@@ -50,3 +52,22 @@ class Funhandler:
                     self.current_function["numberParam"],
                     self.current_function["numberVariables"],
                     self.current_function["parameters"])
+        
+    def load_called_function(self, name):
+        e = None
+        self.param_counter = 0
+        self.called_function = {}
+        function, e = self.funcTable.get_function(name)
+        if e:
+            return None, e
+        self.called_function = function
+        return self.called_function, e
+
+    def check_param_type(self, param_type):
+        e = None
+        if param_type == self.called_function['parameters'][self.param_counter]:
+            self.param_counter += 1
+            return e
+        e = "Parameter " + str(self.param_counter) + ' missmatch for function ' + str(self.called_function["name"])
+        return e
+        

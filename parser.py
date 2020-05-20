@@ -447,6 +447,10 @@ def p_r_verify_function(p):
     e = fun_handler.check_function(p[-1])
     if e:
         error_handler(p.lineno(-1), e)
+    #Load function parameters into stack
+    _ , e = fun_handler.load_called_function(p[-1])
+    if e:
+        error_handler(p.lineno(-1), e)
 
 def p_r_generate_era(p):
     'r_generate_era : '
@@ -454,6 +458,7 @@ def p_r_generate_era(p):
 
 def p_r_verify_parameter(p):
     'r_verify_parameter : '
+    
     #TODO
 
 def p_r_next_parameter(p):

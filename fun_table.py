@@ -49,3 +49,25 @@ class Funtable:
             for k in i['parameters']:
                 print(str(k) + ' ,' , end = '')
             print()
+            
+    #Verify parameters
+    def verify_parameters(self, name, parameters):
+        #For to check the parameters
+        e = None
+        function = None
+        for i in self.table:
+            if i['name'] == name:
+                function = i
+                break
+        if not function == parameters:
+            e = "Parameter mismatch"
+        return e
+            
+    def get_function(self, name):
+        #for to search for the function
+        e = None
+        for i in self.table:
+            if i['name'] == name:
+                return i, e
+        e = "Function not found"
+        return None, e
