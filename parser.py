@@ -6,6 +6,7 @@ from semantic import cubo_semantico
 from var_table_handler import Vartables
 from fun_handler import Funhandler
 from constant_table import Constanttable
+import sys
 
 #Variable declaration
 stacks = Stacks()
@@ -15,16 +16,7 @@ fun_handler = Funhandler()
 constant_table = Constanttable()
 for_stack = []
 
-
 start = 'PROG'
-
-def p_error(p):
-    if p:
-        print("Syntax error at token", p.type)
-        # Just discard the token and tell the parser it's okay.
-        parser.error()
-    else:
-        print("Syntax error at EOF")
 
 # =====================================================================
 # ------------------- GRAMATICA PRINCIPAL ----------------------
@@ -211,7 +203,7 @@ def p_ESCRITURA(p):
 
 #LLAMADA
 def p_LLAMADA(p):
-    '''LLAMADA : ID r_verify_function r_generate_era LPAREN TIPO_PARAMETROS RPAREN r_verify_last_parameter r_generate_gosub'''
+    '''LLAMADA : ID r_verify_function r_generate_era LPAREN r_new_lparen TIPO_PARAMETROS r_new_rparen RPAREN r_verify_last_parameter r_generate_gosub'''
     pass
 
 def p_TIPO_PARAMETROS(p):
@@ -221,7 +213,7 @@ def p_TIPO_PARAMETROS(p):
 
 def p_TIPO_PARAMETROS_AUX(p):
     '''TIPO_PARAMETROS_AUX : EXPRESION r_verify_parameter
-                            | EXPRESION r_verify_parameter COMMA r_next_parameter TIPO_PARAMETROS_AUX
+                            | EXPRESION r_verify_parameter COMMA TIPO_PARAMETROS_AUX
     '''
     pass
 
@@ -245,13 +237,33 @@ def p_ASIGNACION_AUX(p):
                     | EMPTY
     '''
 
+# =====================================================================
+# --------------- Error handler ----------------
+# =====================================================================
+
+def error_handler(line, error):
+    print("Error in line", line, error)
+    sys.exit()
+
+def p_error(p):
+    if p:
+        print("Syntax error at line: ",p.lineno , p.type)
+        sys.exit()
+    
+    else:
+        print("Syntax error at EOF")
+        sys.exit()
+
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS LINEALES ----------------
 # =====================================================================
+
 def p_r_new_id(p):
     'r_new_id : '
-    type_var = var_tables.get_var_type(p[-1])
+    type_var, e = var_tables.get_var_type(p[-1])
+    if e:
+        error_handler(p.lineno(-1),e)
     stacks.register_operand(p[-1])
     stacks.register_type(type_var)
 
@@ -286,8 +298,9 @@ def p_r_new_lparen(p):
 
 def p_r_new_rparen(p):
     'r_new_rparen : '
-    if not stacks.pop_separator():
-        print("Invalid Construction of expr")
+    e = stacks.pop_separator()
+    if e:        
+        error_handler(p.lineno(-1),e)
 
 def p_r_new_operator(p):
     'r_new_operator : '
@@ -296,27 +309,37 @@ def p_r_new_operator(p):
 def p_r_new_quadruple_flevel(p):
     'r_new_quadruple_flevel : '
     if stacks.top_operators() in ['*', '/']:
-        stacks.generate_quadruple()
+        e = stacks.generate_quadruple()
+        if e:
+            error_handler(p.lineno(-1),e)
 
 def p_r_new_quadruple_slevel(p):
     'r_new_quadruple_slevel : '
     if stacks.top_operators() in ['+', '-']:
-        stacks.generate_quadruple()
+        e = stacks.generate_quadruple()
+        if e:
+            error_handler(p.lineno(-1),e)
 
 def p_r_new_quadruple_tlevel(p):
     'r_new_quadruple_tlevel : '
     if stacks.top_operators() in ['!=', '>=', '<=', '>', '<']:
-        stacks.generate_quadruple()
+        e = stacks.generate_quadruple()
+        if e:
+            error_handler(p.lineno(-1),e)
     
 def p_r_new_quadruple(p):
     'r_new_quadruple : '
     if stacks.top_operators() in ['==','&&','||']:
-        stacks.generate_quadruple()
+        e = stacks.generate_quadruple()
+        if e:
+            error_handler(p.lineno(-1),e)
 
 def p_r_new_equal(p):
     'r_new_equal : '
     if stacks.top_operators() in ['=']:
-        stacks.generate_asignation()
+        e = stacks.generate_asignation()
+        if e:
+            error_handler(p.lineno(-1), e)
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS NO LINEALES ----------------
@@ -332,7 +355,9 @@ def p_r_complete_goto(p):
 
 def p_r_new_gotof(p):
     'r_new_gotof : '
-    stacks.generate_jump("GOTOF")
+    e = stacks.generate_jump("GOTOF")
+    if e:
+        error_handler(p.lineno(-1), e)
 
 def p_r_complete_gotof(p):
     'r_complete_gotof : '
@@ -407,7 +432,9 @@ def p_r_end_function(p):
     fun_handler.insert_number_variables(var_tables.local_var_table.size())
     #DEBUGN 
     var_tables.display_var_table('local')
-    fun_handler.insertToFunTable()
+    e = fun_handler.insertToFunTable()
+    if e:
+        error_handler(p.lineno(-1), e)
     stacks.add_fun_quadruple() #TODO
     fun_handler.flushFunctionTable()
 
@@ -416,28 +443,39 @@ def p_r_end_function(p):
 # =====================================================================
 def p_r_verify_function(p):
     'r_verify_function : '
-    if not fun_handler.check_function(p[-1]):
-        print("Error: funtion does not exist")
+    e = fun_handler.check_function(p[-1])
+    if e:
+        error_handler(p.lineno(-1), e)
+    #Load function parameters into stack
+    _ , e = fun_handler.load_called_function(p[-1])
+    if e:
+        error_handler(p.lineno(-1), e)
 
 def p_r_generate_era(p):
     'r_generate_era : '
-    #TODO
+    stacks.generate_eka_quadruple(fun_handler.called_function['name'])
 
 def p_r_verify_parameter(p):
     'r_verify_parameter : '
-    #TODO
-
-def p_r_next_parameter(p):
-    'r_next_parameter :'
-    #TODO
+    e = None
+    operand_type = stacks.top_types()
+    #Check if the type of the parameter matches
+    e = fun_handler.check_param_type(operand_type)
+    if e:
+        error_handler(p.lineno(-1), e)
+    #Generate the parameter cuadruple
+    stacks.generate_param_quadruple(fun_handler.param_counter)
 
 def p_r_verify_last_parameter(p):
     'r_verify_last_parameter : '
-    #TODO
+    e = None
+    e = fun_handler.check_param_counter()
+    if e:
+        error_handler(p.lineno(-1), e)
 
 def p_r_generate_gosub(p):
     'r_generate_gosub : '
-    #TODO
+    stacks.generate_gosub_quadruple(fun_handler.called_function['name'])
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS TABLA VARIABLES  ----------------
@@ -449,8 +487,9 @@ def p_r_set_var_type(p):
 
 def p_r_new_variable(p):
     'r_new_variable : '
-    if not var_tables.insert_variable(p[-1]):
-        print("Error: variable already exists")
+    e = var_tables.insert_variable(p[-1])
+    if e:
+        error_handler(p.lineno(-1), e)
 
 def p_r_change_local_context(p):
     'r_change_local_context : '
@@ -474,12 +513,14 @@ parser = yacc.yacc()
 testScript = '''
     programa patito; 
     var
-    int id1, id2, id3;
+    int id1, id2, id3, a, b, c;
+    float flo;
+    char letra;
     funcion void prueba(int y, float x)
     var 
-        int i;
+        int i, a, b, j;
     {
-        i = j + 1;
+        i = j + i;
         si ( a > b ) entonces {
             a = a+1;
             b = (10 + 15) * 7;
@@ -487,7 +528,7 @@ testScript = '''
             b = 1 +1;
         }
     }
-    funcion int patito(int x1)
+    funcion int patito(int x1, int f, char s)
     var
         float x;
         int y;
@@ -495,12 +536,14 @@ testScript = '''
     {
         x = 1 + 1;
 
-        e = 'E';
+        e = 'E' ;
 
-        y = x + e;
+        e = 'S';
     }
     principal(){
-        si ( a > b ) entonces {
+        patito(3 + id1, 5 * id2 + id1 , 'e');
+        prueba(id1, flo);
+        si ( id1 >= id2) entonces {
             a = a+1;
             b = (10 + 15) * 7;
         } sino {
@@ -514,11 +557,9 @@ testScript = '''
             a = 2 + 1;
         }
         a = 2;
-
         desde i = 0 hasta 9 hacer{
             a = 10;
         }
-
         a = 12;
     }
 '''
