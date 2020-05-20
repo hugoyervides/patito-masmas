@@ -557,11 +557,9 @@ testScript = '''
             a = 2 + 1;
         }
         a = 2;
-
         desde i = 0 hasta 9 hacer{
             a = 10;
         }
-
         a = 12;
     }
 '''
