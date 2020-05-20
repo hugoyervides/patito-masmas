@@ -6,6 +6,7 @@ from semantic import cubo_semantico
 from var_table_handler import Vartables
 from fun_handler import Funhandler
 from constant_table import Constanttable
+import sys
 
 #Variable declaration
 stacks = Stacks()
@@ -17,14 +18,6 @@ for_stack = []
 
 
 start = 'PROG'
-
-def p_error(p):
-    if p:
-        print("Syntax error at token", p.type)
-        # Just discard the token and tell the parser it's okay.
-        parser.error()
-    else:
-        print("Syntax error at EOF")
 
 # =====================================================================
 # ------------------- GRAMATICA PRINCIPAL ----------------------
@@ -245,13 +238,33 @@ def p_ASIGNACION_AUX(p):
                     | EMPTY
     '''
 
+# =====================================================================
+# --------------- Error handler ----------------
+# =====================================================================
+
+def error_handler(line, error):
+    print("Error in line", line, error)
+    sys.exit()
+
+def p_error(p):
+    if p:
+        print("Syntax error at line: ",p.lineno , p.type)
+        sys.exit()
+    
+    else:
+        print("Syntax error at EOF")
+        sys.exit()
+
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS LINEALES ----------------
 # =====================================================================
+
 def p_r_new_id(p):
     'r_new_id : '
-    type_var = var_tables.get_var_type(p[-1])
+    type_var, e = var_tables.get_var_type(p[-1])
+    if e:
+        error_handler(p.lineno(-1),e)
     stacks.register_operand(p[-1])
     stacks.register_type(type_var)
 
@@ -286,8 +299,9 @@ def p_r_new_lparen(p):
 
 def p_r_new_rparen(p):
     'r_new_rparen : '
-    if not stacks.pop_separator():
-        print("Invalid Construction of expr")
+    e = stacks.pop_separator()
+    if e:        
+        error_handler(p.lineno(-1),e)
 
 def p_r_new_operator(p):
     'r_new_operator : '
@@ -296,27 +310,37 @@ def p_r_new_operator(p):
 def p_r_new_quadruple_flevel(p):
     'r_new_quadruple_flevel : '
     if stacks.top_operators() in ['*', '/']:
-        stacks.generate_quadruple()
+        e = stacks.generate_quadruple()
+        if e:
+            error_handler(p.lineno(-1),e)
 
 def p_r_new_quadruple_slevel(p):
     'r_new_quadruple_slevel : '
     if stacks.top_operators() in ['+', '-']:
-        stacks.generate_quadruple()
+        e = stacks.generate_quadruple()
+        if e:
+            error_handler(p.lineno(-1),e)
 
 def p_r_new_quadruple_tlevel(p):
     'r_new_quadruple_tlevel : '
     if stacks.top_operators() in ['!=', '>=', '<=', '>', '<']:
-        stacks.generate_quadruple()
+        e = stacks.generate_quadruple()
+        if e:
+            error_handler(p.lineno(-1),e)
     
 def p_r_new_quadruple(p):
     'r_new_quadruple : '
     if stacks.top_operators() in ['==','&&','||']:
-        stacks.generate_quadruple()
+        e = stacks.generate_quadruple()
+        if e:
+            error_handler(p.lineno(-1),e)
 
 def p_r_new_equal(p):
     'r_new_equal : '
     if stacks.top_operators() in ['=']:
-        stacks.generate_asignation()
+        e = stacks.generate_asignation()
+        if e:
+            error_handler(p.lineno(-1), e)
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS NO LINEALES ----------------
@@ -332,7 +356,9 @@ def p_r_complete_goto(p):
 
 def p_r_new_gotof(p):
     'r_new_gotof : '
-    stacks.generate_jump("GOTOF")
+    e = stacks.generate_jump("GOTOF")
+    if e:
+        error_handler(p.lineno(-1), e)
 
 def p_r_complete_gotof(p):
     'r_complete_gotof : '
@@ -449,8 +475,9 @@ def p_r_set_var_type(p):
 
 def p_r_new_variable(p):
     'r_new_variable : '
-    if not var_tables.insert_variable(p[-1]):
-        print("Error: variable already exists")
+    e = var_tables.insert_variable(p[-1])
+    if e:
+        error_handler(p.lineno(-1), e)
 
 def p_r_change_local_context(p):
     'r_change_local_context : '
@@ -474,10 +501,10 @@ parser = yacc.yacc()
 testScript = '''
     programa patito; 
     var
-    int id1, id2, id3;
+    int id1, id2, id3, a, b, c;
     funcion void prueba(int y, float x)
     var 
-        int i;
+        int i, a, b, j;
     {
         i = j + 1;
         si ( a > b ) entonces {
@@ -495,12 +522,12 @@ testScript = '''
     {
         x = 1 + 1;
 
-        e = 'E';
+        e = 'E' ;
 
-        y = x + e;
+        e = 'S';
     }
     principal(){
-        si ( a > b ) entonces {
+        si ( id1 >= id2) entonces {
             a = a+1;
             b = (10 + 15) * 7;
         } sino {

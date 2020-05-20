@@ -36,30 +36,27 @@ class Vartables:
     def get_var_type(self, value):
         #Check the context that we are currenlty
         if(self.context == "local"):
-            #check if the variable exists in local context
-            var_type = self.local_var_table.get_type(value)
-            if var_type != None:
-                return var_type
-            else: #Not in local context, try global
+            var_type, e = self.local_var_table.get_type(value)
+            if var_type == None:
                 return self.global_var_table.get_type(value)
-        else:
-            return self.global_var_table.get_type(value)
+            return var_type, e
+        return self.global_var_table.get_type(value)
 
-    
     #Method to insert a new variable to the var table
     def insert_variable(self, variable):
+        e = None
         #Check if we are in global or local context
         if self.context == "global":
             if(self.global_mem <= 8000):
                 self.global_mem += 1
-                return self.global_var_table.newVariable(variable, self.current_type, self.global_mem - 1, None)
+                e = self.global_var_table.newVariable(variable, self.current_type, self.global_mem - 1, None)
             #TODO: error handling for memory
         elif self.context == "local":
             if(self.local_mem <= 15000):
                 self.local_mem += 1
-                return self.local_var_table.newVariable(variable, self.current_type, self.local_mem - 1, None)
+                e = self.local_var_table.newVariable(variable, self.current_type, self.local_mem - 1, None)
             #TODO: error handling for memory
-        return False
+        return e
 
     #Used for DEBUGING ONLY!
     def display_var_table(self, var_type):

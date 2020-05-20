@@ -97,8 +97,5 @@ def t_error(t):
     print("Illegal character '%s'" % t.value[0])
     t.lexer.skip(1)
 
+
 lexer = lex.lex()
-
-data = "programa patito; var int i,j,p[1],h[2][3];"
-
-lexer.input(data)
