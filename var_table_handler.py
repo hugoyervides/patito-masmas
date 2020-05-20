@@ -32,9 +32,18 @@ class Vartables:
     def set_var_type(self, var_type):
         self.current_type = var_type
 
+    #Method to get the current type of variable
     def get_var_type(self, value):
-        if(self.context != "global"):
-            return self.local_var_table.get_type(value)
+        #Check the context that we are currenlty
+        if(self.context == "local"):
+            #check if the variable exists in local context
+            var_type = self.local_var_table.get_type(value)
+            if var_type != None:
+                return var_type
+            else: #Not in local context, try global
+                return self.global_var_table.get_type(value)
+        else:
+            return self.global_var_table.get_type(value)
 
     
     #Method to insert a new variable to the var table
