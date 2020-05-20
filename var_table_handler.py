@@ -54,13 +54,12 @@ class Vartables:
                 self.global_mem += 1
                 return self.global_var_table.newVariable(variable, self.current_type, self.global_mem - 1, None)
             #TODO: error handling for memory
-
         elif self.context == "local":
             if(self.local_mem <= 15000):
                 self.local_mem += 1
                 return self.local_var_table.newVariable(variable, self.current_type, self.local_mem - 1, None)
             #TODO: error handling for memory
-
+        return False
 
     #Used for DEBUGING ONLY!
     def display_var_table(self, var_type):
