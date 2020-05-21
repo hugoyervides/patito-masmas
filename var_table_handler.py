@@ -20,6 +20,10 @@ class Vartables:
         self.global_mem = 1000
         self.local_mem = 8001
 
+    #Method to change the context of the var table
+    def change_context(self, new_context):
+        self.context = new_context # global or local
+
     #Method to flush current var table when we change the function
     def flush_var_table(self, var_type):
         if var_type == 'local':
@@ -41,6 +45,16 @@ class Vartables:
                 return self.global_var_table.get_type(value)
             return var_type, e
         return self.global_var_table.get_type(value)
+
+    #Method to get the current type of variable
+    def get_var_vaddr(self, value):
+        #Check the context that we are currenlty
+        if(self.context == "local"):
+            var_type, e = self.local_var_table.get_vaddr(value)
+            if var_type == None:
+                return self.global_var_table.get_vaddr(value)
+            return var_type, e
+        return self.global_var_table.get_vaddr(value)
 
     #Method to insert a new variable to the var table
     def insert_variable(self, variable):
@@ -70,10 +84,7 @@ class Vartables:
         elif var_type == "global":
             print("Displaying global Var table")
             self.global_var_table.display_vars()
-            
-    #Method to change the context of the var table
-    def change_context(self, new_context):
-        self.context = new_context # global or local
+        
     
 #variables globales - 1000 -> 8000
 #int - 1000 -> 5000

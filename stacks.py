@@ -136,8 +136,17 @@ class Stacks:
         #Generate the cuadruple
         self.quadruples.add_quadruple("PARAM", operand, None, "PARAM" + str(param_number))
 
-    def generate_gosub_quadruple(self, function_name):
-        self.quadruples.add_quadruple("GOSUB", None, None, function_name)
+    def generate_gosub_quadruple(self, function, vaddr):
+        self.quadruples.add_quadruple("GOSUB", None, None, function['name'])
+        #Check if the function has a return value
+        if function['returnType'] != 'void':
+            #Add a tep value to store the function return
+            self.operand_stack.append(self.get_result_var())
+            self.type_stack.append(function['returnType'])
+            #Add a equal to store the return value
+            self.operand_stack.append(vaddr)
+            self.type_stack.append(function['returnType'])
+            self.generate_asignation()
 
     def generate_eka_quadruple(self, function_name):
         self.quadruples.add_quadruple("EKA", None, None, function_name)

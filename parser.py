@@ -155,7 +155,7 @@ def p_OPCION_BLOQUE(p):
 
 # FUNCIONES
 def p_FUNCTION(p):
-    '''FUNCTION : r_new_function FUNCION TIPO_FUNC ID r_set_fun_name r_new_vartable LPAREN PARAMETROS RPAREN VARS BLOQUE r_end_function FUNCTION 
+    '''FUNCTION : r_new_function FUNCION TIPO_FUNC ID r_set_fun_name r_new_vartable LPAREN PARAMETROS RPAREN VARS r_insert_parameters BLOQUE r_end_function FUNCTION 
                 | EMPTY'''
     pass
 
@@ -429,25 +429,29 @@ def p_r_new_vartable(p):
     'r_new_vartable : '
     var_tables.flush_var_table('local')
 
-def p_r_end_function(p):
-    'r_end_function : '
+def p_r_insert_parameters(p):
+    'r_insert_parameters : '
     #Insert the number of variables and parameters into the function table
     fun_handler.insert_number_param()
     fun_handler.insert_number_variables(var_tables.local_var_table.size())
-    #DEBUGN 
-    var_tables.display_var_table('local')
+    #Insert to function table 
     e = fun_handler.insertToFunTable()
     if e:
         error_handler(p.lineno(-1), e)
-    stacks.complete_return_jump()
-    stacks.add_fun_quadruple()
     #Check if the function has a result and if it has a result put the variable into the global variable table
     if fun_handler.current_function['varType'] != 'void':
         var_tables.insert_function(
             fun_handler.current_function['name'],
             fun_handler.current_function['varType']
         )
+    #DEBUGN 
+    var_tables.display_var_table('local')
+
+def p_r_end_function(p):
+    'r_end_function : '
     fun_handler.flushFunctionTable()
+    stacks.complete_return_jump()
+    stacks.add_fun_quadruple()
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS LLAMADA FUNCIONES  ----------------
@@ -486,7 +490,15 @@ def p_r_verify_last_parameter(p):
 
 def p_r_generate_gosub(p):
     'r_generate_gosub : '
-    stacks.generate_gosub_quadruple(fun_handler.called_function['name'])
+    #get the funtion return virtual address if we need it
+    #get virtual address
+    vaddr, e = var_tables.get_var_vaddr(
+        fun_handler.called_function['name']
+    )
+    if e:
+        error_handler(p.lineno(-1), e)
+    stacks.generate_gosub_quadruple(fun_handler.called_function, vaddr)
+
 
 def p_r_generate_return(p):
     'r_generate_return : '
@@ -495,6 +507,7 @@ def p_r_generate_return(p):
     if e:
         error_handler(p.lineno(-1), e)
     stacks.generate_return_jump()
+
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS TABLA VARIABLES  ----------------
@@ -555,15 +568,14 @@ testScript = '''
         char e;
     {
         x = 1 + 1;
-        return(1);
+        y = patito(1,2,'s');
+        return(y + 12 * 5);
         e = 'E' ;
-
         e = 'S';
         
     }
     principal(){
-        patito(3 + id1, 5 * id2 + id1 , 'e');
-        prueba(id1, flo);
+        id1 = patito(3 + id1, 5 * id2 + id1 , 'e') * 5;
         si ( id1 >= id2) entonces {
             a = a+1;
             b = (10 + 15) * 7;

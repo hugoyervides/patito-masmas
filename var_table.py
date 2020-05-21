@@ -37,11 +37,18 @@ class Vartable:
                 str(i["type"]) + '\t' +
                 str(i["vAddr"]) + '\t')
 
-
     def get_type(self, name):
         e = None
         for var in self.table:
             if(var['name'] == name):
                 return var['type'], e
+        e = "Variable " + str(name) + " not declared"
+        return None, e
+
+    def get_vaddr(self, name):
+        e = None
+        for var in self.table:
+            if(var['name'] == name):
+                return var['vAddr'], e
         e = "Variable " + str(name) + " not declared"
         return None, e
