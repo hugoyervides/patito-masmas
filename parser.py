@@ -144,6 +144,7 @@ def p_OPCION_BLOQUE(p):
                     | MIENTRAS_CICLO OPCION_BLOQUE
                     | DESDE_CICLO OPCION_BLOQUE
                     | ASIGNACION SEMI_COLON OPCION_BLOQUE
+                    | RETURN_STM SEMI_COLON OPCION_BLOQUE
                     | EMPTY
     '''
     pass
@@ -179,6 +180,9 @@ def p_AUX_PARAM(p):
 def p_NEXT_PARAM(p):
     '''NEXT_PARAM : COMMA AUX_PARAM
                     | EMPTY '''
+
+def p_RETURN_STM(p):
+    'RETURN_STM : RETURN LPAREN EXPRESION RPAREN r_generate_return'
 
 #CICLO DESDE
 #TODO
@@ -435,6 +439,7 @@ def p_r_end_function(p):
     e = fun_handler.insertToFunTable()
     if e:
         error_handler(p.lineno(-1), e)
+    stacks.complete_return_jump()
     stacks.add_fun_quadruple() #TODO
     fun_handler.flushFunctionTable()
 
@@ -477,6 +482,14 @@ def p_r_generate_gosub(p):
     'r_generate_gosub : '
     stacks.generate_gosub_quadruple(fun_handler.called_function['name'])
 
+def p_r_generate_return(p):
+    'r_generate_return : '
+    e = None
+    e = stacks.generate_return_quadruple(fun_handler.current_function['varType'])
+    if e:
+        error_handler(p.lineno(-1), e)
+    stacks.generate_return_jump()
+
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS TABLA VARIABLES  ----------------
 # =====================================================================
@@ -516,16 +529,19 @@ testScript = '''
     int id1, id2, id3, a, b, c;
     float flo;
     char letra;
-    funcion void prueba(int y, float x)
+    funcion int prueba(int y, float x)
     var 
         int i, a, b, j;
     {
         i = j + i;
         si ( a > b ) entonces {
             a = a+1;
+            return(a);
             b = (10 + 15) * 7;
+            
         } sino {
             b = 1 +1;
+            return(a);
         }
     }
     funcion int patito(int x1, int f, char s)
@@ -535,10 +551,11 @@ testScript = '''
         char e;
     {
         x = 1 + 1;
-
+        return(1);
         e = 'E' ;
 
         e = 'S';
+        
     }
     principal(){
         patito(3 + id1, 5 * id2 + id1 , 'e');

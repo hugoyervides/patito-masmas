@@ -10,6 +10,7 @@ reserved = {
     'float' : 'FLOAT',
     'char' : 'CHAR',
     'funcion' : 'FUNCION',
+    'return' : 'RETURN',
     'void' : 'VOID',
     'lee' : 'LEE',
     'escribe' : 'ESCRIBE',

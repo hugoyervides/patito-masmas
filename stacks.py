@@ -22,6 +22,7 @@ class Stacks:
             'GOTOF' :   [],
             'GOTO' :    []
         }
+        self.return_stack = [] #Used for pending return Jumps
         self.quadruples = Quadruples() 
         self.result_counter = 0
 
@@ -141,6 +142,15 @@ class Stacks:
     def generate_eka_quadruple(self, function_name):
         self.quadruples.add_quadruple("EKA", None, None, function_name)
 
+    def generate_return_quadruple(self, function_type):
+        e = None
+        operand = self.operand_stack.pop()
+        operand_type = self.type_stack.pop()
+        if (operand_type != function_type):
+            e = "Function return type missmatch"
+        self.quadruples.add_quadruple("RETURN", None, None, operand)
+        return e
+
     #Method to generate a Goto quadruple
     def generate_jump(self, jumpType):
         e = None
@@ -177,3 +187,16 @@ class Stacks:
     #Method the get the current quadruple address
     def current_quadruple_address(self):
         return len(self.quadruples.quadruples) - 1 
+
+    #Method to generate a new goto for a return statment
+    def generate_return_jump(self):
+        self.return_stack.append(len(self.quadruples.quadruples))
+        self.quadruples.add_quadruple('GOTO', None, None, None)
+
+    #Method to complete a return goto
+    def complete_return_jump(self):
+        #Function ends, complete all returns goto in stack
+        while len(self.return_stack) > 0:
+            address = self.return_stack.pop()
+            jumpAddress = len(self.quadruples.quadruples)
+            self.quadruples.update_quadruple(address, 'GOTO', None, None, jumpAddress)
