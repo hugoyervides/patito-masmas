@@ -440,7 +440,13 @@ def p_r_end_function(p):
     if e:
         error_handler(p.lineno(-1), e)
     stacks.complete_return_jump()
-    stacks.add_fun_quadruple() #TODO
+    stacks.add_fun_quadruple()
+    #Check if the function has a result and if it has a result put the variable into the global variable table
+    if fun_handler.current_function['varType'] != 'void':
+        var_tables.insert_function(
+            fun_handler.current_function['name'],
+            fun_handler.current_function['varType']
+        )
     fun_handler.flushFunctionTable()
 
 # =====================================================================
@@ -529,19 +535,17 @@ testScript = '''
     int id1, id2, id3, a, b, c;
     float flo;
     char letra;
-    funcion int prueba(int y, float x)
+    funcion void prueba(int y, float x)
     var 
         int i, a, b, j;
     {
         i = j + i;
         si ( a > b ) entonces {
             a = a+1;
-            return(a);
             b = (10 + 15) * 7;
             
         } sino {
             b = 1 +1;
-            return(a);
         }
     }
     funcion int patito(int x1, int f, char s)

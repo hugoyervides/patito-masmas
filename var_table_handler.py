@@ -58,6 +58,10 @@ class Vartables:
             #TODO: error handling for memory
         return e
 
+    def insert_function(self, function_name, function_type):
+        self.global_mem += 1
+        self.global_var_table.newVariable(function_name, function_type, self.global_mem - 1, None)
+
     #Used for DEBUGING ONLY!
     def display_var_table(self, var_type):
         if var_type == "local":
