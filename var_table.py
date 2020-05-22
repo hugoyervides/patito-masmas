@@ -43,3 +43,11 @@ class Vartable:
                 return var['type']
             
         return None
+
+
+    def get_mem(self, name):
+        for var in self.table:
+            if(var['name'] == name):
+                return var['vAddr']
+            
+        return None
