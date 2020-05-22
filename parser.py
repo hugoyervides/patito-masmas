@@ -6,6 +6,7 @@ from semantic import cubo_semantico
 from var_table_handler import Vartables
 from fun_handler import Funhandler
 from constant_table import Constanttable
+import sys
 
 #Variable declaration
 stacks = Stacks()
@@ -15,16 +16,7 @@ fun_handler = Funhandler()
 constant_table = Constanttable()
 for_stack = []
 
-
 start = 'PROG'
-
-def p_error(p):
-    if p:
-        print("Syntax error at token", p.type)
-        # Just discard the token and tell the parser it's okay.
-        parser.error()
-    else:
-        print("Syntax error at EOF")
 
 # =====================================================================
 # ------------------- GRAMATICA PRINCIPAL ----------------------
@@ -152,6 +144,7 @@ def p_OPCION_BLOQUE(p):
                     | MIENTRAS_CICLO OPCION_BLOQUE
                     | DESDE_CICLO OPCION_BLOQUE
                     | ASIGNACION SEMI_COLON OPCION_BLOQUE
+                    | RETURN_STM SEMI_COLON OPCION_BLOQUE
                     | EMPTY
     '''
     pass
@@ -162,7 +155,7 @@ def p_OPCION_BLOQUE(p):
 
 # FUNCIONES
 def p_FUNCTION(p):
-    '''FUNCTION : r_new_function FUNCION r_clear_mem TIPO_FUNC ID r_set_fun_name r_new_vartable LPAREN PARAMETROS RPAREN VARS BLOQUE r_end_function FUNCTION 
+    '''FUNCTION : r_new_function FUNCION TIPO_FUNC r_clear_mem ID r_set_fun_name r_new_vartable LPAREN PARAMETROS RPAREN VARS r_insert_parameters BLOQUE r_end_function FUNCTION 
                 | EMPTY'''
     pass
 
@@ -188,6 +181,9 @@ def p_NEXT_PARAM(p):
     '''NEXT_PARAM : COMMA AUX_PARAM
                     | EMPTY '''
 
+def p_RETURN_STM(p):
+    'RETURN_STM : RETURN LPAREN EXPRESION RPAREN r_generate_return'
+
 #CICLO DESDE
 #TODO
 def p_DESDE_CICLO(p):
@@ -201,17 +197,26 @@ def p_MIENTRAS_CICLO(p):
 
 #LECTURA
 def p_LECTURA(p):
-    '''LECTURA : LEE LPAREN ID RPAREN'''
+    '''LECTURA : LEE LPAREN ID r_new_id r_new_read RPAREN'''
     pass
 
 #ESCRITURA
 def p_ESCRITURA(p):
-    '''ESCRITURA : ESCRIBE LPAREN TIPO_PARAMETROS RPAREN'''
+    '''ESCRITURA : ESCRIBE LPAREN PARAMETRO_ESCRITURA RPAREN'''
     pass
+
+def p_PARAMETRO_ESCRITURA(p):
+    '''PARAMETRO_ESCRITURA : PARAMETRO_ESCRITURA_AUX
+                            | EMPTY'''
+    pass
+
+def p_PARAMETRO_ESCRITURA_AUX(p):
+    '''PARAMETRO_ESCRITURA_AUX : EXPRESION r_new_write
+                                | EXPRESION r_new_write COMMA PARAMETRO_ESCRITURA_AUX'''
 
 #LLAMADA
 def p_LLAMADA(p):
-    '''LLAMADA : ID r_verify_function r_generate_era LPAREN TIPO_PARAMETROS RPAREN r_verify_last_parameter r_generate_gosub'''
+    '''LLAMADA : ID r_verify_function r_generate_era LPAREN r_new_lparen TIPO_PARAMETROS r_new_rparen RPAREN r_verify_last_parameter r_generate_gosub'''
     pass
 
 def p_TIPO_PARAMETROS(p):
@@ -221,7 +226,7 @@ def p_TIPO_PARAMETROS(p):
 
 def p_TIPO_PARAMETROS_AUX(p):
     '''TIPO_PARAMETROS_AUX : EXPRESION r_verify_parameter
-                            | EXPRESION r_verify_parameter COMMA r_next_parameter TIPO_PARAMETROS_AUX
+                            | EXPRESION r_verify_parameter COMMA TIPO_PARAMETROS_AUX
     '''
     pass
 
@@ -245,15 +250,37 @@ def p_ASIGNACION_AUX(p):
                     | EMPTY
     '''
 
+# =====================================================================
+# --------------- Error handler ----------------
+# =====================================================================
+
+def error_handler(line, error):
+    print("Error in line", line, error)
+    sys.exit()
+
+def p_error(p):
+    if p:
+        print("Syntax error at line: ",p.lineno , p.type)
+        sys.exit()
+    
+    else:
+        print("Syntax error at EOF")
+        sys.exit()
+
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS LINEALES ----------------
 # =====================================================================
+
 def p_r_new_id(p):
     'r_new_id : '
+
     type_var = var_tables.get_var_type(p[-1])
     mem_address = var_tables.get_virtual_mem(p[-1])
     stacks.register_operand(mem_address)
+    type_var, e = var_tables.get_var_type(p[-1])
+    if e:
+        error_handler(p.lineno(-1),e)
     stacks.register_type(type_var)
 
 
@@ -287,8 +314,9 @@ def p_r_new_lparen(p):
 
 def p_r_new_rparen(p):
     'r_new_rparen : '
-    if not stacks.pop_separator():
-        print("Invalid Construction of expr")
+    e = stacks.pop_separator()
+    if e:        
+        error_handler(p.lineno(-1),e)
 
 def p_r_new_operator(p):
     'r_new_operator : '
@@ -297,27 +325,37 @@ def p_r_new_operator(p):
 def p_r_new_quadruple_flevel(p):
     'r_new_quadruple_flevel : '
     if stacks.top_operators() in ['*', '/']:
-        stacks.generate_quadruple()
+        e = stacks.generate_quadruple()
+        if e:
+            error_handler(p.lineno(-1),e)
 
 def p_r_new_quadruple_slevel(p):
     'r_new_quadruple_slevel : '
     if stacks.top_operators() in ['+', '-']:
-        stacks.generate_quadruple()
+        e = stacks.generate_quadruple()
+        if e:
+            error_handler(p.lineno(-1),e)
 
 def p_r_new_quadruple_tlevel(p):
     'r_new_quadruple_tlevel : '
     if stacks.top_operators() in ['!=', '>=', '<=', '>', '<']:
-        stacks.generate_quadruple()
+        e = stacks.generate_quadruple()
+        if e:
+            error_handler(p.lineno(-1),e)
     
 def p_r_new_quadruple(p):
     'r_new_quadruple : '
     if stacks.top_operators() in ['==','&&','||']:
-        stacks.generate_quadruple()
+        e = stacks.generate_quadruple()
+        if e:
+            error_handler(p.lineno(-1),e)
 
 def p_r_new_equal(p):
     'r_new_equal : '
     if stacks.top_operators() in ['=']:
-        stacks.generate_asignation()
+        e = stacks.generate_asignation()
+        if e:
+            error_handler(p.lineno(-1), e)
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS NO LINEALES ----------------
@@ -333,7 +371,9 @@ def p_r_complete_goto(p):
 
 def p_r_new_gotof(p):
     'r_new_gotof : '
-    stacks.generate_jump("GOTOF")
+    e = stacks.generate_jump("GOTOF")
+    if e:
+        error_handler(p.lineno(-1), e)
 
 def p_r_complete_gotof(p):
     'r_complete_gotof : '
@@ -409,16 +449,29 @@ def p_r_new_vartable(p):
     'r_new_vartable : '
     var_tables.flush_var_table('local')
 
-def p_r_end_function(p):
-    'r_end_function : '
+def p_r_insert_parameters(p):
+    'r_insert_parameters : '
     #Insert the number of variables and parameters into the function table
     fun_handler.insert_number_param()
     fun_handler.insert_number_variables(var_tables.local_var_table.size())
+    #Insert to function table 
+    e = fun_handler.insertToFunTable()
+    if e:
+        error_handler(p.lineno(-1), e)
+    #Check if the function has a result and if it has a result put the variable into the global variable table
+    if fun_handler.current_function['varType'] != 'void':
+        var_tables.insert_function(
+            fun_handler.current_function['name'],
+            fun_handler.current_function['varType']
+        )
     #DEBUGN 
     var_tables.display_var_table('local')
-    fun_handler.insertToFunTable()
-    stacks.add_fun_quadruple() #TODO
+
+def p_r_end_function(p):
+    'r_end_function : '
     fun_handler.flushFunctionTable()
+    stacks.complete_return_jump()
+    stacks.add_fun_quadruple()
 
 def p_r_flush_mem(p):
     'r_flush_mem : '
@@ -429,28 +482,56 @@ def p_r_flush_mem(p):
 # =====================================================================
 def p_r_verify_function(p):
     'r_verify_function : '
-    if not fun_handler.check_function(p[-1]):
-        print("Error: funtion does not exist")
+    e = fun_handler.check_function(p[-1])
+    if e:
+        error_handler(p.lineno(-1), e)
+    #Load function parameters into stack
+    _ , e = fun_handler.load_called_function(p[-1])
+    if e:
+        error_handler(p.lineno(-1), e)
 
 def p_r_generate_era(p):
     'r_generate_era : '
-    #TODO
+    stacks.generate_eka_quadruple(fun_handler.called_function['name'])
 
 def p_r_verify_parameter(p):
     'r_verify_parameter : '
-    #TODO
-
-def p_r_next_parameter(p):
-    'r_next_parameter :'
-    #TODO
+    e = None
+    operand_type = stacks.top_types()
+    #Check if the type of the parameter matches
+    e = fun_handler.check_param_type(operand_type)
+    if e:
+        error_handler(p.lineno(-1), e)
+    #Generate the parameter cuadruple
+    stacks.generate_param_quadruple(fun_handler.param_counter)
 
 def p_r_verify_last_parameter(p):
     'r_verify_last_parameter : '
-    #TODO
+    e = None
+    e = fun_handler.check_param_counter()
+    if e:
+        error_handler(p.lineno(-1), e)
 
 def p_r_generate_gosub(p):
     'r_generate_gosub : '
-    #TODO
+    #get the funtion return virtual address if we need it
+    #get virtual address
+    vaddr, e = var_tables.get_var_vaddr(
+        fun_handler.called_function['name']
+    )
+    if e:
+        error_handler(p.lineno(-1), e)
+    stacks.generate_gosub_quadruple(fun_handler.called_function, vaddr)
+
+
+def p_r_generate_return(p):
+    'r_generate_return : '
+    e = None
+    e = stacks.generate_return_quadruple(fun_handler.current_function['varType'])
+    if e:
+        error_handler(p.lineno(-1), e)
+    stacks.generate_return_jump()
+
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS TABLA VARIABLES  ----------------
@@ -462,8 +543,9 @@ def p_r_set_var_type(p):
 
 def p_r_new_variable(p):
     'r_new_variable : '
-    if not var_tables.insert_variable(p[-1]):
-        print("Error: variable already exists")
+    e = var_tables.insert_variable(p[-1])
+    if e:
+        error_handler(p.lineno(-1), e)
 
 def p_r_change_local_context(p):
     'r_change_local_context : '
@@ -482,38 +564,55 @@ def p_r_display_const(p):
     constant_table.display_table()
 
 
+# =====================================================================
+# --------------- PUNTOS NEURALGICOS I/O ----------------
+# =====================================================================
+
+def p_r_new_read(p):
+    'r_new_read : '
+    stacks.generate_read_quadruple()
+
+def p_r_new_write(p):
+    'r_new_write : '
+    stacks.generate_write_quadruple()
+
 parser = yacc.yacc()
 
 testScript = '''
     programa patito; 
     var
-    int id1, id2, id3, i;
+    int id1, id2, id3, a, b, c;
+    float flo;
+    char letra;
     funcion void prueba(int y, float x)
     var 
-        int i;
+        int i, a, b, j;
     {
-        i = j + 1;
+        i = j + i;
         si ( a > b ) entonces {
             a = a+1;
             b = (10 + 15) * 7;
+            
         } sino {
             b = 1 +1;
         }
     }
-    funcion int patito(int x1)
+    funcion int patito(int x1, int f, char s)
     var
         float x;
         int y;
         char e;
     {
         x = 1 + 1;
-
-        e = 'E';
-
-        y = x + e;
+        y = patito(1,2,'s');
+        return(y + 12 * 5);
+        e = 'E' ;
+        e = 'S';
+        
     }
     principal(){
-        si ( a > b ) entonces {
+        id1 = patito(3 + id1, 5 * id2 + id1 , 'e') * 5;
+        si ( id1 >= id2) entonces {
             a = a+1;
             b = (10 + 15) * 7;
         } sino {
@@ -527,7 +626,6 @@ testScript = '''
             a = 2 + 1;
         }
         a = 2;
-
         desde i = 0 hasta 9 hacer{
             a = 10;
         }
@@ -535,6 +633,8 @@ testScript = '''
         a = i + 1;
 
         a = 12;
+        lee(id1);
+        escribe(id2);
     }
 '''
 

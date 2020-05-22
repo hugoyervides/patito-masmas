@@ -11,10 +11,11 @@ class Vartable:
 
     #Method to add new variable
     def newVariable(self, name, varType, vAddr, dims):
+        e = None
         #Check if we dont already have a variable with that name
         for i in self.table:
             if i["name"] == name:
-                return False
+                e = "Variable " + str(name) + " already exists" 
         #Insert the new function
         self.table.append({
             'name' :    name, #Name of the variable
@@ -22,7 +23,7 @@ class Vartable:
             'vAddr' :   vAddr, #TODO Virtual Address for the variable
             'dims' :    dims #TODO List of dimensions
         })
-        return True
+        return e
 
     #method to get the number of variables
     def size(self):
@@ -36,14 +37,21 @@ class Vartable:
                 str(i["type"]) + '\t' +
                 str(i["vAddr"]) + '\t')
 
-
     def get_type(self, name):
+        e = None
         for var in self.table:
             if(var['name'] == name):
-                return var['type']
-            
-        return None
+                return var['type'], e
+        e = "Variable " + str(name) + " not declared"
+        return None, e
 
+    def get_vaddr(self, name):
+        e = None
+        for var in self.table:
+            if(var['name'] == name):
+                return var['vAddr'], e
+        e = "Variable " + str(name) + " not declared"
+        return None, e
 
     def get_mem(self, name):
         for var in self.table:

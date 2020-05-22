@@ -20,6 +20,10 @@ class Vartables:
         self.global_mem = 1000
         self.local_mem = 8000
 
+    #Method to change the context of the var table
+    def change_context(self, new_context):
+        self.context = new_context # global or local
+
     #Method to flush current var table when we change the function
     def flush_var_table(self, var_type):
         if var_type == 'local':
@@ -35,32 +39,45 @@ class Vartables:
     def set_var_type(self, var_type):
         self.current_type = var_type
 
+    #Method to get the current type of variable
     def get_var_type(self, value):
-        if(self.context != "global"):
-            type = self.local_var_table.get_type(value)
-            if(type != None):
-                return type
-            else:
+        #Check the context that we are currenlty
+        if(self.context == "local"):
+            var_type, e = self.local_var_table.get_type(value)
+            if var_type == None:
                 return self.global_var_table.get_type(value)
-        else:
-            return self.global_var_table.get_type(value)
+            return var_type, e
+        return self.global_var_table.get_type(value)
 
-    
+    #Method to get the current type of variable
+    def get_var_vaddr(self, value):
+        #Check the context that we are currenlty
+        if(self.context == "local"):
+            var_type, e = self.local_var_table.get_vaddr(value)
+            if var_type == None:
+                return self.global_var_table.get_vaddr(value)
+            return var_type, e
+        return self.global_var_table.get_vaddr(value)
+
     #Method to insert a new variable to the var table
     def insert_variable(self, variable):
+        e = None
         #Check if we are in global or local context
         if self.context == "global":
             if(self.global_mem <= 7999):
                 self.global_mem += 1
-                return self.global_var_table.newVariable(variable, self.current_type, self.global_mem - 1, None)
+                e = self.global_var_table.newVariable(variable, self.current_type, self.global_mem - 1, None)
             #TODO: error handling for memory
-
         elif self.context == "local":
             if(self.local_mem <= 14999):
                 self.local_mem += 1
-                return self.local_var_table.newVariable(variable, self.current_type, self.local_mem - 1, None)
+                e = self.local_var_table.newVariable(variable, self.current_type, self.local_mem - 1, None)
             #TODO: error handling for memory
+        return e
 
+    def insert_function(self, function_name, function_type):
+        self.global_mem += 1
+        self.global_var_table.newVariable(function_name, function_type, self.global_mem - 1, None)
 
     #Used for DEBUGING ONLY!
     def display_var_table(self, var_type):
