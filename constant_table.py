@@ -7,7 +7,7 @@
 class Constanttable:
     def __init__(self):
         self.table = []
-        self.start_address = 15001
+        self.start_address = 15000
     
     def insert_constant(self, constant, const_type):
         #Check if the constant already exists
@@ -20,8 +20,11 @@ class Constanttable:
             'v_address' :   self.start_address
         }
         self.start_address += 1
-        self.table.append(new_constant)
-        return new_constant['v_address']
+        if(self.start_address < 20000):
+            self.table.append(new_constant)
+            return new_constant['v_address']
+        else:
+            print("Memory overflow")
 
     def display_table(self):
         print("Displaying constant table")
