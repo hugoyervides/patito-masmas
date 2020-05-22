@@ -35,7 +35,7 @@ def p_EMPTY(p):
     pass
 
 def p_MAIN(p):
-    '''MAIN : PRINCIPAL LPAREN RPAREN BLOQUE'''
+    '''MAIN : PRINCIPAL r_flush_mem LPAREN RPAREN BLOQUE'''
     pass
 
 def p_PROG(p):
@@ -162,7 +162,7 @@ def p_OPCION_BLOQUE(p):
 
 # FUNCIONES
 def p_FUNCTION(p):
-    '''FUNCTION : r_new_function FUNCION TIPO_FUNC ID r_set_fun_name r_new_vartable LPAREN PARAMETROS RPAREN VARS BLOQUE r_end_function FUNCTION 
+    '''FUNCTION : r_new_function FUNCION r_clear_mem TIPO_FUNC ID r_set_fun_name r_new_vartable LPAREN PARAMETROS RPAREN VARS BLOQUE r_end_function FUNCTION 
                 | EMPTY'''
     pass
 
@@ -252,7 +252,8 @@ def p_ASIGNACION_AUX(p):
 def p_r_new_id(p):
     'r_new_id : '
     type_var = var_tables.get_var_type(p[-1])
-    stacks.register_operand(p[-1])
+    mem_address = var_tables.get_virtual_mem(p[-1])
+    stacks.register_operand(mem_address)
     stacks.register_type(type_var)
 
 
@@ -344,25 +345,28 @@ def p_r_new_migajita(p):
 
 def p_r_new_id_for(p):
     'r_new_id_for : '
-    stacks.register_operand(p[-1])
-    global for_stack
-    for_stack.append(p[-1])
-    stacks.register_type('int')
-
+    if(var_tables.get_var_type(p[-1]) == None):
+        p_error(p)
+    else:
+        for_stack.append(p[-1])
+    
 def p_r_compara_for(p):
     'r_compara_for : '
-    stacks.operator_stack.append('<=')
+    mem_address = var_tables.get_virtual_mem(for_stack[len(for_stack) - 1])
+    stacks.register_operand(mem_address)
+    stacks.register_operator('<=')
     stacks.generate_quadruple()
 
 def p_r_update_for(p):
     'r_update_for : '
     global for_stack
-    stacks.operand_stack.append(for_stack[len(for_stack) - 1])
-    stacks.operand_stack.append(constant_table.insert_constant(1, 'int'))
-    stacks.operator_stack.append('+')
-    stacks.operand_stack.append(for_stack[len(for_stack) - 1])
+    mem_address = var_tables.get_virtual_mem(for_stack[len(for_stack) - 1])
+    stacks.register_operand(mem_address)
+    stacks.register_operand(constant_table.insert_constant(1, 'int'))
+    stacks.register_operator('+')
+    stacks.register_operand(mem_address)
     stacks.generate_quadruple()
-    stacks.operator_stack.append('=')
+    stacks.register_operator('=')
     stacks.generate_asignation()
 
 def p_r_clear_for(p):
@@ -375,6 +379,10 @@ def p_r_clear_for(p):
 # --------------- PUNTOS NEURALGICOS FUNCIONES  ----------------
 # =====================================================================
 
+def p_r_clear_mem(p):
+    'r_clear_mem : '
+    var_tables.flush_local_mem()
+
 def p_r_new_function(p):
     'r_new_function : '
     function_address = stacks.current_quadruple_address() + 1
@@ -382,6 +390,7 @@ def p_r_new_function(p):
     #Create a new parameter array to store param types
     parameters = []
     fun_handler.updateFunction('parameters', parameters)
+    stacks.flush_temp_mem()
 
 #Neurlagic point to insert the type to the parameter table
 def p_r_insert_type(p):
@@ -410,6 +419,10 @@ def p_r_end_function(p):
     fun_handler.insertToFunTable()
     stacks.add_fun_quadruple() #TODO
     fun_handler.flushFunctionTable()
+
+def p_r_flush_mem(p):
+    'r_flush_mem : '
+    stacks.flush_temp_mem()
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS LLAMADA FUNCIONES  ----------------
@@ -474,7 +487,7 @@ parser = yacc.yacc()
 testScript = '''
     programa patito; 
     var
-    int id1, id2, id3;
+    int id1, id2, id3, i;
     funcion void prueba(int y, float x)
     var 
         int i;
@@ -518,6 +531,8 @@ testScript = '''
         desde i = 0 hasta 9 hacer{
             a = 10;
         }
+
+        a = i + 1;
 
         a = 12;
     }
