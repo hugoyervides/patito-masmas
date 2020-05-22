@@ -25,6 +25,7 @@ class Stacks:
         self.return_stack = [] #Used for pending return Jumps
         self.quadruples = Quadruples() 
         self.result_counter = 0
+        self.temp_mem = 20000
 
     #Method to get an operand with its type
     def pop_operand(self):
@@ -81,8 +82,8 @@ class Stacks:
 
     #Method to get a new temporal value name
     def get_result_var(self):
-        result = 't' + str(self.result_counter)
-        self.result_counter += 1
+        result = self.temp_mem
+        self.temp_mem += 1
         return result
 
     #The name of this method is really obvious but will it generates a new quadruple when we reach certain neuralgic point
@@ -209,6 +210,9 @@ class Stacks:
     #Method the get the current quadruple address
     def current_quadruple_address(self):
         return len(self.quadruples.quadruples) - 1 
+    
+    def flush_temp_mem(self):
+        self.temp_mem = 20000
 
     #Method to generate a new goto for a return statment
     def generate_return_jump(self):

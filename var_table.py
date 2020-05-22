@@ -52,3 +52,10 @@ class Vartable:
                 return var['vAddr'], e
         e = "Variable " + str(name) + " not declared"
         return None, e
+
+    def get_mem(self, name):
+        for var in self.table:
+            if(var['name'] == name):
+                return var['vAddr']
+            
+        return None

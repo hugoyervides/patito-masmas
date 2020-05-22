@@ -18,7 +18,7 @@ class Vartables:
         self.context = "global" #Used to define the context (in the main (global) or in the local function)
         self.current_type = "" #Used to define the current type of variables that we are pushing into the tables
         self.global_mem = 1000
-        self.local_mem = 8001
+        self.local_mem = 8000
 
     #Method to change the context of the var table
     def change_context(self, new_context):
@@ -31,6 +31,9 @@ class Vartables:
 
         elif var_type == 'global':
             self.global_var_table = Vartable()
+    
+    def flush_local_mem(self):
+        self.local_mem = 8000
 
     #Method to set the variable type that we are currenntly feeding into the vartable
     def set_var_type(self, var_type):
@@ -61,12 +64,12 @@ class Vartables:
         e = None
         #Check if we are in global or local context
         if self.context == "global":
-            if(self.global_mem <= 8000):
+            if(self.global_mem <= 7999):
                 self.global_mem += 1
                 e = self.global_var_table.newVariable(variable, self.current_type, self.global_mem - 1, None)
             #TODO: error handling for memory
         elif self.context == "local":
-            if(self.local_mem <= 15000):
+            if(self.local_mem <= 14999):
                 self.local_mem += 1
                 e = self.local_var_table.newVariable(variable, self.current_type, self.local_mem - 1, None)
             #TODO: error handling for memory
@@ -84,15 +87,30 @@ class Vartables:
         elif var_type == "global":
             print("Displaying global Var table")
             self.global_var_table.display_vars()
-        
-    
-#variables globales - 1000 -> 8000
-#int - 1000 -> 5000
-#float - 5001 -> 6000
-#char - 6001 -> 7000
-#string - 7001 -> 8000
+            
+    #Method to change the context of the var table
+    def change_context(self, new_context):
+        self.context = new_context # global or local
 
-#variables locales - 8001 -> 15000
+
+    def get_virtual_mem(self, name):
+        if(self.context != "global"):
+            mem_addr = self.local_var_table.get_mem(name)
+            if(mem_addr != None):
+                return mem_addr
+            else:
+                return self.global_var_table.get_mem(name)
+        else:
+            return self.global_var_table.get_mem(name)
+
+    def flush_temp_mem(self):
+        self.temp_mem = 20000
+
+    
+#variables globales - 10000 -> 20000
+
+
+#variables locales - 8000 -> 15000
 #int - 8001 -> 12000
 #float - 12001 -> 13000
 #char - 13001 -> 14000
