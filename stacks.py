@@ -160,6 +160,19 @@ class Stacks:
         self.quadruples.add_quadruple("RETURN", None, None, operand)
         return e
 
+    #Method for read quadruple generation
+    def generate_read_quadruple(self):
+        operand = self.operand_stack.pop()
+        _ = self.type_stack.pop()
+        #Generate quadruple
+        self.quadruples.add_quadruple("READ", None, None, operand)
+
+    #Method for escribir quadruple generation
+    def generate_write_quadruple(self):
+        operand = self.operand_stack.pop()
+        _ = self.type_stack.pop()
+        self.quadruples.add_quadruple("WRITE", None, None, operand)
+
     #Method to generate a Goto quadruple
     def generate_jump(self, jumpType):
         e = None

@@ -197,13 +197,22 @@ def p_MIENTRAS_CICLO(p):
 
 #LECTURA
 def p_LECTURA(p):
-    '''LECTURA : LEE LPAREN ID RPAREN'''
+    '''LECTURA : LEE LPAREN ID r_new_id r_new_read RPAREN'''
     pass
 
 #ESCRITURA
 def p_ESCRITURA(p):
-    '''ESCRITURA : ESCRIBE LPAREN TIPO_PARAMETROS RPAREN'''
+    '''ESCRITURA : ESCRIBE LPAREN PARAMETRO_ESCRITURA RPAREN'''
     pass
+
+def p_PARAMETRO_ESCRITURA(p):
+    '''PARAMETRO_ESCRITURA : PARAMETRO_ESCRITURA_AUX
+                            | EMPTY'''
+    pass
+
+def p_PARAMETRO_ESCRITURA_AUX(p):
+    '''PARAMETRO_ESCRITURA_AUX : EXPRESION r_new_write
+                                | EXPRESION r_new_write COMMA PARAMETRO_ESCRITURA_AUX'''
 
 #LLAMADA
 def p_LLAMADA(p):
@@ -540,6 +549,18 @@ def p_r_display_const(p):
     constant_table.display_table()
 
 
+# =====================================================================
+# --------------- PUNTOS NEURALGICOS I/O ----------------
+# =====================================================================
+
+def p_r_new_read(p):
+    'r_new_read : '
+    stacks.generate_read_quadruple()
+
+def p_r_new_write(p):
+    'r_new_write : '
+    stacks.generate_write_quadruple()
+
 parser = yacc.yacc()
 
 testScript = '''
@@ -594,6 +615,8 @@ testScript = '''
             a = 10;
         }
         a = 12;
+        lee(id1);
+        escribe(id2);
     }
 '''
 
