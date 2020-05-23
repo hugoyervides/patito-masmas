@@ -1,9 +1,9 @@
 from ply import yacc
-from scanner import tokens, reserved
-from handlers.stacks import Stacks
-from handlers.var_table_handler import Vartables
-from handlers.fun_handler import Funhandler
-from data_structures.constant_table import Constanttable
+from .scanner import tokens, reserved
+from handlers import Stacks
+from handlers import Vartables
+from handlers import Funhandler
+from data_structures import Constanttable
 import sys
 
 

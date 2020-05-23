@@ -6,8 +6,8 @@
 #Operator Stack, Operand Stack, Type Stack, jump_stack, Migajitas and quadruples
 
 #Add the necesary datastructures
-from data_structures.quadruples import Quadruples
-from data_structures.semantic import cubo_semantico
+from data_structures import Quadruples
+from data_structures import cubo_semantico
 
 class Stacks:
     def __init__(self):

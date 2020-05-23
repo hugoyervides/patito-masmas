@@ -6,7 +6,7 @@
 #We store here the local variables and the global variables
 
 #Add necesary datastructures
-from data_structures.var_table import Vartable
+from data_structures import Vartable
 
 #Declaration of function
 class Vartables:
