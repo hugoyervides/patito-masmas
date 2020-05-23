@@ -4,7 +4,7 @@
 
 #Class used to handle the function table and its operations
 
-from fun_table import Funtable #Import the funtable datasctructure
+from data_structures.fun_table import Funtable #Import the funtable datasctructure
 
 class Funhandler:
     #Atribute declaration

@@ -5,8 +5,8 @@
 #This class is used to manage all the var tables used during the semantics
 #We store here the local variables and the global variables
 
-
-from var_table import Vartable #Include the Vartable datascructure
+#Add necesary datastructures
+from data_structures.var_table import Vartable
 
 #Declaration of function
 class Vartables:
@@ -87,10 +87,6 @@ class Vartables:
         elif var_type == "global":
             print("Displaying global Var table")
             self.global_var_table.display_vars()
-            
-    #Method to change the context of the var table
-    def change_context(self, new_context):
-        self.context = new_context # global or local
 
 
     def get_virtual_mem(self, name):

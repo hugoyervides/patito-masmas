@@ -1,16 +1,13 @@
-import yacc
+from ply import yacc
 from scanner import tokens, reserved
-from stacks import Stacks
-from fun_table import Funtable
-from semantic import cubo_semantico
-from var_table_handler import Vartables
-from fun_handler import Funhandler
-from constant_table import Constanttable
+from handlers.stacks import Stacks
+from handlers.var_table_handler import Vartables
+from handlers.fun_handler import Funhandler
+from data_structures.constant_table import Constanttable
 import sys
 
 #Variable declaration
 stacks = Stacks()
-funTable = Funtable()
 var_tables = Vartables()
 fun_handler = Funhandler()
 constant_table = Constanttable()
@@ -581,7 +578,7 @@ parser = yacc.yacc()
 testScript = '''
     programa patito; 
     var
-    int id1, id2, id3, a, b, c;
+    int id1, id2, id3, a, b, c, i;
     float flo;
     char letra;
     funcion void prueba(int y, float x)
@@ -611,7 +608,7 @@ testScript = '''
         
     }
     principal(){
-        id1 = patito(3 + id1, 5 * id2 + id1 , 'e') * 5;
+        id1 = patito(3 , 5 * id2 + id1 , 'e') * 5;
         si ( id1 >= id2) entonces {
             a = a+1;
             b = (10 + 15) * 7;
@@ -634,7 +631,7 @@ testScript = '''
 
         a = 12;
         lee(id1);
-        escribe(id2);
+        escribe(id2, 3, 2, id1);
     }
 '''
 

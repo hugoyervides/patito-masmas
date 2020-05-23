@@ -5,9 +5,9 @@
 #This class is used to handle all the stack operations used during the semantics
 #Operator Stack, Operand Stack, Type Stack, jump_stack, Migajitas and quadruples
 
-from quadruples import Quadruples
-from semantic import cubo_semantico
-import parser
+#Add the necesary datastructures
+from data_structures.quadruples import Quadruples
+from data_structures.semantic import cubo_semantico
 
 class Stacks:
     def __init__(self):
