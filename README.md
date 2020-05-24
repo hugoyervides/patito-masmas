@@ -28,7 +28,7 @@ Python 3
 
 ## Authors
 
-* **Victor Hugo Oyervides Covarrubias** - *Initial work* - [hugoyervides](https://github.com/hugoyervides)
+* **Victor Hugo Oyervides** - *Initial work* - [hugoyervides](https://github.com/hugoyervides)
 * **Obed Gonzalez Moreno** - *Initial work* - [obedgm](https://github.com/obedgm)
 
 ## License
