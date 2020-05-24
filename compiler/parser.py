@@ -388,25 +388,29 @@ def p_r_new_id_for(p):
         p_error(p)
     else:
         for_stack.append(p[-1])
+        type_var = var_tables.get_var_type(p[-1])
+        mem_address = var_tables.get_virtual_mem(p[-1])
+        stacks.register_operand(mem_address)
+        type_var, e = var_tables.get_var_type(p[-1])
+        if e:
+            error_handler(p.lineno(-1),e)
+        stacks.register_type(type_var)
+
+
     
 def p_r_compara_for(p):
     'r_compara_for : '
     mem_address = var_tables.get_virtual_mem(for_stack[len(for_stack) - 1])
     stacks.register_operand(mem_address)
-    stacks.register_operator('<=')
+    stacks.register_operator('>=')
     stacks.generate_quadruple()
 
 def p_r_update_for(p):
     'r_update_for : '
     global for_stack
     mem_address = var_tables.get_virtual_mem(for_stack[len(for_stack) - 1])
-    stacks.register_operand(mem_address)
-    stacks.register_operand(constant_table.insert_constant(1, 'int'))
-    stacks.register_operator('+')
-    stacks.register_operand(mem_address)
-    stacks.generate_quadruple()
-    stacks.register_operator('=')
-    stacks.generate_asignation()
+    stacks.update_for(mem_address, constant_table.insert_constant(1, 'int'))
+
 
 def p_r_clear_for(p):
     'r_clear_for : '
