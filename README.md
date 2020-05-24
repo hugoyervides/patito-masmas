@@ -1,4 +1,7 @@
-![Patito ++ Logo](https://repository-images.githubusercontent.com/252045115/c91d1d00-9d59-11ea-8764-883372e77436)
+<p align="center">
+  <img src="https://repository-images.githubusercontent.com/252045115/c91d1d00-9d59-11ea-8764-883372e77436" width="450" height="230" />
+</p>
+
 # Patito ++ 
 Patito ++ is a simple procedural Programing Language made with Python and Ply
 
