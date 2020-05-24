@@ -14,7 +14,7 @@ fun_handler = Funhandler()
 constant_table = Constanttable()
 for_stack = []
 final_quadruples = None
-
+final_constants = None
 start = 'PROG'
 
 # =====================================================================
@@ -575,7 +575,9 @@ def p_r_new_write(p):
     'r_new_write : '
     stacks.generate_write_quadruple()
 
+#Export quadruples and constants
 final_quadruples = stacks.quadruples
+
 #Construct the parser
 parser = yacc.yacc()
 
