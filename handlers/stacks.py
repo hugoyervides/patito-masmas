@@ -138,7 +138,7 @@ class Stacks:
         self.quadruples.add_quadruple("PARAM", operand, None, "PARAM" + str(param_number))
 
     def generate_gosub_quadruple(self, function, vaddr):
-        self.quadruples.add_quadruple("GOSUB", None, None, function['name'])
+        self.quadruples.add_quadruple("GOSUB", None, None, function['quadrupleAddress'])
         #Check if the function has a return value
         if function['returnType'] != 'void':
             #Add a tep value to store the function return

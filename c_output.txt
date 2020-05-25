@@ -1,3 +1,4 @@
-{"constant": 0, "type": "int", "v_address": 15000}
-{"constant": 10, "type": "int", "v_address": 15001}
-{"constant": 1, "type": "int", "v_address": 15002}
+{"constant": 1, "type": "int", "v_address": 15000}
+{"constant": 2, "type": "int", "v_address": 15001}
+{"constant": 0, "type": "int", "v_address": 15002}
+{"constant": 10, "type": "int", "v_address": 15003}
