@@ -147,6 +147,7 @@ class Stacks:
             #Add a equal to store the return value
             self.operand_stack.append(vaddr)
             self.type_stack.append(function['returnType'])
+            self.operator_stack.append('=')
             self.generate_asignation()
 
     def generate_eka_quadruple(self, function_name):

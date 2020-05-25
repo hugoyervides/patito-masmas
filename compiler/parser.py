@@ -522,8 +522,6 @@ def p_r_generate_gosub(p):
     vaddr, e = var_tables.get_var_vaddr(
         fun_handler.called_function['name']
     )
-    if e:
-        error_handler(p.lineno(-1), e)
     stacks.generate_gosub_quadruple(fun_handler.called_function, vaddr)
 
 
