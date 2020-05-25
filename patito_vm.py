@@ -22,7 +22,13 @@ op_list = {
     ">" :       operations.greater_op,
     "<" :       operations.less_op,
     "=" :       operations.asignation,
-    'WRITE':    operations.write
+    'WRITE':    operations.write,
+    'EBDOROC':  operations.ebdoroc,
+    'EKA':      operations.eka,
+    'PARAM':    operations.param,
+    'GOSUB':    operations.gosub,
+    'RETURN':   operations.return_val,
+    'READ' :     operations.lee
 }
 
 def main():

@@ -1,8 +1,25 @@
 programa patito; 
 var
-    int id1, id2, id3, a, b, c, i;
+    int terminos, i;
+
+funcion int fibo(int x)
+var
+    int term1, term2;
+{
+    si(x<=1) entonces{
+        return(x);
+    }
+    sino{
+        term1 = (fibo( x - 1 ) + fibo( x - 2 ));
+        term2 = 0;
+        return( term1  );
+    }
+}
 principal(){
-    desde id1 = 0 hasta 9 hacer{
-        escribe(id1);
+    terminos = 10;
+    i = 0;
+    mientras (i < terminos) haz{
+        escribe(fibo(i));
+        i = i + 1;
     }
 }
