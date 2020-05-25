@@ -1,0 +1,8 @@
+programa patito; 
+var
+    int id1, id2, id3, a, b, c, i;
+principal(){
+    desde id1 = 0 hasta 9 hacer{
+        escribe(id1);
+    }
+}

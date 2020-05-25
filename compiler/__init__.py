@@ -1,2 +1,2 @@
-from .parser import parser, final_quadruples
+from .parser import parser, final_quadruples, constant_table
 from .scanner import lexer

@@ -211,8 +211,22 @@ class Stacks:
     def current_quadruple_address(self):
         return len(self.quadruples.quadruples) - 1 
     
+    #flushes temp memory
     def flush_temp_mem(self):
         self.temp_mem = 20000
+
+    #Updates for Value
+    def update_for(self, lAddress, cAddress):
+        self.register_operand(lAddress)
+        self.register_type('int')
+        self.register_operand(cAddress)
+        self.register_type('int')
+        self.register_operator('+')
+        self.register_operand(lAddress)
+        self.generate_quadruple()
+        self.register_operator('=')
+        self.register_type('int')
+        self.generate_asignation()
 
     #Method to generate a new goto for a return statment
     def generate_return_jump(self):
