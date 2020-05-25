@@ -153,13 +153,13 @@ class Stacks:
     def generate_eka_quadruple(self, function_name):
         self.quadruples.add_quadruple("EKA", None, None, function_name)
 
-    def generate_return_quadruple(self, function_type):
+    def generate_return_quadruple(self, function_type, return_address):
         e = None
         operand = self.operand_stack.pop()
         operand_type = self.type_stack.pop()
         if (operand_type != function_type):
             e = "Function return type missmatch"
-        self.quadruples.add_quadruple("RETURN", None, None, operand)
+        self.quadruples.add_quadruple("RETURN", return_address, None, operand)
         return e
 
     #Method for read quadruple generation
