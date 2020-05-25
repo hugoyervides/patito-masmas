@@ -10,9 +10,7 @@ var
         return(x);
     }
     sino{
-        term1 = (fibo( x - 1 ) + fibo( x - 2 ));
-        term2 = 0;
-        return( term1  );
+        return( fibo( x - 1 ) + fibo( x - 2 ) );
     }
 }
 principal(){
