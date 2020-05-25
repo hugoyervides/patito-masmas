@@ -22,7 +22,10 @@ class Virtualmemory:
         }
         self.new_local_memory_cache = {}
         self.local_counter = self.LIMITS['LOCAL_LLIMIT']
-        self.local_memory_cache = []
+        self.memory_snapshots = {
+            'temporal' :    [],
+            'local':        [] 
+        }
     #Methods
     def check_address(self, vaddr, context):
         if vaddr in self.memory[context]:
@@ -42,15 +45,20 @@ class Virtualmemory:
         self.local_counter += 1
 
     def save_local_memory(self):
-        self.local_memory_cache.append(
+        self.memory_snapshots['local'].append(
             self.memory['local']
+        )
+        self.memory_snapshots['temporal'].append(
+            self.memory['temporal']
         )
     
     def restore_local_memory(self):
-        self.memory['local'] = self.local_memory_cache.pop()
+        self.memory['local'] = self.memory_snapshots['local'].pop()
+        self.memory['temporal'] = self.memory_snapshots['temporal'].pop()
 
     def update_local_memory(self):
         self.memory['local'] = self.new_local_memory_cache
+        self.memory['temporal'] = {}
     
     def get_value(self, memory_dir):
         if( memory_dir >= self.LIMITS['GLOBAL_LLIMIT'] and memory_dir <= self.LIMITS['GLOBAL_ULIMIT']): #GLOBA MEMORY
