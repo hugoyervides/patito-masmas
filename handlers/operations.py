@@ -29,6 +29,20 @@ class Operations:
         )
         print(value)
 
+    def lee(self, quadruple):
+        value = input()
+        try:
+            val = int(value)
+        except ValueError:
+            try:
+                val = float(value)
+            except ValueError:
+                val = value
+        self.virtual_memory.update_memory(
+            quadruple['result'],
+            val
+        )
+
     def goto(self, quadruple):
         return quadruple['result']
 

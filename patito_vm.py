@@ -27,7 +27,8 @@ op_list = {
     'EKA':      operations.eka,
     'PARAM':    operations.param,
     'GOSUB':    operations.gosub,
-    'RETURN':   operations.return_val
+    'RETURN':   operations.return_val,
+    'READ' :     operations.lee
 }
 
 def main():
