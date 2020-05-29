@@ -174,7 +174,6 @@ def p_PARAMETROS(p):
 def p_ARR(p):
     '''ARR : ID r_register_arr LSQ SLEVEL_EXPRESION r_set_dim RSQ r_quad_arr
                 | ID r_register_arr LSQ SLEVEL_EXPRESION r_set_dim RSQ LSQ SLEVEL_EXPRESION r_set_dim RSQ r_quad_arr
-                | EMPTY
     '''
     pass
 
@@ -638,7 +637,10 @@ def p_r_quad_arr(p):
     vaddr, e = var_tables.get_var_vaddr(current_arr[0])
     if e:
         error_handler(p.lineno(-1), e)
-    stacks.generate_arr(upper_limit, vaddr)
+    e = stacks.generate_arr(upper_limit, vaddr)
+    #handle type missmatch error
+    if e:
+        error_handler(p.lineno(-1), e)
 
 
 #Export quadruples and constants
