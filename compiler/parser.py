@@ -586,18 +586,20 @@ def p_r_display_const(p):
 def p_r_new_arr(p):
     'r_new_arr : '
     arr_id = p[-1]
-    e = var_tables.register_arr(arr_id)
-    if e:
-        error_handler(p.lineno(-1), e)
+    var_tables.register_arr(arr_id)
     
 def p_r_new_dim(p):
     'r_new_dim : '
-    print(p[-1])
+    #print(p[-1])
+    #get a new constant for the dimention upper limit
+    dim = constant_table.insert_constant(p[-1], 'int')
     var_tables.register_dim(p[-1])
 
 def p_r_generate_arr(p):
     'r_generate_arr : '
-    var_tables.generate_arr()
+    e = var_tables.generate_arr()
+    if e:
+        error_handler(p.lineno(-1), e)
     
 
 
@@ -637,6 +639,7 @@ def p_r_quad_arr(p):
     vaddr, e = var_tables.get_var_vaddr(current_arr[0])
     if e:
         error_handler(p.lineno(-1), e)
+
     e = stacks.generate_arr(upper_limit, vaddr)
     #handle type missmatch error
     if e:
