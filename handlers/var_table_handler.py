@@ -17,6 +17,8 @@ class Vartables:
         self.global_var_table = Vartable() #Used to store the global var table used in main
         self.context = "global" #Used to define the context (in the main (global) or in the local function)
         self.current_type = "" #Used to define the current type of variables that we are pushing into the tables
+        self.arr_val = ''
+        self.arr_stack = []
         self.global_mem = 1000
         self.local_mem = 8000
 
@@ -60,18 +62,19 @@ class Vartables:
         return self.global_var_table.get_vaddr(value)
 
     #Method to insert a new variable to the var table
-    def insert_variable(self, variable):
+    def insert_variable(self, variable, dims):
         e = None
         #Check if we are in global or local context
         if self.context == "global":
             if(self.global_mem <= 7999):
+                e = self.global_var_table.newVariable(variable, self.current_type, self.global_mem, dims)
                 self.global_mem += 1
-                e = self.global_var_table.newVariable(variable, self.current_type, self.global_mem - 1, None)
             #TODO: error handling for memory
         elif self.context == "local":
             if(self.local_mem <= 14999):
+                e = self.local_var_table.newVariable(variable, self.current_type, self.local_mem, dims)
                 self.local_mem += 1
-                e = self.local_var_table.newVariable(variable, self.current_type, self.local_mem - 1, None)
+
             #TODO: error handling for memory
         return e
 
@@ -91,23 +94,54 @@ class Vartables:
 
     def get_virtual_mem(self, name):
         if(self.context != "global"):
-            mem_addr = self.local_var_table.get_mem(name)
+            mem_addr = self.local_var_table.get_vaddr(name)
             if(mem_addr != None):
                 return mem_addr
             else:
-                return self.global_var_table.get_mem(name)
+                return self.global_var_table.get_vaddr(name)
         else:
-            return self.global_var_table.get_mem(name)
+            return self.global_var_table.get_vaddr(name)
 
     def flush_temp_mem(self):
         self.temp_mem = 20000
-
     
-#variables globales - 10000 -> 20000
+            
+    def register_arr(self, value):
+        self.arr_val = value
+    
+    def register_dim(self, value):
+        self.arr_stack.append(value)
 
+    def generate_arr(self):
+        e = None
+        #Check if we are in global or local context
+        arr_mem = self.get_arr_mem()
+        if self.context == "global":
+            if((self.global_mem + arr_mem) <= 7999):
+                e = self.global_var_table.newVariable(self.arr_val, self.current_type, self.global_mem, self.arr_stack)
+                self.global_mem += arr_mem
+            #TODO: error handling for memory
+        elif self.context == "local":
+            if((self.local_mem + arr_mem) <= 14999):
+                e = self.local_var_table.newVariable(self.arr_val, self.current_type, self.local_mem, self.arr_stack)
+                self.local_mem += arr_mem
+            #TODO: error handling for memory
+        return e
+  
+            
+    def get_arr_mem(self):
+        if(len(self.arr_stack) == 1):
+            return self.arr_stack[0]
+        else:
+            return self.arr_stack[0] * (self.arr_stack[1] + 1) + self.arr_stack[1]
 
-#variables locales - 8000 -> 15000
-#int - 8001 -> 12000
-#float - 12001 -> 13000
-#char - 13001 -> 14000
-#string - 14001 -> 15000
+    def flush_arr(self):
+        self.arr_val = ''
+        self.arr_stack = []
+
+    def get_dims(self, name):
+        if self.context == "global":
+            return self.global_var_table.get_dims(name)
+        elif self.context == "local":
+            return self.local_var_table.get_dims(name)
+        
