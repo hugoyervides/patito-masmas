@@ -283,7 +283,9 @@ def p_error(p):
 def p_r_new_id(p):
     'r_new_id : '
     type_var = var_tables.get_var_type(p[-1])
-    mem_address = var_tables.get_virtual_mem(p[-1])
+    mem_address, e = var_tables.get_virtual_mem(p[-1])
+    if e:
+        error_handler(p.lineno(-1), e)
     stacks.register_operand(mem_address)
     type_var, e = var_tables.get_var_type(p[-1])
     if e:
@@ -397,7 +399,9 @@ def p_r_new_id_for(p):
     else:
         for_stack.append(p[-1])
         type_var = var_tables.get_var_type(p[-1])
-        mem_address = var_tables.get_virtual_mem(p[-1])
+        mem_address, e = var_tables.get_virtual_mem(p[-1])
+        if e:
+            error_handler(p.lineno(-1),e)
         stacks.register_operand(mem_address)
         type_var, e = var_tables.get_var_type(p[-1])
         if e:
@@ -408,7 +412,9 @@ def p_r_new_id_for(p):
     
 def p_r_compara_for(p):
     'r_compara_for : '
-    mem_address = var_tables.get_virtual_mem(for_stack[len(for_stack) - 1])
+    mem_address, e = var_tables.get_virtual_mem(for_stack[len(for_stack) - 1])
+    if e:
+        error_handler(p.lineno(-1), e)
     stacks.register_operand(mem_address)
     stacks.register_operator('>=')
     stacks.generate_quadruple()
@@ -416,7 +422,9 @@ def p_r_compara_for(p):
 def p_r_update_for(p):
     'r_update_for : '
     global for_stack
-    mem_address = var_tables.get_virtual_mem(for_stack[len(for_stack) - 1])
+    mem_address, e = var_tables.get_virtual_mem(for_stack[len(for_stack) - 1])
+    if e:
+        error_handler(p.lineno(-1), e)
     stacks.update_for(mem_address, constant_table.insert_constant(1, 'int'))
 
 
