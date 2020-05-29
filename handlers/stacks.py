@@ -259,17 +259,20 @@ class Stacks:
     def register_dim(self):
         self.dim_stack.append(self.operand_stack.pop())
     
-    def generate_arr(self ,l_limit ,limit, vaddr):
+    def generate_arr(self ,l_limit ,limit, vaddr, arr_type):
         e = None
         dim_type = self.type_stack.pop()
         #print(vaddr)
         if dim_type != 'int':
             e = "Type mismatch"
         else:
+            pointer = None
+
             if len(limit) == 1:
                 self.quadruples.add_quadruple('VER', self.dim_stack[0], l_limit, limit[0]['u_limit_constant'])
-                temp = self.get_pointer_mem()
-                self.quadruples.add_quadruple('+', self.dim_stack[0], vaddr, temp)
+                pointer = self.get_pointer_mem()
+                self.quadruples.add_quadruple('+', self.dim_stack[0], vaddr, pointer)
+
             elif len(limit) == 2:
                 self.type_stack.pop()
                 self.quadruples.add_quadruple('VER', self.dim_stack[0], l_limit, limit[0]['u_limit_constant'])
@@ -285,6 +288,11 @@ class Stacks:
                 self.type_stack.append('int')
                 pointer = self.get_pointer_mem()
                 self.quadruples.add_quadruple('+', temp, vaddr, pointer)
+            
+            #insert the pointer and the type into the operand stack
+            self.operand_stack.append(pointer)
+            self.type_stack.append(arr_type)
+
         return e
 
 
