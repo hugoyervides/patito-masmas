@@ -20,7 +20,7 @@ class Vartable:
         self.table.append({
             'name' :    name, #Name of the variable
             'type' :    varType, #Type of the variable
-            'vAddr' :   vAddr, #TODO Virtual Address for the variable
+            'vAddr' :   vAddr, #Virtual Address for the variable
             'dims' :    dims #TODO List of dimensions
         })
         return e
@@ -53,9 +53,11 @@ class Vartable:
         e = "Variable " + str(name) + " not declared"
         return None, e
 
-    def get_mem(self, name):
+    def get_dims(self, name):
+        e = None
         for var in self.table:
             if(var['name'] == name):
-                return var['vAddr']
-            
-        return None
+                return var['dims']
+        e = "Variable " + str(name) + " not declared"
+        return None, e
+
