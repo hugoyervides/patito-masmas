@@ -224,6 +224,9 @@ class Stacks:
     def flush_temp_mem(self):
         self.temp_mem = 20000
 
+    def flush_pointer_mem(self):
+        self.temp_mem = 30000
+
     #Updates for Value
     def update_for(self, lAddress, cAddress):
         self.register_operand(lAddress)
