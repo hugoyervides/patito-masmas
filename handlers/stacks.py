@@ -14,6 +14,8 @@ class Stacks:
         self.operator_stack = [] #Used to store the operators
         self.operand_stack = []  #Used to store the operands
         self.type_stack = [] #Used to store the type of the operands (Size must match with the operand_stack)
+        self.arr_stack = []
+        self.dim_stack = []
         self.jump_stack = { #Used to save pending jumps if we have a GOTO or GOTOF
             'GOTOF' :   [],
             'GOTO' :    []
@@ -228,7 +230,7 @@ class Stacks:
         self.register_type('int')
         self.generate_asignation()
 
-    #Method to generate a new goto for a return statment
+    #Method to generate a new goto for a return statment 
     def generate_return_jump(self):
         self.return_stack.append(len(self.quadruples.quadruples))
         self.quadruples.add_quadruple('GOTO', None, None, None)
@@ -240,3 +242,44 @@ class Stacks:
             address = self.return_stack.pop()
             jumpAddress = len(self.quadruples.quadruples)
             self.quadruples.update_quadruple(address, 'GOTO', None, None, jumpAddress)
+
+    def register_arr(self, name):
+        self.arr_stack.append(name)
+
+    def register_dim(self):
+        self.dim_stack.append(self.operand_stack.pop())
+    
+    def generate_arr(self, limit, vaddr):
+        e = None
+        dim_type = self.type_stack.pop()
+        print(vaddr)
+        if dim_type != 'int':
+            e = "Type mismatch"
+        else:
+            if len(limit) == 1:
+                self.quadruples.add_quadruple('VER', self.dim_stack[0], 0, limit[0])
+                temp = self.get_result_var()
+                self.quadruples.add_quadruple('+', self.dim_stack[0], vaddr, temp)
+                self.operand_stack.append(temp)
+                self.type_stack.append('int')
+            elif len(limit) == 2:
+                self.type_stack.pop()
+                self.quadruples.add_quadruple('VER', self.dim_stack[0], 0, limit[0])
+                #self.arr_stack[0] * (self.arr_stack[1] + 1) + self.arr_stack[1]
+                temp = self.get_result_var()
+                self.quadruples.add_quadruple('*', self.dim_stack[0], limit[0], temp)
+                self.operand_stack.append(temp)
+                self.type_stack.append('int')
+                self.quadruples.add_quadruple('VER', self.dim_stack[1], 0, limit[1])
+                temp = self.get_result_var()
+                self.quadruples.add_quadruple('+', self.operand_stack.pop(), self.dim_stack[1], temp)
+                self.operand_stack.append(temp)
+                self.type_stack.append('int')
+                temp = self.get_result_var()
+                self.quadruples.add_quadruple('+', temp, vaddr, temp)
+                self.operand_stack.append(temp)
+                self.type_stack.append('int')
+
+
+            
+        
