@@ -133,9 +133,10 @@ class Vartables:
             
     def get_arr_mem(self):
         if(len(self.cache_array['arr_dim_stack']) == 1):
-            return self.cache_array['arr_dim_stack'][0]
+            return self.cache_array['arr_dim_stack'][0]['u_limit']
         else:
-            return self.cache_array['arr_dim_stack'][0] * (self.cache_array['arr_dim_stack'][1] + 1) + self.cache_array['arr_dim_stack'][1]
+            first_dim_offset = self.cache_array['arr_dim_stack'][0]['u_limit'] * (self.cache_array['arr_dim_stack'][1]['u_limit'] + 1)
+            return first_dim_offset + self.cache_array['arr_dim_stack'][1]['u_limit']
 
     def flush_arr(self):
         self.cache_array['arr_val'] = ''

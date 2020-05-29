@@ -259,32 +259,33 @@ class Stacks:
     def register_dim(self):
         self.dim_stack.append(self.operand_stack.pop())
     
-    def generate_arr(self, limit, vaddr):
+    def generate_arr(self ,l_limit ,limit, vaddr):
         e = None
         dim_type = self.type_stack.pop()
-        print(vaddr)
+        #print(vaddr)
         if dim_type != 'int':
             e = "Type mismatch"
         else:
             if len(limit) == 1:
-                self.quadruples.add_quadruple('VER', self.dim_stack[0], 0, limit[0])
+                self.quadruples.add_quadruple('VER', self.dim_stack[0], l_limit, limit[0]['u_limit_constant'])
                 temp = self.get_pointer_mem()
                 self.quadruples.add_quadruple('+', self.dim_stack[0], vaddr, temp)
             elif len(limit) == 2:
                 self.type_stack.pop()
-                self.quadruples.add_quadruple('VER', self.dim_stack[0], 0, limit[0])
+                self.quadruples.add_quadruple('VER', self.dim_stack[0], l_limit, limit[0]['u_limit_constant'])
                 #self.arr_stack[0] * (self.arr_stack[1] + 1) + self.arr_stack[1]
                 temp = self.get_result_var()
-                self.quadruples.add_quadruple('*', self.dim_stack[0], limit[0], temp)
+                self.quadruples.add_quadruple('*', self.dim_stack[0], limit[0]['u_limit_constant'], temp)
                 self.operand_stack.append(temp)
                 self.type_stack.append('int')
-                self.quadruples.add_quadruple('VER', self.dim_stack[1], 0, limit[1])
+                self.quadruples.add_quadruple('VER', self.dim_stack[1], l_limit, limit[1]['u_limit_constant'])
                 temp = self.get_result_var()
                 self.quadruples.add_quadruple('+', self.operand_stack.pop(), self.dim_stack[1], temp)
                 self.operand_stack.append(temp)
                 self.type_stack.append('int')
                 pointer = self.get_pointer_mem()
                 self.quadruples.add_quadruple('+', temp, vaddr, pointer)
+        return e
 
 
 

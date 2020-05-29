@@ -593,7 +593,10 @@ def p_r_new_dim(p):
     #print(p[-1])
     #get a new constant for the dimention upper limit
     dim = constant_table.insert_constant(p[-1], 'int')
-    var_tables.register_dim(p[-1])
+    var_tables.register_dim({
+        'u_limit':          p[-1],
+        'u_limit_constant': dim
+    })
 
 def p_r_generate_arr(p):
     'r_generate_arr : '
@@ -636,11 +639,12 @@ def p_r_set_dim(p):
 def p_r_quad_arr(p):
     'r_quad_arr : '
     upper_limit = var_tables.get_dims(current_arr[len(current_arr) - 1])
+    lower_limit = constant_table.insert_constant(0, 'int')
     vaddr, e = var_tables.get_var_vaddr(current_arr[0])
     if e:
         error_handler(p.lineno(-1), e)
 
-    e = stacks.generate_arr(upper_limit, vaddr)
+    e = stacks.generate_arr(lower_limit, upper_limit, vaddr)
     #handle type missmatch error
     if e:
         error_handler(p.lineno(-1), e)
