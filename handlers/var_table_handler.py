@@ -124,12 +124,10 @@ class Vartables:
             if((self.global_mem + arr_mem) <= 7999):
                 e = self.global_var_table.newVariable(self.cache_array['arr_val'], self.current_type, self.global_mem, self.cache_array['arr_dim_stack'])
                 self.global_mem += arr_mem
-            #TODO: error handling for memory
         elif self.context == "local":
             if((self.local_mem + arr_mem) <= 14999):
                 e = self.local_var_table.newVariable(self.cache_array['arr_val'], self.current_type, self.local_mem, self.cache_array['arr_dim_stack'])
                 self.local_mem += arr_mem
-            #TODO: error handling for memory
         return e
   
             
