@@ -28,6 +28,7 @@ class Stacks:
         self.quadruples = Quadruples() 
         self.result_counter = 0
         self.temp_mem = 20000
+        self.pointer_mem = 30000
 
     #Method to get an operand with its type
     def pop_operand(self):
@@ -86,6 +87,11 @@ class Stacks:
     def get_result_var(self):
         result = self.temp_mem
         self.temp_mem += 1
+        return result
+    
+    def get_pointer_mem(self):
+        result = self.pointer_mem
+        self.pointer_mem += 1
         return result
 
     #The name of this method is really obvious but will it generates a new quadruple when we reach certain neuralgic point
@@ -259,10 +265,8 @@ class Stacks:
         else:
             if len(limit) == 1:
                 self.quadruples.add_quadruple('VER', self.dim_stack[0], 0, limit[0])
-                temp = self.get_result_var()
+                temp = self.get_pointer_mem()
                 self.quadruples.add_quadruple('+', self.dim_stack[0], vaddr, temp)
-                self.operand_stack.append(temp)
-                self.type_stack.append('int')
             elif len(limit) == 2:
                 self.type_stack.pop()
                 self.quadruples.add_quadruple('VER', self.dim_stack[0], 0, limit[0])
@@ -276,10 +280,9 @@ class Stacks:
                 self.quadruples.add_quadruple('+', self.operand_stack.pop(), self.dim_stack[1], temp)
                 self.operand_stack.append(temp)
                 self.type_stack.append('int')
-                temp = self.get_result_var()
-                self.quadruples.add_quadruple('+', temp, vaddr, temp)
-                self.operand_stack.append(temp)
-                self.type_stack.append('int')
+                pointer = self.get_pointer_mem()
+                self.quadruples.add_quadruple('+', temp, vaddr, pointer)
+
 
 
             
