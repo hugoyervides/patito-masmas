@@ -105,7 +105,9 @@ class Vartables:
     def flush_temp_mem(self):
         self.temp_mem = 20000
     
-            
+    def flush_pointer_mem(self):
+        self.pointer_mem = 20000
+    
     def register_arr(self, value):
         self.arr_val = value
     
