@@ -13,6 +13,7 @@ var_tables = Vartables()
 fun_handler = Funhandler()
 constant_table = Constanttable()
 for_stack = []
+current_arr = []
 final_quadruples = None
 final_constants = None
 start = 'PROG'
@@ -58,8 +59,8 @@ def p_VAR_TIPO(p):
     pass
 
 def p_LIST_ID(p):
-    '''LIST_ID : ID r_new_variable LSQ SLEVEL_EXPRESION RSQ
-                | ID r_new_variable LSQ SLEVEL_EXPRESION RSQ LSQ SLEVEL_EXPRESION RSQ
+    '''LIST_ID : ID r_new_arr LSQ CTE_I r_new_dim RSQ r_generate_arr r_clear_arr
+                | ID r_new_arr LSQ CTE_I r_new_dim RSQ LSQ CTE_I r_new_dim RSQ r_generate_arr r_clear_arr
     '''
     pass
 
@@ -113,7 +114,7 @@ def p_FLEVEL_EXPRESION_AUX(p):
 def p_VALUE_EXPRESION(p):
     '''VALUE_EXPRESION : ID r_new_id
                     | ID DET
-                    | LIST_ID
+                    | ARR
                     | CONSTANTE 
                     | LLAMADA
                     | r_new_lparen LPAREN EXPRESION RPAREN r_new_rparen
@@ -168,6 +169,13 @@ def p_TIPO_FUNC(p):
 def p_PARAMETROS(p):
     '''PARAMETROS : AUX_PARAM
                 | EMPTY'''
+    pass
+
+def p_ARR(p):
+    '''ARR : ID r_register_arr LSQ SLEVEL_EXPRESION r_set_dim RSQ r_quad_arr
+                | ID r_register_arr LSQ SLEVEL_EXPRESION r_set_dim RSQ LSQ SLEVEL_EXPRESION r_set_dim RSQ r_quad_arr
+                | EMPTY
+    '''
     pass
 
 def p_AUX_PARAM(p):
@@ -548,7 +556,7 @@ def p_r_set_var_type(p):
 
 def p_r_new_variable(p):
     'r_new_variable : '
-    e = var_tables.insert_variable(p[-1])
+    e = var_tables.insert_variable(p[-1], None)
     if e:
         error_handler(p.lineno(-1), e)
 
@@ -568,6 +576,28 @@ def p_r_display_const(p):
     'r_display_const : '
     constant_table.display_table()
 
+def p_r_new_arr(p):
+    'r_new_arr : '
+    arr_id = p[-1]
+    e = var_tables.register_arr(arr_id)
+    if e:
+        error_handler(p.lineno(-1), e)
+    
+def p_r_new_dim(p):
+    'r_new_dim : '
+    print(p[-1])
+    var_tables.register_dim(p[-1])
+
+def p_r_generate_arr(p):
+    'r_generate_arr : '
+    var_tables.generate_arr()
+    
+
+
+def p_r_clear_arr(p):
+    'r_clear_arr : '
+    var_tables.flush_arr()
+
 
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS I/O ----------------
@@ -580,6 +610,28 @@ def p_r_new_read(p):
 def p_r_new_write(p):
     'r_new_write : '
     stacks.generate_write_quadruple()
+
+# =====================================================================
+# --------------- PUNTOS NEURALGICOS ARREGLOS ----------------
+# =====================================================================
+
+def p_r_register_arr(p):
+    'r_register_arr : '
+    current_arr.append(p[-1])
+    stacks.register_arr(p[-1])
+
+def p_r_set_dim(p):
+    'r_set_dim : '
+    stacks.register_dim()
+
+def p_r_quad_arr(p):
+    'r_quad_arr : '
+    upper_limit = var_tables.get_dims(current_arr[len(current_arr) - 1])
+    vaddr, e = var_tables.get_var_vaddr(current_arr[0])
+    if e:
+        error_handler(p.lineno(-1), e)
+    stacks.generate_arr(upper_limit, vaddr)
+
 
 #Export quadruples and constants
 final_quadruples = stacks.quadruples
