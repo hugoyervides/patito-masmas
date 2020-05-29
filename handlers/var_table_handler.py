@@ -17,8 +17,10 @@ class Vartables:
         self.global_var_table = Vartable() #Used to store the global var table used in main
         self.context = "global" #Used to define the context (in the main (global) or in the local function)
         self.current_type = "" #Used to define the current type of variables that we are pushing into the tables
-        self.arr_val = ''
-        self.arr_stack = []
+        self.cache_array = {
+            'arr_val':          None,
+            'arr_dim_stack':    []
+        }
         self.global_mem = 1000
         self.local_mem = 8000
 
@@ -108,11 +110,11 @@ class Vartables:
     def flush_pointer_mem(self):
         self.pointer_mem = 20000
     
-    def register_arr(self, value):
-        self.arr_val = value
+    def register_arr(self, value):        
+        self.cache_array['arr_val'] = value
     
     def register_dim(self, value):
-        self.arr_stack.append(value)
+        self.cache_array['arr_dim_stack'].append(value)
 
     def generate_arr(self):
         e = None
@@ -120,26 +122,26 @@ class Vartables:
         arr_mem = self.get_arr_mem()
         if self.context == "global":
             if((self.global_mem + arr_mem) <= 7999):
-                e = self.global_var_table.newVariable(self.arr_val, self.current_type, self.global_mem, self.arr_stack)
+                e = self.global_var_table.newVariable(self.cache_array['arr_val'], self.current_type, self.global_mem, self.cache_array['arr_dim_stack'])
                 self.global_mem += arr_mem
             #TODO: error handling for memory
         elif self.context == "local":
             if((self.local_mem + arr_mem) <= 14999):
-                e = self.local_var_table.newVariable(self.arr_val, self.current_type, self.local_mem, self.arr_stack)
+                e = self.local_var_table.newVariable(self.cache_array['arr_val'], self.current_type, self.local_mem, self.cache_array['arr_dim_stack'])
                 self.local_mem += arr_mem
             #TODO: error handling for memory
         return e
   
             
     def get_arr_mem(self):
-        if(len(self.arr_stack) == 1):
-            return self.arr_stack[0]
+        if(len(self.cache_array['arr_dim_stack']) == 1):
+            return self.cache_array['arr_dim_stack'][0]
         else:
-            return self.arr_stack[0] * (self.arr_stack[1] + 1) + self.arr_stack[1]
+            return self.cache_array['arr_dim_stack'][0] * (self.cache_array['arr_dim_stack'][1] + 1) + self.cache_array['arr_dim_stack'][1]
 
     def flush_arr(self):
-        self.arr_val = ''
-        self.arr_stack = []
+        self.cache_array['arr_val'] = ''
+        self.cache_array['arr_dim_stack'] = []
 
     def get_dims(self, name):
         if self.context == "global":
