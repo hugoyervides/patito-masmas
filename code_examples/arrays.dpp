@@ -1,0 +1,12 @@
+programa patito; 
+var
+    int id1, id2[4][4], id3[3];
+
+principal(){
+    id3[4+3] = 3;
+    id2[ id3[4+3] ][2] = 0;
+
+    desde id1 = 0 hasta 9 hacer{
+        escribe(id1);
+    }
+}
