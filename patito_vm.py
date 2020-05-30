@@ -29,6 +29,7 @@ op_list = {
     'GOSUB':    operations.gosub,
     'RETURN':   operations.return_val,
     'READ' :     operations.lee
+    'VER':      operations.ver
 }
 
 def main():
