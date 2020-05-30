@@ -299,7 +299,7 @@ def p_r_new_c_int(p):
 
 def p_r_new_c_char(p):
     'r_new_c_char : '
-    v_add = constant_table.insert_constant(p[-1],'char')
+    v_add = constant_table.insert_constant(p[-1].replace("'", ""),'char')
     stacks.register_operand(v_add)
     stacks.register_type('char')
 
@@ -311,7 +311,7 @@ def p_r_new_c_float(p):
 
 def p_r_new_c_string(p):
     'r_new_c_string : '
-    v_add = constant_table.insert_constant(p[-1],'string')
+    v_add = constant_table.insert_constant(p[-1].replace('"', ''), 'string')
     stacks.register_operand(v_add)
     stacks.register_type('string')
 
