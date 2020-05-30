@@ -272,7 +272,7 @@ class Stacks:
             operand_dim = self.operand_stack.pop()
             dim_type = self.type_stack.pop()
             #Check if the dim type is int
-            if dim_type == 'int':
+            if dim_type == 'int' or dim_type == 'int_arr':
                 self.quadruples.add_quadruple('VER', operand_dim, l_limit, limit[0]['u_limit_constant'])
                 pointer = self.get_pointer_mem()
                 self.quadruples.add_quadruple('+', operand_dim, vaddr, pointer)
@@ -285,7 +285,7 @@ class Stacks:
             second_dim_type = self.type_stack.pop()
             first_dim_type = self.type_stack.pop()
             #Check if the dims are int
-            if (second_dim_type == 'int' and first_dim_type == 'int'):
+            if ((second_dim_type == 'int' or second_dim_type == 'int_arr') and (first_dim_type == 'int' or first_dim_type == 'int_arr')):
                 self.quadruples.add_quadruple('VER', operand_first_dim, l_limit, limit[0]['u_limit_constant'])
                 temp = self.get_result_var()
                 self.quadruples.add_quadruple('*', operand_first_dim, limit[0]['u_limit_constant'], temp)
