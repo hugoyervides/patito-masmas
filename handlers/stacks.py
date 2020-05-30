@@ -306,6 +306,26 @@ class Stacks:
         self.operand_stack.append(pointer)
         self.type_stack.append(arr_type)
         return e
+    
+    #Method to check if the top two operands are arrays
+    def check_array_operation(self):
+        #Check the size of the type stack
+        if (len(self.type_stack) < 2):
+            return False
+        if self.type_stack[-1] == 'int_arr' and self.type_stack[-2] == 'int_arr':
+            return [self.operand_stack[-2], self.operand_stack[-1]]
+        return False
+
+    #Method to handle array operations
+    def array_operation_quadruple(self):
+        e = None #Error handling
+        #Check the type of operation
+        operation_type = self.operator_stack.pop()
+        if not operation_type in ['*','+','-']:
+            e = "Operation not posible"
+            return e
+        #Calculate the temporal value that will store our matrix
+        #TODO
 
 
 
