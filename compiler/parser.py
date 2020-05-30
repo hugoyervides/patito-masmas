@@ -13,7 +13,6 @@ var_tables = Vartables()
 fun_handler = Funhandler()
 constant_table = Constanttable()
 for_stack = []
-current_arr = []
 final_quadruples = None
 final_constants = None
 start = 'PROG'
@@ -172,8 +171,8 @@ def p_PARAMETROS(p):
     pass
 
 def p_ARR(p):
-    '''ARR : ID r_register_arr LSQ SLEVEL_EXPRESION r_set_dim RSQ r_quad_arr
-                | ID r_register_arr LSQ SLEVEL_EXPRESION r_set_dim RSQ LSQ SLEVEL_EXPRESION r_set_dim RSQ r_quad_arr
+    '''ARR : ID r_register_arr LSQ r_new_lparen SLEVEL_EXPRESION r_new_rparen RSQ r_quad_arr
+                | ID r_register_arr LSQ r_new_lparen SLEVEL_EXPRESION r_new_rparen RSQ LSQ r_new_lparen SLEVEL_EXPRESION r_new_rparen RSQ r_quad_arr
     '''
     pass
 
@@ -629,24 +628,23 @@ def p_r_new_write(p):
 
 def p_r_register_arr(p):
     'r_register_arr : '
-    current_arr.append(p[-1])
+    #Register the array in the stack
     stacks.register_arr(p[-1])
-
-def p_r_set_dim(p):
-    'r_set_dim : '
-    stacks.register_dim()
 
 def p_r_quad_arr(p):
     'r_quad_arr : '
+    array_name, e = stacks.pop_array()
+    if e:
+        error_handler(p.lineno(-1), e)
     #define the limits of the array
-    upper_limit = var_tables.get_dims(current_arr[len(current_arr) - 1])
+    upper_limit = var_tables.get_dims(array_name)
     lower_limit = constant_table.insert_constant(0, 'int')
     #get array vaddr
-    vaddr, e = var_tables.get_var_vaddr(current_arr[0])
+    vaddr, e = var_tables.get_var_vaddr(array_name)
     if e:
         error_handler(p.lineno(-1), e)
     #get array type
-    arr_type, e = var_tables.get_var_type(current_arr[0])
+    arr_type, e = var_tables.get_var_type(array_name)
     if e:
         error_handler(p.lineno(-1), e)
     #convert the virtual addres into a constant for the virtual machine evaluation
