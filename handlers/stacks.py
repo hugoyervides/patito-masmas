@@ -14,6 +14,7 @@ class Stacks:
         self.operator_stack = [] #Used to store the operators
         self.operand_stack = []  #Used to store the operands
         self.type_stack = [] #Used to store the type of the operands (Size must match with the operand_stack)
+        self.array_stack = [] #Used to store the arrays we are currently working in
         self.jump_stack = { #Used to save pending jumps if we have a GOTO or GOTOF
             'GOTOF' :   [],
             'GOTO' :    []
@@ -26,6 +27,7 @@ class Stacks:
         self.quadruples = Quadruples() 
         self.result_counter = 0
         self.temp_mem = 20000
+        self.pointer_mem = 30000
 
     #Method to get an operand with its type
     def pop_operand(self):
@@ -84,6 +86,11 @@ class Stacks:
     def get_result_var(self):
         result = self.temp_mem
         self.temp_mem += 1
+        return result
+    
+    def get_pointer_mem(self):
+        result = self.pointer_mem
+        self.pointer_mem += 1
         return result
 
     #The name of this method is really obvious but will it generates a new quadruple when we reach certain neuralgic point
@@ -216,6 +223,9 @@ class Stacks:
     def flush_temp_mem(self):
         self.temp_mem = 20000
 
+    def flush_pointer_mem(self):
+        self.temp_mem = 30000
+
     #Updates for Value
     def update_for(self, lAddress, cAddress):
         self.register_operand(lAddress)
@@ -229,7 +239,7 @@ class Stacks:
         self.register_type('int')
         self.generate_asignation()
 
-    #Method to generate a new goto for a return statment
+    #Method to generate a new goto for a return statment 
     def generate_return_jump(self):
         self.return_stack.append(len(self.quadruples.quadruples))
         self.quadruples.add_quadruple('GOTO', None, None, None)
@@ -241,3 +251,63 @@ class Stacks:
             address = self.return_stack.pop()
             jumpAddress = len(self.quadruples.quadruples)
             self.quadruples.update_quadruple(address, 'GOTO', None, None, jumpAddress)
+
+    def register_arr(self, name):
+        self.array_stack.append(name)
+
+    def pop_array(self):
+        e = None
+        #Check the len
+        if len(self.array_stack) > 0:
+            return self.array_stack.pop(), e
+        else:
+            e = "Invalid array expresion"
+        return None, e
+    
+    def generate_arr(self ,l_limit ,limit, vaddr, arr_type):
+        e = None
+        pointer = None
+        #Get the indexes
+        if len(limit) == 1:
+            #Get the operand from the stack
+            operand_dim = self.operand_stack.pop()
+            dim_type = self.type_stack.pop()
+            #Check if the dim type is int
+            if dim_type == 'int':
+                self.quadruples.add_quadruple('VER', operand_dim, l_limit, limit[0]['u_limit_constant'])
+                pointer = self.get_pointer_mem()
+                self.quadruples.add_quadruple('+', operand_dim, vaddr, pointer)
+            else:
+                e = "Cant use " + str(dim_type) + " as array index"
+        elif len(limit) == 2:
+            #get the operands
+            operand_second_dim = self.operand_stack.pop()
+            operand_first_dim = self.operand_stack.pop()
+            second_dim_type = self.type_stack.pop()
+            first_dim_type = self.type_stack.pop()
+            #Check if the dims are int
+            if (second_dim_type == 'int' and first_dim_type == 'int'):
+                self.quadruples.add_quadruple('VER', operand_first_dim, l_limit, limit[0]['u_limit_constant'])
+                temp = self.get_result_var()
+                self.quadruples.add_quadruple('*', operand_first_dim, limit[0]['u_limit_constant'], temp)
+                self.operand_stack.append(temp)
+                self.type_stack.append('int')
+                self.quadruples.add_quadruple('VER', operand_second_dim, l_limit, limit[1]['u_limit_constant'])
+                temp = self.get_result_var()
+                self.quadruples.add_quadruple('+', self.operand_stack.pop(), operand_second_dim, temp)
+                _ = self.type_stack.pop()
+                self.operand_stack.append(temp)
+                self.type_stack.append('int')
+                pointer = self.get_pointer_mem()
+                self.quadruples.add_quadruple('+', temp, vaddr, pointer)
+            else:
+                e = "Cant use " + str(first_dim_type) + " and " + str(second_dim_type) + " as array index"
+        #insert the pointer and the type into the operand stack
+        self.operand_stack.append(pointer)
+        self.type_stack.append(arr_type)
+        return e
+
+
+
+            
+        

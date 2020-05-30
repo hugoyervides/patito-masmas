@@ -1,5 +1,6 @@
 from data_structures import Virtualmemory
 import json
+import sys
 
 class Operations:
     def __init__(self):
@@ -18,6 +19,9 @@ class Operations:
     def asignation(self,quadruple):
         l_operand = quadruple['l_operand']
         result = quadruple['result']
+        #Check if the result is a pointer
+        if self.virtual_memory.is_pointer(result):
+            result = self.virtual_memory.is_pointer(result)
         self.virtual_memory.update_memory(
             result,
             self.virtual_memory.get_value(l_operand)
@@ -152,6 +156,16 @@ class Operations:
         )
         return None
 
+
+    def ver(self, quadruple):
+        array_index = self.virtual_memory.get_value(quadruple['l_operand'])
+        array_llimit = self.virtual_memory.get_value(quadruple['r_operand'])
+        array_ulimit = self.virtual_memory.get_value(quadruple['result'])
+        #Check the limits
+        if(array_index < array_llimit or array_index >= array_ulimit):
+            print("Runtime Error: Array out of bounds")
+            sys.exit()
+
     def ebdoroc(self, quadruple):
         #Return tu previos state
         previos_state = self.jump_stack.pop() + 1
@@ -181,3 +195,4 @@ class Operations:
             self.virtual_memory.get_value(qudaruple['result'])
         )
         return None
+
