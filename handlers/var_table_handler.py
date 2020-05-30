@@ -93,17 +93,6 @@ class Vartables:
             print("Displaying global Var table")
             self.global_var_table.display_vars()
 
-
-    def get_virtual_mem(self, name):
-        if(self.context != "global"):
-            mem_addr = self.local_var_table.get_vaddr(name)
-            if(mem_addr != None):
-                return mem_addr
-            else:
-                return self.global_var_table.get_vaddr(name)
-        else:
-            return self.global_var_table.get_vaddr(name)
-
     def flush_temp_mem(self):
         self.temp_mem = 20000
     
@@ -147,8 +136,13 @@ class Vartables:
         self.cache_array['arr_dim_stack'] = []
 
     def get_dims(self, name):
-        if self.context == "global":
-            return self.global_var_table.get_dims(name)
-        elif self.context == "local":
-            return self.local_var_table.get_dims(name)
+        #Check the context that we are currenlty
+        if(self.context == "local"):
+            var_type, e = self.local_var_table.get_dims(name)
+            if var_type == None:
+                return self.global_var_table.get_dims(name)
+            return var_type, e
+        return self.global_var_table.get_dims(name)
         
+    def get_variable(self,name):
+        return
