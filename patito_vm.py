@@ -22,7 +22,8 @@ op_list = {
     ">" :       operations.greater_op,
     "<" :       operations.less_op,
     "=" :       operations.asignation,
-    'WRITE':    operations.write
+    'WRITE':    operations.write,
+    'VER':      operations.ver
 }
 
 def main():
