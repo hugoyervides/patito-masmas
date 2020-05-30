@@ -280,8 +280,7 @@ def p_error(p):
 
 def p_r_new_id(p):
     'r_new_id : '
-    type_var = var_tables.get_var_type(p[-1])
-    mem_address, e = var_tables.get_virtual_mem(p[-1])
+    mem_address, e = var_tables.get_var_vaddr(p[-1])
     if e:
         error_handler(p.lineno(-1), e)
     stacks.register_operand(mem_address)
@@ -332,7 +331,15 @@ def p_r_new_operator(p):
 def p_r_new_quadruple_flevel(p):
     'r_new_quadruple_flevel : '
     if stacks.top_operators() in ['*', '/']:
-        e = stacks.generate_quadruple()
+        #Check if its an array operation
+        arrays = stacks.check_array_operation()
+        if arrays and stacks.top_operators() == '*':
+            #Get the arrays information
+
+            #perform array multiplication
+            e = stacks.array_operation_quadruple()
+        else:
+            e = stacks.generate_quadruple()
         if e:
             error_handler(p.lineno(-1),e)
 
@@ -397,7 +404,7 @@ def p_r_new_id_for(p):
     else:
         for_stack.append(p[-1])
         type_var = var_tables.get_var_type(p[-1])
-        mem_address, e = var_tables.get_virtual_mem(p[-1])
+        mem_address, e = var_tables.get_var_vaddr(p[-1])
         if e:
             error_handler(p.lineno(-1),e)
         stacks.register_operand(mem_address)
@@ -410,7 +417,7 @@ def p_r_new_id_for(p):
     
 def p_r_compara_for(p):
     'r_compara_for : '
-    mem_address, e = var_tables.get_virtual_mem(for_stack[len(for_stack) - 1])
+    mem_address, e = var_tables.get_var_vaddr(for_stack[len(for_stack) - 1])
     if e:
         error_handler(p.lineno(-1), e)
     stacks.register_operand(mem_address)
@@ -420,7 +427,7 @@ def p_r_compara_for(p):
 def p_r_update_for(p):
     'r_update_for : '
     global for_stack
-    mem_address, e = var_tables.get_virtual_mem(for_stack[len(for_stack) - 1])
+    mem_address, e = var_tables.get_var_vaddr(for_stack[len(for_stack) - 1])
     if e:
         error_handler(p.lineno(-1), e)
     stacks.update_for(mem_address, constant_table.insert_constant(1, 'int'))
@@ -637,7 +644,7 @@ def p_r_quad_arr(p):
     if e:
         error_handler(p.lineno(-1), e)
     #define the limits of the array
-    upper_limit = var_tables.get_dims(array_name)
+    upper_limit, e = var_tables.get_dims(array_name)
     lower_limit = constant_table.insert_constant(0, 'int')
     #get array vaddr
     vaddr, e = var_tables.get_var_vaddr(array_name)
