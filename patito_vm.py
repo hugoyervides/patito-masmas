@@ -24,6 +24,13 @@ op_list = {
     "=" :       operations.asignation,
     'WRITE':    operations.write,
     'VER':      operations.ver
+    'EBDOROC':  operations.ebdoroc,
+    'EKA':      operations.eka,
+    'PARAM':    operations.param,
+    'GOSUB':    operations.gosub,
+    'RETURN':   operations.return_val,
+    'READ' :     operations.lee
+
 }
 
 def main():

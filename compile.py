@@ -33,15 +33,8 @@ def main():
     else:
         print('Missing parameter') 
         sys.exit()
-    #Use the lexer
-    lexer.input(code)
-    #Tokenize
-    while True:
-        token = lexer.token()
-        if not token:
-            break
     #Parse
-    parser.parse(code)
+    parser.parse(code, tracking = True)
     #Save the quadruples in a file
     export_quadruples(sys.argv[2])
     export_constants('c_'+sys.argv[2])

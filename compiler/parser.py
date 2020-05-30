@@ -536,15 +536,17 @@ def p_r_generate_gosub(p):
     vaddr, e = var_tables.get_var_vaddr(
         fun_handler.called_function['name']
     )
-    if e:
-        error_handler(p.lineno(-1), e)
     stacks.generate_gosub_quadruple(fun_handler.called_function, vaddr)
 
 
 def p_r_generate_return(p):
     'r_generate_return : '
-    e = None
-    e = stacks.generate_return_quadruple(fun_handler.current_function['varType'])
+    vaddr, e = var_tables.get_var_vaddr(
+        fun_handler.current_function['name']
+    )
+    if e:
+        error_handler(p.lineno(-1), e)
+    e = stacks.generate_return_quadruple(fun_handler.current_function['varType'], vaddr)
     if e:
         error_handler(p.lineno(-1), e)
     stacks.generate_return_jump()

@@ -145,7 +145,7 @@ class Stacks:
         self.quadruples.add_quadruple("PARAM", operand, None, "PARAM" + str(param_number))
 
     def generate_gosub_quadruple(self, function, vaddr):
-        self.quadruples.add_quadruple("GOSUB", None, None, function['name'])
+        self.quadruples.add_quadruple("GOSUB", None, None, function['quadrupleAddress'])
         #Check if the function has a return value
         if function['returnType'] != 'void':
             #Add a tep value to store the function return
@@ -154,18 +154,19 @@ class Stacks:
             #Add a equal to store the return value
             self.operand_stack.append(vaddr)
             self.type_stack.append(function['returnType'])
+            self.operator_stack.append('=')
             self.generate_asignation()
 
     def generate_eka_quadruple(self, function_name):
         self.quadruples.add_quadruple("EKA", None, None, function_name)
 
-    def generate_return_quadruple(self, function_type):
+    def generate_return_quadruple(self, function_type, return_address):
         e = None
         operand = self.operand_stack.pop()
         operand_type = self.type_stack.pop()
         if (operand_type != function_type):
             e = "Function return type missmatch"
-        self.quadruples.add_quadruple("RETURN", None, None, operand)
+        self.quadruples.add_quadruple("RETURN", return_address, None, operand)
         return e
 
     #Method for read quadruple generation

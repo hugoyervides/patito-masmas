@@ -1,0 +1,23 @@
+programa patito; 
+var
+    int terminos, i;
+
+funcion int fibo(int x)
+var
+    int term1, term2;
+{
+    si(x<=1) entonces{
+        return(x);
+    }
+    sino{
+        return( fibo( x - 1 ) + fibo( x - 2 ) );
+    }
+}
+principal(){
+    terminos = 10;
+    i = 0;
+    mientras (i < terminos) haz{
+        escribe(fibo(i));
+        i = i + 1;
+    }
+}
