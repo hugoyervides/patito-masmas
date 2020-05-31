@@ -1,0 +1,34 @@
+programa patito;
+var
+    int arreglo1[4][4], arreglo2[4][4], arreglo3[4][4], contador, i, j;
+
+funcion void despliega(int valor){
+    escribe(valor);
+}
+funcion int regresa(){
+    return(1+2);
+}
+principal(){
+    contador = 0;
+    %%Llenar los arreglos con datos para hacer calculos
+    desde i = 0 hasta 3 hacer{
+        desde j = 0 hasta 3 hacer{
+            arreglo2[i][j] = contador;
+            arreglo3[i][j] = contador;
+        }
+        contador = contador + 1;
+    }
+    %%Operacion con arreglos basica
+    arreglo1 = arreglo2 * arreglo3;
+    %%Desplegar resultado de la operacion
+    desde i = 0  hasta 3 hacer{
+        desde j = 0 hasta 3 hacer{
+            despliega( arreglo1[i][j] );
+        }
+    }
+    %%Operacion multiplicacion
+    escribe(arreglo1);
+    %% Desplegar determinante
+    escribe(arreglo1$);
+
+}
