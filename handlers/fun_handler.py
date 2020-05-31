@@ -11,7 +11,7 @@ class Funhandler:
     def __init__(self):
         self.funcTable = Funtable()
         self.current_function = {}
-        self.called_function = {}
+        self.called_function = []
         self.param_counter = 0
 
     #Method to check a function name inside the function table
@@ -56,27 +56,26 @@ class Funhandler:
     def load_called_function(self, name):
         e = None
         self.param_counter = 0
-        self.called_function = {}
         function, e = self.funcTable.get_function(name)
         if e:
             return None, e
-        self.called_function = function
-        return self.called_function, e
+        self.called_function.append(function)
+        return self.called_function[-1], e
 
     def check_param_counter(self):
         e = None
-        if len(self.called_function['parameters']) != self.param_counter:
-            e = "Parameter missmatch for function " + str(self.called_function['name'])
+        if len(self.called_function[-1]['parameters']) != self.param_counter:
+            e = "Parameter missmatch for function " + str(self.called_function[-1]['name'])
         return e
 
     def check_param_type(self, param_type):
         e = None
         #Check the parameters
-        if len(self.called_function['parameters']) <= self.param_counter:
-            e = "Parameter missmatch for function " + str(self.called_function['name'])
-        elif param_type == self.called_function['parameters'][self.param_counter]:
+        if len(self.called_function[-1]['parameters']) <= self.param_counter:
+            e = "Parameter missmatch for function " + str(self.called_function[-1]['name'])
+        elif param_type == self.called_function[-1]['parameters'][self.param_counter]:
             self.param_counter += 1
         else:
-            e = "Parameter " + str(self.param_counter) + ' missmatch for function ' + str(self.called_function["name"])
+            e = "Parameter " + str(self.param_counter) + ' missmatch for function ' + str(self.called_function[-1]["name"])
         return e
         
