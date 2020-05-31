@@ -309,7 +309,7 @@ class Stacks:
     
     #Method to check if the top two operands are arrays
     def check_array_operation(self):
-        #Check the size of the type stack
+        #Check the size of the type stack        
         if (len(self.type_stack) < 2):
             return False
         if self.type_stack[-1] == 'int_arr' and self.type_stack[-2] == 'int_arr':
@@ -323,6 +323,7 @@ class Stacks:
         l_operand = self.operand_stack.pop()
         _ = self.type_stack.pop()
         _ = self.type_stack.pop()
+        operation = self.operator_stack.pop()
         #Get dimensions
         dim1={
             'row':              1 if len(l_operand['dims']) == 1 else l_operand['dims'][1]['u_limit'], #if the len of the dimensions is 1 then is a array and the row is 1
@@ -353,7 +354,7 @@ class Stacks:
             second_start = dim2['start_address']
             while(first_start <= dim1['end_address']):
                 self.quadruples.add_quadruple(
-                    '=',
+                    operation,
                     second_start,
                     None,
                     first_start
