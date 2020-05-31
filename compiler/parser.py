@@ -112,7 +112,9 @@ def p_FLEVEL_EXPRESION_AUX(p):
 
 def p_VALUE_EXPRESION(p):
     '''VALUE_EXPRESION : ID r_new_id
-                    | ID DET
+                    | ID r_new_det DET
+                    | ID r_new_tran TRAN
+                    | ID r_new_inv INV
                     | ARR
                     | CONSTANTE 
                     | LLAMADA
@@ -277,6 +279,65 @@ def p_error(p):
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS LINEALES ----------------
 # =====================================================================
+def p_r_new_det(p):
+    'r_new_det :'
+    e = None
+    mem_address, e = var_tables.get_var_vaddr(p[-1])
+    if e:
+        error_handler(p.lineno(-1),e)
+    #get the variable
+    variable, e = var_tables.get_variable(mem_address)
+    if e:
+        error_handler(p.lineno(-1),e)
+    #register
+    stacks.register_type(variable['type'])
+    stacks.register_operand({
+        'mem_address' : mem_address,
+        'dims': variable['dims']
+    })
+    e = stacks.array_determinant()
+    if e:
+        error_handler(p.lineno(-1), e)
+
+def p_r_new_tran(p):
+    'r_new_tran : '
+    e = None
+    mem_address, e = var_tables.get_var_vaddr(p[-1])
+    if e:
+        error_handler(p.lineno(-1),e)
+    #get the variable
+    variable, e = var_tables.get_variable(mem_address)
+    if e:
+        error_handler(p.lineno(-1),e)
+    #register
+    stacks.register_type(variable['type'])
+    stacks.register_operand({
+        'mem_address' : mem_address,
+        'dims': variable['dims']
+    })
+    e = stacks.array_transpuesta()
+    if e:
+        error_handler(p.lineno(-1), e)
+
+def p_r_new_inv(p):
+    'r_new_inv : '
+    e = None
+    mem_address, e = var_tables.get_var_vaddr(p[-1])
+    if e:
+        error_handler(p.lineno(-1),e)
+    #get the variable
+    variable, e = var_tables.get_variable(mem_address)
+    if e:
+        error_handler(p.lineno(-1),e)
+    #register
+    stacks.register_type(variable['type'])
+    stacks.register_operand({
+        'mem_address' : mem_address,
+        'dims': variable['dims']
+    })
+    e = stacks.array_inversa()
+    if e:
+        error_handler(p.lineno(-1), e)
 
 def p_r_new_id(p):
     'r_new_id : '
@@ -301,7 +362,6 @@ def p_r_new_id(p):
     else:
         stacks.register_operand(mem_address)
     
-
 def p_r_new_c_int(p):
     'r_new_c_int : '
     v_add = constant_table.insert_constant(p[-1],'int')
