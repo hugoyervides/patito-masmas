@@ -204,8 +204,16 @@ def p_MIENTRAS_CICLO(p):
 
 #LECTURA
 def p_LECTURA(p):
-    '''LECTURA : LEE LPAREN ID r_new_id r_new_read RPAREN'''
+    '''LECTURA : LEE LPAREN PARAMETRO_LECTURA RPAREN'''
     pass
+
+def p_PARAMETRO_LECTURA(p):
+    '''PARAMETRO_LECTURA : PARAMETRO_LECTURA_AUX
+                        | EMPTY'''
+
+def p_PARAMETRO_LECTURA_AUX(p):
+    '''PARAMETRO_LECTURA_AUX : EXPRESION r_new_read
+                            | EXPRESION r_new_read COMMA PARAMETRO_LECTURA_AUX'''
 
 #ESCRITURA
 def p_ESCRITURA(p):
@@ -599,7 +607,7 @@ def p_r_verify_function(p):
 
 def p_r_generate_era(p):
     'r_generate_era : '
-    stacks.generate_eka_quadruple(fun_handler.called_function['name'])
+    stacks.generate_eka_quadruple(fun_handler.called_function[-1]['name'])
 
 def p_r_verify_parameter(p):
     'r_verify_parameter : '
@@ -624,10 +632,11 @@ def p_r_generate_gosub(p):
     #get the funtion return virtual address if we need it
     #get virtual address
     vaddr, e = var_tables.get_var_vaddr(
-        fun_handler.called_function['name']
+        fun_handler.called_function[-1]['name']
     )
-    stacks.generate_gosub_quadruple(fun_handler.called_function, vaddr)
-
+    stacks.generate_gosub_quadruple(fun_handler.called_function[-1], vaddr)
+    #Pop the last called function
+    fun_handler.called_function.pop()
 
 def p_r_generate_return(p):
     'r_generate_return : '
