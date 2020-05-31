@@ -490,7 +490,20 @@ class Stacks:
         temp_array_start = self.get_result_var()
         #Move temp memory to prevent collision
         self.temp_mem += new_row * new_col - 1
-        #TODO
+        #Inser the temporal into the operand stack
+        self.operand_stack.append({
+            'mem_address': temp_array_start,
+            'dims': new_dims
+        })
+        self.type_stack.append('int_arr')
+        #Generate quadruple
+        self.quadruples.add_quadruple(
+            'TRANSPOSE',
+            temp_array_start,
+            self.temp_mem,
+            None
+        )
+
     
     def array_inversa(self):
         e = None
@@ -500,6 +513,41 @@ class Stacks:
             e = "Cannot calculate inverse of " + arr_type
             return e
         dim=self.get_dimensions(operand)
-        #TODO
-
+        #Load matrix into the virtual machine
+        self.quadruples.add_quadruple(
+            'CREATE_MATRIX',
+            dim['start_address'],
+            dim['end_address'],
+            [dim['row'], dim['col']]
+        )
+        #Generate a temporal matrix in memory for future operations
+        new_row = dim['row']
+        new_col = dim['col']
+        new_dims = []
+        new_dims.append({
+            'u_limit': new_col,
+            'u_limit_constant' : None
+        })
+        if new_row != 1: #Its a matrix, add second dim
+            new_dims.append({
+                'u_limit': new_row,
+                'u_limit_constant' : None
+            })
+        #Ask for temp memory
+        temp_array_start = self.get_result_var()
+        #Move temp memory to prevent collision
+        self.temp_mem += new_row * new_col - 1
+        #Inser the temporal into the operand stack
+        self.operand_stack.append({
+            'mem_address': temp_array_start,
+            'dims': new_dims
+        })
+        self.type_stack.append('int_arr')
+        #Generate quadruple
+        self.quadruples.add_quadruple(
+            'INVERSE',
+            temp_array_start,
+            self.temp_mem,
+            None
+        )
         
