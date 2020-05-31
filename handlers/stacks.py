@@ -179,8 +179,20 @@ class Stacks:
     #Method for escribir quadruple generation
     def generate_write_quadruple(self):
         operand = self.operand_stack.pop()
-        _ = self.type_stack.pop()
-        self.quadruples.add_quadruple("WRITE", None, None, operand)
+        operand_type = self.type_stack.pop()
+        #Check if its an array
+        if operand_type == 'int_arr':
+            #get dimensions
+            dims = self.get_dimensions(operand)
+            #Generate quadruple
+            self.quadruples.add_quadruple(
+                "WRITE_MAT",
+                None,
+                None,
+                dims
+            )
+        else:
+            self.quadruples.add_quadruple("WRITE", None, None, operand)
 
     #Method to generate a Goto quadruple
     def generate_jump(self, jumpType):
@@ -304,7 +316,7 @@ class Stacks:
                 e = "Cant use " + str(first_dim_type) + " and " + str(second_dim_type) + " as array index"
         #insert the pointer and the type into the operand stack
         self.operand_stack.append(pointer)
-        self.type_stack.append(arr_type)
+        self.type_stack.append('int')
         return e
     
     #Method to check if the top two operands are arrays
@@ -422,7 +434,7 @@ class Stacks:
         self.type_stack.append('int_arr')
         #generate the quadruple for operation
         self.quadruples.add_quadruple(
-            operation_type,
+            operation_type + '_arr',
             'MAT1',
             'MAT2',
             temp_array_start
