@@ -646,6 +646,8 @@ def p_r_quad_arr(p):
     #define the limits of the array
     upper_limit, e = var_tables.get_dims(array_name)
     lower_limit = constant_table.insert_constant(0, 'int')
+    if e:
+        error_handler(p.lineno(-1),e)
     #get array vaddr
     vaddr, e = var_tables.get_var_vaddr(array_name)
     if e:
