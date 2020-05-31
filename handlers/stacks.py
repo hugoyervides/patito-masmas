@@ -315,19 +315,140 @@ class Stacks:
         if self.type_stack[-1] == 'int_arr' and self.type_stack[-2] == 'int_arr':
             return [self.operand_stack[-2], self.operand_stack[-1]]
         return False
+    
+    #Method to handle array asignations
+    def array_assignation(self):
+        e = None
+        r_operand = self.operand_stack.pop()
+        l_operand = self.operand_stack.pop()
+        _ = self.type_stack.pop()
+        _ = self.type_stack.pop()
+        #Get dimensions
+        dim1={
+            'row':              1 if len(l_operand['dims']) == 1 else l_operand['dims'][1]['u_limit'], #if the len of the dimensions is 1 then is a array and the row is 1
+            'col':              l_operand['dims'][0]['u_limit'], #Column of first matrix
+            'start_address':    l_operand['mem_address'],
+            'end_address':      None
+        } 
+        dim2={
+            'row':              1 if len(r_operand['dims']) == 1 else r_operand['dims'][1]['u_limit'], #Same
+            'col':              r_operand['dims'][0]['u_limit'], #Column of second matrix
+            'start_address':    r_operand['mem_address'],
+            'end_address':      None
+        }
+        #Check if they are equal
+        if(dim1['col'] == dim2['col'] and dim1['row'] == dim2['col']):
+            #Get end vaddress of the elements
+            if(len(l_operand['dims']) == 1): #Its an array, end_address = start_address + col - 1
+                dim1['end_address'] = dim1['start_address'] + dim1['col'] - 1
+            else: #Its a Matrix, end_address = col x row - 1
+                dim1['end_address'] = dim1['start_address'] + dim1['col'] * dim1['row'] - 1
+            #Get end vaddress of the elements
+            if(len(r_operand['dims']) == 1): #Its an array, end_address = start_address + col - 1
+                dim2['end_address'] = dim2['start_address'] + dim2['col'] - 1
+            else: #Its a Matrix, end_address = col x row - 1
+                dim2['end_address'] = dim1['start_address'] +dim2['col'] * dim2['row'] - 1
+            #For loop to generate asignations
+            first_start = dim1['start_address']
+            second_start = dim2['start_address']
+            while(first_start <= dim1['end_address']):
+                self.quadruples.add_quadruple(
+                    '=',
+                    second_start,
+                    None,
+                    first_start
+                )
+                second_start += 1
+                first_start += 1
+
+        else:
+            e = "Matrices must be the same size!"
+        return e
 
     #Method to handle array operations
     def array_operation_quadruple(self):
         e = None #Error handling
         #Check the type of operation
+        r_operand = self.operand_stack.pop()
+        l_operand = self.operand_stack.pop()
+        _ = self.type_stack.pop()
+        _ = self.type_stack.pop()
         operation_type = self.operator_stack.pop()
         if not operation_type in ['*','+','-']:
             e = "Operation not posible"
             return e
-        #Calculate the temporal value that will store our matrix
-        #TODO
-
-
-
-            
         
+        #Get dimensions
+        dim1={
+            'row':              1 if len(l_operand['dims']) == 1 else l_operand['dims'][1]['u_limit'], #if the len of the dimensions is 1 then is a array and the row is 1
+            'col':              l_operand['dims'][0]['u_limit'], #Column of first matrix
+            'start_address':    l_operand['mem_address'],
+            'end_address':      None
+        } 
+        dim2={
+            'row':              1 if len(r_operand['dims']) == 1 else r_operand['dims'][1]['u_limit'], #Same
+            'col':              r_operand['dims'][0]['u_limit'], #Column of second matrix
+            'start_address':    r_operand['mem_address'],
+            'end_address':      None
+        }
+        #Check if the operation is posible in the first place
+        if(operation_type == '*' and dim1['col'] != dim2['row']): #Number of colums must be the same as number of rows
+            e = "Cannot * a matrix " + str(dim1['row']) + 'x' + str(dim1['col']) + " with a matrix " + str(dim2['row']) + 'x' + str(dim2['col'])
+            return e
+        if(operation_type in ['+','-'] and (dim1['col'] != dim2['col'] or dim1['row'] != dim2['row'])):
+            e = "Cannot + , - a matrix " + str(dim1['row']) + 'x' + str(dim1['col']) + " with a matrix " + str(dim2['row']) + 'x' + str(dim2['col'])
+            return e
+        #Get end vaddress of the elements
+        if(len(l_operand['dims']) == 1): #Its an array, end_address = start_address + col - 1
+            dim1['end_address'] = dim1['start_address'] + dim1['col'] - 1
+        else: #Its a Matrix, end_address = col x row - 1
+            dim1['end_address'] = dim1['start_address'] + dim1['col'] * dim1['row'] - 1
+        #Get end vaddress of the elements
+        if(len(r_operand['dims']) == 1): #Its an array, end_address = start_address + col - 1
+            dim2['end_address'] = dim2['start_address'] + dim2['col'] - 1
+        else: #Its a Matrix, end_address = col x row - 1
+            dim2['end_address'] = dim1['start_address'] +dim2['col'] * dim2['row'] - 1
+        #Generate queadruples to let the VM know to create the matrix
+        self.quadruples.add_quadruple(
+            'CREATE_MATRIX',
+            dim1['start_address'],
+            dim1['end_address'],
+            [dim1['row'], dim1['col']]
+        )
+        self.quadruples.add_quadruple(
+            'CREATE_MATRIX',
+            dim2['start_address'],
+            dim2['end_address'],
+            [dim2['row'], dim2['col']]
+        )
+        #Generate a temporal matrix in memory for future operations
+        new_row = dim1['row']
+        new_col = dim2['col']
+        new_dims = []
+        new_dims.append({
+            'u_limit': new_col,
+            'u_limit_constant' : None
+        })
+        if new_row != 1: #Its a matrix, add second dim
+            new_dims.append({
+                'u_limit': new_row,
+                'u_limit_constant' : None
+            })
+        #Ask for temp memory
+        temp_array_start = self.get_result_var()
+        #Move temp memory to prevent collision
+        self.temp_mem += new_row * new_col - 1
+        #insert temporal array into operand stack
+        self.operand_stack.append({
+            'mem_address': temp_array_start,
+            'dims': new_dims
+        })
+        self.type_stack.append('int_arr')
+        #generate the quadruple for operation
+        self.quadruples.add_quadruple(
+            operation_type,
+            'MAT1',
+            'MAT2',
+            temp_array_start
+        )            
+        return e
