@@ -283,12 +283,24 @@ def p_r_new_id(p):
     mem_address, e = var_tables.get_var_vaddr(p[-1])
     if e:
         error_handler(p.lineno(-1), e)
-    stacks.register_operand(mem_address)
     type_var, e = var_tables.get_var_type(p[-1])
     if e:
         error_handler(p.lineno(-1),e)
+    #Register the type
     stacks.register_type(type_var)
-
+    #If its an array put also the dims
+    if type_var == 'int_arr':
+        variable, e = var_tables.get_variable(mem_address)
+        if e:
+            error_handler(p.lineno(-1),e)
+        array_operand = {
+            'mem_address' : mem_address,
+            'dims': variable['dims']
+        }
+        stacks.register_operand(array_operand)
+    else:
+        stacks.register_operand(mem_address)
+    
 
 def p_r_new_c_int(p):
     'r_new_c_int : '
@@ -334,8 +346,6 @@ def p_r_new_quadruple_flevel(p):
         #Check if its an array operation
         arrays = stacks.check_array_operation()
         if arrays and stacks.top_operators() == '*':
-            #Get the arrays information
-
             #perform array multiplication
             e = stacks.array_operation_quadruple()
         else:
@@ -346,7 +356,13 @@ def p_r_new_quadruple_flevel(p):
 def p_r_new_quadruple_slevel(p):
     'r_new_quadruple_slevel : '
     if stacks.top_operators() in ['+', '-']:
-        e = stacks.generate_quadruple()
+        #Check if its an array operation
+        arrays = stacks.check_array_operation()
+        if arrays:
+            #perform array multiplication
+            e = stacks.array_operation_quadruple()
+        else:
+            e = stacks.generate_quadruple()
         if e:
             error_handler(p.lineno(-1),e)
 
@@ -367,7 +383,13 @@ def p_r_new_quadruple(p):
 def p_r_new_equal(p):
     'r_new_equal : '
     if stacks.top_operators() in ['=']:
-        e = stacks.generate_asignation()
+        #Check if its an array operation
+        arrays = stacks.check_array_operation()
+        if arrays:
+            #perform array multiplication
+            e = stacks.array_assignation()
+        else:
+            e = stacks.generate_asignation()
         if e:
             error_handler(p.lineno(-1), e)
 
@@ -421,6 +443,7 @@ def p_r_compara_for(p):
     if e:
         error_handler(p.lineno(-1), e)
     stacks.register_operand(mem_address)
+    stacks.register_type('int')
     stacks.register_operator('>=')
     stacks.generate_quadruple()
 
