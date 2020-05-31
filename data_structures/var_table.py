@@ -57,6 +57,9 @@ class Vartable:
         e = None
         for var in self.table:
             if(var['name'] == name):
+                #Check if its an array
+                if(var['dims'] == None):
+                    e = "Variable is not an array"    
                 return var['dims'], e
         e = "Variable " + str(name) + " not declared"
         return None, e
