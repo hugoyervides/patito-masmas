@@ -23,7 +23,7 @@ op_list = {
     "<" :       operations.less_op,
     "=" :       operations.asignation,
     'WRITE':    operations.write,
-    'VER':      operations.ver
+    'VER':      operations.ver,
     'EBDOROC':  operations.ebdoroc,
     'EKA':      operations.eka,
     'PARAM':    operations.param,
