@@ -474,45 +474,13 @@ class Stacks:
         self.type_stack.append('float')
         self.operand_stack.append(return_value)
 
-    def array_transpuesta(self):
+
+    def matrix_operation(self, value):
         e = None
         arr_type = self.type_stack.pop()
         operand = self.operand_stack.pop()
         if arr_type != 'int_arr':
-            e = "Cannot calculate tranpose of " + arr_type
-            return e
-        #Get dimensions
-        dim=self.get_dimensions(operand)
-        #Load matrix into the virtual machine
-        self.quadruples.add_quadruple(
-            'CREATE_MATRIX',
-            dim['start_address'],
-            dim['end_address'],
-            [dim['row'], dim['col']]
-        )
-        #Generate a temporal matrix in memory for future operations
-        new_row = dim['row']
-        new_col = dim['col']
-        new_dims = []
-        new_dims.append({
-            'u_limit': new_col,
-            'u_limit_constant' : None
-        })
-        if new_row != 1: #Its a matrix, add second dim
-            new_dims.append({
-                'u_limit': new_row,
-                'u_limit_constant' : None
-            })
-
-        self.array_op_mem('TRANSPOSE', new_row, new_col, new_dims)
-
-    
-    def array_inversa(self):
-        e = None
-        arr_type = self.type_stack.pop()
-        operand = self.operand_stack.pop()
-        if arr_type != 'int_arr':
-            e = "Cannot calculate inverse of " + arr_type
+            e = "Cannot calculate " + value +  " of " + arr_type
             return e
         dim=self.get_dimensions(operand)
         #Load matrix into the virtual machine
@@ -536,7 +504,7 @@ class Stacks:
                 'u_limit_constant' : None
             })
         
-        self.array_op_mem('INVERSE', new_row, new_col, new_dims)
+        self.array_op_mem(value, new_row, new_col, new_dims)
 
 
 
