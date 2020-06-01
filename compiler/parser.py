@@ -192,7 +192,6 @@ def p_RETURN_STM(p):
     'RETURN_STM : RETURN LPAREN EXPRESION RPAREN r_generate_return'
 
 #CICLO DESDE
-#TODO
 def p_DESDE_CICLO(p):
     '''DESDE_CICLO : DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_c_int r_new_equal HASTA CTE_I r_new_c_int r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for'''
     pass
@@ -579,8 +578,6 @@ def p_r_insert_parameters(p):
             fun_handler.current_function['name'],
             fun_handler.current_function['varType']
         )
-    #DEBUGN 
-    var_tables.display_var_table('local')
 
 def p_r_end_function(p):
     'r_end_function : '
