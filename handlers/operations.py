@@ -227,13 +227,29 @@ class Operations:
         )
     
     def inverse(self, quadruple):
-        return
-        #TODO
+        #get the matrix
+        matrix = np.array(self.mat_stack.pop())
+        result_start = quadruple['l_operand']
+        matrix = np.linalg.inv(matrix)
+        for ix, iy in np.ndindex(matrix.shape):
+            self.virtual_memory.update_memory(
+                result_start,
+                matrix[ix][iy]
+            )
+            result_start += 1
     
     def transpose(self, quadruple):
-        return
-        #TODO
-
+        #get the matrix
+        matrix = np.array(self.mat_stack.pop())
+        result_start = quadruple['l_operand']
+        matrix = matrix.transpose()
+        for ix, iy in np.ndindex(matrix.shape):
+            self.virtual_memory.update_memory(
+                result_start,
+                matrix[ix][iy]
+            )
+            result_start += 1
+    
     def plus_op_arr(self,quadruple):
         #Get the operands and convert them into a Numpy matrix
         r_operand = np.array(self.mat_stack.pop())
@@ -267,7 +283,7 @@ class Operations:
         r_operand = np.array(self.mat_stack.pop())
         l_operand = np.array(self.mat_stack.pop())
         result_vaddr = quadruple['result']
-        result_mat = np.multiply(l_operand, r_operand)
+        result_mat = l_operand.dot(r_operand)
         #Update virtual memory with result
         for ix,iy in np.ndindex(result_mat.shape):
             self.virtual_memory.update_memory(
