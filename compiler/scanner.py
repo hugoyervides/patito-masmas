@@ -81,13 +81,15 @@ def t_ID(t):
     t.type = reserved.get(t.value,'ID') #Checks for reserved words
     return t
 
+def t_CTE_F(t):
+    r'\d+(\.)\d+'
+    t.value = float(t.value)
+    return t
+
+
 def t_CTE_I(t):
     r'\d+'
     t.value = int(t.value)
-    return t
-
-def t_CTE_F(t):
-    r'(-)?[0-9]+(\.[0-9]+)?'
     return t
 
 def t_newline(t):
