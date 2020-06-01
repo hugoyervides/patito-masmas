@@ -57,7 +57,17 @@ class Vartable:
         e = None
         for var in self.table:
             if(var['name'] == name):
-                return var['dims']
+                #Check if its an array
+                if(var['dims'] == None):
+                    e = "Variable is not an array"    
+                return var['dims'], e
         e = "Variable " + str(name) + " not declared"
         return None, e
 
+    def get_variable(self, vaddr):
+        e = None
+        for var in self.table:
+            if(var['vAddr'] == vaddr):
+                return var, e
+        e = "Variable " + str(vaddr) + ' not declared'
+        return None, e

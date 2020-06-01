@@ -112,7 +112,9 @@ def p_FLEVEL_EXPRESION_AUX(p):
 
 def p_VALUE_EXPRESION(p):
     '''VALUE_EXPRESION : ID r_new_id
-                    | ID DET
+                    | ID r_new_det DET
+                    | ID r_new_tran TRAN
+                    | ID r_new_inv INV
                     | ARR
                     | CONSTANTE 
                     | LLAMADA
@@ -190,7 +192,6 @@ def p_RETURN_STM(p):
     'RETURN_STM : RETURN LPAREN EXPRESION RPAREN r_generate_return'
 
 #CICLO DESDE
-#TODO
 def p_DESDE_CICLO(p):
     '''DESDE_CICLO : DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_c_int r_new_equal HASTA CTE_I r_new_c_int r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for'''
     pass
@@ -202,8 +203,16 @@ def p_MIENTRAS_CICLO(p):
 
 #LECTURA
 def p_LECTURA(p):
-    '''LECTURA : LEE LPAREN ID r_new_id r_new_read RPAREN'''
+    '''LECTURA : LEE LPAREN PARAMETRO_LECTURA RPAREN'''
     pass
+
+def p_PARAMETRO_LECTURA(p):
+    '''PARAMETRO_LECTURA : PARAMETRO_LECTURA_AUX
+                        | EMPTY'''
+
+def p_PARAMETRO_LECTURA_AUX(p):
+    '''PARAMETRO_LECTURA_AUX : EXPRESION r_new_read
+                            | EXPRESION r_new_read COMMA PARAMETRO_LECTURA_AUX'''
 
 #ESCRITURA
 def p_ESCRITURA(p):
@@ -277,20 +286,89 @@ def p_error(p):
 # =====================================================================
 # --------------- PUNTOS NEURALGICOS LINEALES ----------------
 # =====================================================================
+def p_r_new_det(p):
+    'r_new_det :'
+    e = None
+    mem_address, e = var_tables.get_var_vaddr(p[-1])
+    if e:
+        error_handler(p.lineno(-1),e)
+    #get the variable
+    variable, e = var_tables.get_variable(mem_address)
+    if e:
+        error_handler(p.lineno(-1),e)
+    #register
+    stacks.register_type(variable['type'])
+    stacks.register_operand({
+        'mem_address' : mem_address,
+        'dims': variable['dims']
+    })
+    e = stacks.array_determinant()
+    if e:
+        error_handler(p.lineno(-1), e)
+
+def p_r_new_tran(p):
+    'r_new_tran : '
+    e = None
+    mem_address, e = var_tables.get_var_vaddr(p[-1])
+    if e:
+        error_handler(p.lineno(-1),e)
+    #get the variable
+    variable, e = var_tables.get_variable(mem_address)
+    if e:
+        error_handler(p.lineno(-1),e)
+    #register
+    stacks.register_type(variable['type'])
+    stacks.register_operand({
+        'mem_address' : mem_address,
+        'dims': variable['dims']
+    })
+    e = stacks.array_transpuesta()
+    if e:
+        error_handler(p.lineno(-1), e)
+
+def p_r_new_inv(p):
+    'r_new_inv : '
+    e = None
+    mem_address, e = var_tables.get_var_vaddr(p[-1])
+    if e:
+        error_handler(p.lineno(-1),e)
+    #get the variable
+    variable, e = var_tables.get_variable(mem_address)
+    if e:
+        error_handler(p.lineno(-1),e)
+    #register
+    stacks.register_type(variable['type'])
+    stacks.register_operand({
+        'mem_address' : mem_address,
+        'dims': variable['dims']
+    })
+    e = stacks.array_inversa()
+    if e:
+        error_handler(p.lineno(-1), e)
 
 def p_r_new_id(p):
     'r_new_id : '
-    type_var = var_tables.get_var_type(p[-1])
-    mem_address, e = var_tables.get_virtual_mem(p[-1])
+    mem_address, e = var_tables.get_var_vaddr(p[-1])
     if e:
         error_handler(p.lineno(-1), e)
-    stacks.register_operand(mem_address)
     type_var, e = var_tables.get_var_type(p[-1])
     if e:
         error_handler(p.lineno(-1),e)
+    #Register the type
     stacks.register_type(type_var)
-
-
+    #If its an array put also the dims
+    if type_var == 'int_arr':
+        variable, e = var_tables.get_variable(mem_address)
+        if e:
+            error_handler(p.lineno(-1),e)
+        array_operand = {
+            'mem_address' : mem_address,
+            'dims': variable['dims']
+        }
+        stacks.register_operand(array_operand)
+    else:
+        stacks.register_operand(mem_address)
+    
 def p_r_new_c_int(p):
     'r_new_c_int : '
     v_add = constant_table.insert_constant(p[-1],'int')
@@ -332,14 +410,26 @@ def p_r_new_operator(p):
 def p_r_new_quadruple_flevel(p):
     'r_new_quadruple_flevel : '
     if stacks.top_operators() in ['*', '/']:
-        e = stacks.generate_quadruple()
+        #Check if its an array operation
+        arrays = stacks.check_array_operation()
+        if arrays and stacks.top_operators() == '*':
+            #perform array multiplication
+            e = stacks.array_operation_quadruple()
+        else:
+            e = stacks.generate_quadruple()
         if e:
             error_handler(p.lineno(-1),e)
 
 def p_r_new_quadruple_slevel(p):
     'r_new_quadruple_slevel : '
     if stacks.top_operators() in ['+', '-']:
-        e = stacks.generate_quadruple()
+        #Check if its an array operation
+        arrays = stacks.check_array_operation()
+        if arrays:
+            #perform array multiplication
+            e = stacks.array_operation_quadruple()
+        else:
+            e = stacks.generate_quadruple()
         if e:
             error_handler(p.lineno(-1),e)
 
@@ -360,7 +450,13 @@ def p_r_new_quadruple(p):
 def p_r_new_equal(p):
     'r_new_equal : '
     if stacks.top_operators() in ['=']:
-        e = stacks.generate_asignation()
+        #Check if its an array operation
+        arrays = stacks.check_array_operation()
+        if arrays:
+            #perform array multiplication
+            e = stacks.array_assignation()
+        else:
+            e = stacks.generate_asignation()
         if e:
             error_handler(p.lineno(-1), e)
 
@@ -397,7 +493,7 @@ def p_r_new_id_for(p):
     else:
         for_stack.append(p[-1])
         type_var = var_tables.get_var_type(p[-1])
-        mem_address, e = var_tables.get_virtual_mem(p[-1])
+        mem_address, e = var_tables.get_var_vaddr(p[-1])
         if e:
             error_handler(p.lineno(-1),e)
         stacks.register_operand(mem_address)
@@ -410,17 +506,18 @@ def p_r_new_id_for(p):
     
 def p_r_compara_for(p):
     'r_compara_for : '
-    mem_address, e = var_tables.get_virtual_mem(for_stack[len(for_stack) - 1])
+    mem_address, e = var_tables.get_var_vaddr(for_stack[len(for_stack) - 1])
     if e:
         error_handler(p.lineno(-1), e)
     stacks.register_operand(mem_address)
+    stacks.register_type('int')
     stacks.register_operator('>=')
     stacks.generate_quadruple()
 
 def p_r_update_for(p):
     'r_update_for : '
     global for_stack
-    mem_address, e = var_tables.get_virtual_mem(for_stack[len(for_stack) - 1])
+    mem_address, e = var_tables.get_var_vaddr(for_stack[len(for_stack) - 1])
     if e:
         error_handler(p.lineno(-1), e)
     stacks.update_for(mem_address, constant_table.insert_constant(1, 'int'))
@@ -481,8 +578,6 @@ def p_r_insert_parameters(p):
             fun_handler.current_function['name'],
             fun_handler.current_function['varType']
         )
-    #DEBUGN 
-    var_tables.display_var_table('local')
 
 def p_r_end_function(p):
     'r_end_function : '
@@ -509,7 +604,7 @@ def p_r_verify_function(p):
 
 def p_r_generate_era(p):
     'r_generate_era : '
-    stacks.generate_eka_quadruple(fun_handler.called_function['name'])
+    stacks.generate_eka_quadruple(fun_handler.called_function[-1]['name'])
 
 def p_r_verify_parameter(p):
     'r_verify_parameter : '
@@ -534,10 +629,11 @@ def p_r_generate_gosub(p):
     #get the funtion return virtual address if we need it
     #get virtual address
     vaddr, e = var_tables.get_var_vaddr(
-        fun_handler.called_function['name']
+        fun_handler.called_function[-1]['name']
     )
-    stacks.generate_gosub_quadruple(fun_handler.called_function, vaddr)
-
+    stacks.generate_gosub_quadruple(fun_handler.called_function[-1], vaddr)
+    #Pop the last called function
+    fun_handler.called_function.pop()
 
 def p_r_generate_return(p):
     'r_generate_return : '
@@ -637,8 +733,10 @@ def p_r_quad_arr(p):
     if e:
         error_handler(p.lineno(-1), e)
     #define the limits of the array
-    upper_limit = var_tables.get_dims(array_name)
+    upper_limit, e = var_tables.get_dims(array_name)
     lower_limit = constant_table.insert_constant(0, 'int')
+    if e:
+        error_handler(p.lineno(-1),e)
     #get array vaddr
     vaddr, e = var_tables.get_var_vaddr(array_name)
     if e:

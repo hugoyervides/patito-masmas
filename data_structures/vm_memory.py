@@ -17,7 +17,7 @@ class Virtualmemory:
             'LOCAL_LLIMIT' :     8000,
             'LOCAL_ULIMIT' :     14999,
             'TEMPORAL_LLIMIT' :  20000,
-            'TEMPORAL_ULIMIT' :  30000,
+            'TEMPORAL_ULIMIT' :  29000,
             'CONSTANT_LLIMIT' :  15000,
             'CONSTANT_ULIMIT' :  19999,
             'POINTERS_LLIMIT' :  30000,

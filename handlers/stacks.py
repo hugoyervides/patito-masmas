@@ -179,8 +179,20 @@ class Stacks:
     #Method for escribir quadruple generation
     def generate_write_quadruple(self):
         operand = self.operand_stack.pop()
-        _ = self.type_stack.pop()
-        self.quadruples.add_quadruple("WRITE", None, None, operand)
+        operand_type = self.type_stack.pop()
+        #Check if its an array
+        if operand_type == 'int_arr':
+            #get dimensions
+            dims = self.get_dimensions(operand)
+            #Generate quadruple
+            self.quadruples.add_quadruple(
+                "WRITE_MAT",
+                None,
+                None,
+                dims
+            )
+        else:
+            self.quadruples.add_quadruple("WRITE", None, None, operand)
 
     #Method to generate a Goto quadruple
     def generate_jump(self, jumpType):
@@ -273,7 +285,7 @@ class Stacks:
             operand_dim = self.operand_stack.pop()
             dim_type = self.type_stack.pop()
             #Check if the dim type is int
-            if dim_type == 'int':
+            if dim_type == 'int' or dim_type == 'int_arr':
                 self.quadruples.add_quadruple('VER', operand_dim, l_limit, limit[0]['u_limit_constant'])
                 pointer = self.get_pointer_mem()
                 self.quadruples.add_quadruple('+', operand_dim, vaddr, pointer)
@@ -286,15 +298,20 @@ class Stacks:
             second_dim_type = self.type_stack.pop()
             first_dim_type = self.type_stack.pop()
             #Check if the dims are int
-            if (second_dim_type == 'int' and first_dim_type == 'int'):
+            if ((second_dim_type == 'int' or second_dim_type == 'int_arr') and (first_dim_type == 'int' or first_dim_type == 'int_arr')):
                 self.quadruples.add_quadruple('VER', operand_first_dim, l_limit, limit[0]['u_limit_constant'])
                 temp = self.get_result_var()
-                self.quadruples.add_quadruple('*', operand_first_dim, limit[0]['u_limit_constant'], temp)
+                self.quadruples.add_quadruple('+', operand_first_dim, l_limit, temp)
                 self.operand_stack.append(temp)
                 self.type_stack.append('int')
                 self.quadruples.add_quadruple('VER', operand_second_dim, l_limit, limit[1]['u_limit_constant'])
                 temp = self.get_result_var()
-                self.quadruples.add_quadruple('+', self.operand_stack.pop(), operand_second_dim, temp)
+                self.quadruples.add_quadruple('*', operand_second_dim, limit[0]['u_limit_constant'], temp)
+                self.operand_stack.append(temp)
+                self.type_stack.append('int')
+                temp = self.get_result_var()
+                self.quadruples.add_quadruple('+', self.operand_stack.pop(), self.operand_stack.pop(), temp)
+                _ = self.type_stack.pop()
                 _ = self.type_stack.pop()
                 self.operand_stack.append(temp)
                 self.type_stack.append('int')
@@ -304,10 +321,250 @@ class Stacks:
                 e = "Cant use " + str(first_dim_type) + " and " + str(second_dim_type) + " as array index"
         #insert the pointer and the type into the operand stack
         self.operand_stack.append(pointer)
-        self.type_stack.append(arr_type)
+        self.type_stack.append('int')
+        return e
+    
+    #Method to check if the top two operands are arrays
+    def check_array_operation(self):
+        #Check the size of the type stack        
+        if (len(self.type_stack) < 2):
+            return False
+        if self.type_stack[-1] == 'int_arr' and self.type_stack[-2] == 'int_arr':
+            return [self.operand_stack[-2], self.operand_stack[-1]]
+        return False
+    
+    def get_dimensions(self, operand):
+        #calculate the dimensions and addresses
+        dim={
+            'row':              1 if len(operand['dims']) == 1 else operand['dims'][1]['u_limit'], #if the len of the dimensions is 1 then is a array and the row is 1
+            'col':              operand['dims'][0]['u_limit'], #Column of first matrix
+            'start_address':    operand['mem_address'],
+            'end_address':      None
+        } 
+        #calculate the end address
+        if(len(operand['dims']) == 1): #Its an array, end_address = start_address + col - 1
+            dim['end_address'] = dim['start_address'] + dim['col'] - 1
+        else: #Its a Matrix, end_address = col x row - 1
+            dim['end_address'] = dim['start_address'] + dim['col'] * dim['row'] - 1
+        return dim
+
+    #Method to handle array asignations
+    def array_assignation(self):
+        e = None
+        r_operand = self.operand_stack.pop()
+        l_operand = self.operand_stack.pop()
+        _ = self.type_stack.pop()
+        _ = self.type_stack.pop()
+        operation = self.operator_stack.pop()
+        #Get dimensions
+        dim1 = self.get_dimensions(l_operand)
+        dim2 = self.get_dimensions(r_operand)
+        #Check if they are equal
+        if(dim1['col'] == dim2['col'] and dim1['row'] == dim2['col']):
+            #For loop to generate asignations
+            first_start = dim1['start_address']
+            second_start = dim2['start_address']
+            while(first_start <= dim1['end_address']):
+                self.quadruples.add_quadruple(
+                    operation,
+                    second_start,
+                    None,
+                    first_start
+                )
+                second_start += 1
+                first_start += 1
+
+        else:
+            e = "Matrices must be the same size!"
         return e
 
+    #Method to handle array operations
+    def array_operation_quadruple(self):
+        e = None #Error handling
+        #Check the type of operation
+        r_operand = self.operand_stack.pop()
+        l_operand = self.operand_stack.pop()
+        _ = self.type_stack.pop()
+        _ = self.type_stack.pop()
+        operation_type = self.operator_stack.pop()
+        if not operation_type in ['*','+','-']:
+            e = "Operation not posible"
+            return e
+        
+        #Get dimensions
+        dim1 = self.get_dimensions(l_operand)
+        dim2 = self.get_dimensions(r_operand)
+        #Check if the operation is posible in the first place
+        if(operation_type == '*' and dim1['col'] != dim2['row']): #Number of colums must be the same as number of rows
+            e = "Cannot * a matrix " + str(dim1['row']) + 'x' + str(dim1['col']) + " with a matrix " + str(dim2['row']) + 'x' + str(dim2['col'])
+            return e
+        if(operation_type in ['+','-'] and (dim1['col'] != dim2['col'] or dim1['row'] != dim2['row'])):
+            e = "Cannot + , - a matrix " + str(dim1['row']) + 'x' + str(dim1['col']) + " with a matrix " + str(dim2['row']) + 'x' + str(dim2['col'])
+            return e
+        #Generate queadruples to let the VM know to create the matrix
+        self.quadruples.add_quadruple(
+            'CREATE_MATRIX',
+            dim1['start_address'],
+            dim1['end_address'],
+            [dim1['row'], dim1['col']]
+        )
+        self.quadruples.add_quadruple(
+            'CREATE_MATRIX',
+            dim2['start_address'],
+            dim2['end_address'],
+            [dim2['row'], dim2['col']]
+        )
+        #Generate a temporal matrix in memory for future operations
+        new_row = dim1['row']
+        new_col = dim2['col']
+        new_dims = []
+        new_dims.append({
+            'u_limit': new_col,
+            'u_limit_constant' : None
+        })
+        if new_row != 1: #Its a matrix, add second dim
+            new_dims.append({
+                'u_limit': new_row,
+                'u_limit_constant' : None
+            })
+        #Ask for temp memory
+        temp_array_start = self.get_result_var()
+        #Move temp memory to prevent collision
+        self.temp_mem += new_row * new_col - 1
+        #insert temporal array into operand stack
+        self.operand_stack.append({
+            'mem_address': temp_array_start,
+            'dims': new_dims
+        })
+        self.type_stack.append('int_arr')
+        #generate the quadruple for operation
+        self.quadruples.add_quadruple(
+            operation_type + '_arr',
+            'MAT1',
+            'MAT2',
+            temp_array_start
+        )            
+        return e
 
+    def array_determinant(self):
+        e = None
+        arr_type = self.type_stack.pop()
+        operand = self.operand_stack.pop()
+        if arr_type != 'int_arr':
+            e = "Cannot calculate determinant of " + arr_type
+            return e
+        #Get dimensions
+        dim=self.get_dimensions(operand)
+        #generate the quadruples
+        self.quadruples.add_quadruple(
+            'CREATE_MATRIX',
+            dim['start_address'],
+            dim['end_address'],
+            [dim['row'], dim['col']]
+        )  
+        return_value = self.get_result_var()
+        #generate quadruple
+        self.quadruples.add_quadruple(
+            'DETERMINANT',
+            None,
+            None,
+            return_value
+        )
+        #Push the result into the stack
+        self.type_stack.append('float')
+        self.operand_stack.append(return_value)
 
-            
+    def array_transpuesta(self):
+        e = None
+        arr_type = self.type_stack.pop()
+        operand = self.operand_stack.pop()
+        if arr_type != 'int_arr':
+            e = "Cannot calculate tranpose of " + arr_type
+            return e
+        #Get dimensions
+        dim=self.get_dimensions(operand)
+        #Load matrix into the virtual machine
+        self.quadruples.add_quadruple(
+            'CREATE_MATRIX',
+            dim['start_address'],
+            dim['end_address'],
+            [dim['row'], dim['col']]
+        )
+        #Generate a temporal matrix in memory for future operations
+        new_row = dim['row']
+        new_col = dim['col']
+        new_dims = []
+        new_dims.append({
+            'u_limit': new_col,
+            'u_limit_constant' : None
+        })
+        if new_row != 1: #Its a matrix, add second dim
+            new_dims.append({
+                'u_limit': new_row,
+                'u_limit_constant' : None
+            })
+        #Ask for temp memory
+        temp_array_start = self.get_result_var()
+        #Move temp memory to prevent collision
+        self.temp_mem += new_row * new_col - 1
+        #Inser the temporal into the operand stack
+        self.operand_stack.append({
+            'mem_address': temp_array_start,
+            'dims': new_dims
+        })
+        self.type_stack.append('int_arr')
+        #Generate quadruple
+        self.quadruples.add_quadruple(
+            'TRANSPOSE',
+            temp_array_start,
+            self.temp_mem,
+            None
+        )
+
+    
+    def array_inversa(self):
+        e = None
+        arr_type = self.type_stack.pop()
+        operand = self.operand_stack.pop()
+        if arr_type != 'int_arr':
+            e = "Cannot calculate inverse of " + arr_type
+            return e
+        dim=self.get_dimensions(operand)
+        #Load matrix into the virtual machine
+        self.quadruples.add_quadruple(
+            'CREATE_MATRIX',
+            dim['start_address'],
+            dim['end_address'],
+            [dim['row'], dim['col']]
+        )
+        #Generate a temporal matrix in memory for future operations
+        new_row = dim['row']
+        new_col = dim['col']
+        new_dims = []
+        new_dims.append({
+            'u_limit': new_col,
+            'u_limit_constant' : None
+        })
+        if new_row != 1: #Its a matrix, add second dim
+            new_dims.append({
+                'u_limit': new_row,
+                'u_limit_constant' : None
+            })
+        #Ask for temp memory
+        temp_array_start = self.get_result_var()
+        #Move temp memory to prevent collision
+        self.temp_mem += new_row * new_col - 1
+        #Inser the temporal into the operand stack
+        self.operand_stack.append({
+            'mem_address': temp_array_start,
+            'dims': new_dims
+        })
+        self.type_stack.append('int_arr')
+        #Generate quadruple
+        self.quadruples.add_quadruple(
+            'INVERSE',
+            temp_array_start,
+            self.temp_mem,
+            None
+        )
         

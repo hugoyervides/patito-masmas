@@ -93,17 +93,6 @@ class Vartables:
             print("Displaying global Var table")
             self.global_var_table.display_vars()
 
-
-    def get_virtual_mem(self, name):
-        if(self.context != "global"):
-            mem_addr = self.local_var_table.get_vaddr(name)
-            if(mem_addr != None):
-                return mem_addr
-            else:
-                return self.global_var_table.get_vaddr(name)
-        else:
-            return self.global_var_table.get_vaddr(name)
-
     def flush_temp_mem(self):
         self.temp_mem = 20000
     
@@ -122,13 +111,13 @@ class Vartables:
         arr_mem = self.get_arr_mem()
         if self.context == "global":
             if((self.global_mem + arr_mem) <= 7999):
-                e = self.global_var_table.newVariable(self.cache_array['arr_val'], self.current_type, self.global_mem, self.cache_array['arr_dim_stack'])
+                e = self.global_var_table.newVariable(self.cache_array['arr_val'], self.current_type + '_arr', self.global_mem, self.cache_array['arr_dim_stack'])
                 self.global_mem += arr_mem
             else:
                 e = "Memory Error"
         elif self.context == "local":
             if((self.local_mem + arr_mem) <= 14999):
-                e = self.local_var_table.newVariable(self.cache_array['arr_val'], self.current_type, self.local_mem, self.cache_array['arr_dim_stack'])
+                e = self.local_var_table.newVariable(self.cache_array['arr_val'], self.current_type + '_arr', self.local_mem, self.cache_array['arr_dim_stack'])
                 self.local_mem += arr_mem
             else:
                 e = "Memory Error"
@@ -139,16 +128,27 @@ class Vartables:
         if(len(self.cache_array['arr_dim_stack']) == 1):
             return self.cache_array['arr_dim_stack'][0]['u_limit']
         else:
-            first_dim_offset = self.cache_array['arr_dim_stack'][0]['u_limit'] * (self.cache_array['arr_dim_stack'][1]['u_limit'] + 1)
-            return first_dim_offset + self.cache_array['arr_dim_stack'][1]['u_limit']
+            first_dim_offset = self.cache_array['arr_dim_stack'][0]['u_limit'] * self.cache_array['arr_dim_stack'][1]['u_limit']
+            return first_dim_offset
 
     def flush_arr(self):
         self.cache_array['arr_val'] = ''
         self.cache_array['arr_dim_stack'] = []
 
     def get_dims(self, name):
-        if self.context == "global":
-            return self.global_var_table.get_dims(name)
-        elif self.context == "local":
-            return self.local_var_table.get_dims(name)
+        #Check the context that we are currenlty
+        if(self.context == "local"):
+            var_dims, e = self.local_var_table.get_dims(name)
+            if var_dims == None:
+                return self.global_var_table.get_dims(name)
+            return var_dims, e
+        return self.global_var_table.get_dims(name)
         
+    def get_variable(self,vaddr):
+        #Check the context that we are currenlty
+        if(self.context == "local"):
+            variable, e = self.local_var_table.get_variable(vaddr)
+            if variable == None:
+                return self.global_var_table.get_variable(vaddr)
+            return variable, e
+        return self.global_var_table.get_variable(vaddr)

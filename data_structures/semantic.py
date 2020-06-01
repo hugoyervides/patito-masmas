@@ -34,6 +34,25 @@ cubo_semantico['char']['float']['*'] = cubo_semantico['float']['char']['*']     
 cubo_semantico['char']['int']['/'] = cubo_semantico['int']['char']['/']         = 'Error'
 cubo_semantico['char']['float']['/'] = cubo_semantico['float']['char']['/']     = 'Error'
 
+cubo_semantico['int']['int_arr']['*'] = cubo_semantico['int_arr']['int']['*']  = 'Error'
+cubo_semantico['int']['int_arr']['/'] = cubo_semantico['int_arr']['int']['/']  = 'Error'
+cubo_semantico['int']['int_arr']['+'] = cubo_semantico['int_arr']['int']['+']  = 'Error'
+cubo_semantico['int']['int_arr']['-'] = cubo_semantico['int_arr']['int']['-']  = 'Error'
+
+cubo_semantico['char']['int_arr']['*'] = cubo_semantico['int_arr']['char']['*']  = 'Error'
+cubo_semantico['char']['int_arr']['/'] = cubo_semantico['int_arr']['char']['/']  = 'Error'
+cubo_semantico['char']['int_arr']['+'] = cubo_semantico['int_arr']['char']['+']  = 'Error'
+cubo_semantico['char']['int_arr']['-'] = cubo_semantico['int_arr']['char']['-']  = 'Error'
+
+cubo_semantico['float']['int_arr']['*'] = cubo_semantico['int_arr']['float']['*']  = 'Error'
+cubo_semantico['float']['int_arr']['/'] = cubo_semantico['int_arr']['float']['/']  = 'Error'
+cubo_semantico['float']['int_arr']['+'] = cubo_semantico['int_arr']['float']['+']  = 'Error'
+cubo_semantico['float']['int_arr']['-'] = cubo_semantico['int_arr']['float']['-']  = 'Error'
+
+cubo_semantico['int_arr']['int_arr']['/'] = cubo_semantico['int_arr']['int_arr']['/']  = 'Error'
+
+
+
 #Comparative operators
 
 cubo_semantico['int']['int']['=']   = 'int'
