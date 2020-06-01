@@ -1,30 +1,40 @@
-{"quadruple_no": 0, "operator": "GOTO", "l_operand": null, "r_operand": null, "result": 25}
+{"quadruple_no": 0, "operator": "GOTO", "l_operand": null, "r_operand": null, "result": 26}
 {"quadruple_no": 1, "operator": "=", "l_operand": 15000, "r_operand": null, "result": 8000}
 {"quadruple_no": 2, "operator": "=", "l_operand": 15000, "r_operand": null, "result": 8001}
 {"quadruple_no": 3, "operator": "WRITE", "l_operand": null, "r_operand": null, "result": 15001}
 {"quadruple_no": 4, "operator": "=", "l_operand": 15002, "r_operand": null, "result": 8002}
 {"quadruple_no": 5, "operator": ">=", "l_operand": 15003, "r_operand": 8002, "result": 20000}
-{"quadruple_no": 6, "operator": "GOTOF", "l_operand": 20000, "r_operand": null, "result": 22}
+{"quadruple_no": 6, "operator": "GOTOF", "l_operand": 20000, "r_operand": null, "result": 23}
 {"quadruple_no": 7, "operator": "=", "l_operand": 15002, "r_operand": null, "result": 8003}
 {"quadruple_no": 8, "operator": ">=", "l_operand": 15003, "r_operand": 8003, "result": 20001}
-{"quadruple_no": 9, "operator": "GOTOF", "l_operand": 20001, "r_operand": null, "result": 19}
-{"quadruple_no": 10, "operator": "VER", "l_operand": 8002, "r_operand": 15002, "result": 15000}
-{"quadruple_no": 11, "operator": "*", "l_operand": 8002, "r_operand": 15000, "result": 20002}
-{"quadruple_no": 12, "operator": "VER", "l_operand": 8003, "r_operand": 15002, "result": 15000}
-{"quadruple_no": 13, "operator": "+", "l_operand": 20002, "r_operand": 8003, "result": 20003}
-{"quadruple_no": 14, "operator": "+", "l_operand": 20003, "r_operand": 15004, "result": 30000}
-{"quadruple_no": 15, "operator": "READ", "l_operand": null, "r_operand": null, "result": 30000}
-{"quadruple_no": 16, "operator": "+", "l_operand": 15005, "r_operand": 8003, "result": 20004}
-{"quadruple_no": 17, "operator": "=", "l_operand": 20004, "r_operand": null, "result": 8003}
-{"quadruple_no": 18, "operator": "GOTO", "l_operand": null, "r_operand": null, "result": 8}
-{"quadruple_no": 19, "operator": "+", "l_operand": 15005, "r_operand": 8002, "result": 20005}
-{"quadruple_no": 20, "operator": "=", "l_operand": 20005, "r_operand": null, "result": 8002}
-{"quadruple_no": 21, "operator": "GOTO", "l_operand": null, "r_operand": null, "result": 5}
-{"quadruple_no": 22, "operator": "WRITE", "l_operand": null, "r_operand": null, "result": 15006}
-{"quadruple_no": 23, "operator": "WRITE_MAT", "l_operand": null, "r_operand": null, "result": {"row": 5, "col": 5, "start_address": 1000, "end_address": 1024}}
-{"quadruple_no": 24, "operator": "EBDOROC", "l_operand": null, "r_operand": null, "result": null}
-{"quadruple_no": 25, "operator": "EKA", "l_operand": null, "r_operand": null, "result": "capturar"}
-{"quadruple_no": 26, "operator": "GOSUB", "l_operand": null, "r_operand": null, "result": 1}
-{"quadruple_no": 27, "operator": "CREATE_MATRIX", "l_operand": 1000, "r_operand": 1024, "result": [5, 5]}
-{"quadruple_no": 28, "operator": "DETERMINANT", "l_operand": null, "r_operand": null, "result": 20000}
-{"quadruple_no": 29, "operator": "WRITE", "l_operand": null, "r_operand": null, "result": 20000}
+{"quadruple_no": 9, "operator": "GOTOF", "l_operand": 20001, "r_operand": null, "result": 20}
+{"quadruple_no": 10, "operator": "VER", "l_operand": 8003, "r_operand": 15002, "result": 15000}
+{"quadruple_no": 11, "operator": "+", "l_operand": 8003, "r_operand": 15002, "result": 20002}
+{"quadruple_no": 12, "operator": "VER", "l_operand": 8002, "r_operand": 15002, "result": 15000}
+{"quadruple_no": 13, "operator": "*", "l_operand": 8002, "r_operand": 15000, "result": 20003}
+{"quadruple_no": 14, "operator": "+", "l_operand": 20003, "r_operand": 20002, "result": 20004}
+{"quadruple_no": 15, "operator": "+", "l_operand": 20004, "r_operand": 15004, "result": 30000}
+{"quadruple_no": 16, "operator": "READ", "l_operand": null, "r_operand": null, "result": 30000}
+{"quadruple_no": 17, "operator": "+", "l_operand": 15003, "r_operand": 8003, "result": 20005}
+{"quadruple_no": 18, "operator": "=", "l_operand": 20005, "r_operand": null, "result": 8003}
+{"quadruple_no": 19, "operator": "GOTO", "l_operand": null, "r_operand": null, "result": 8}
+{"quadruple_no": 20, "operator": "+", "l_operand": 15003, "r_operand": 8002, "result": 20006}
+{"quadruple_no": 21, "operator": "=", "l_operand": 20006, "r_operand": null, "result": 8002}
+{"quadruple_no": 22, "operator": "GOTO", "l_operand": null, "r_operand": null, "result": 5}
+{"quadruple_no": 23, "operator": "WRITE", "l_operand": null, "r_operand": null, "result": 15005}
+{"quadruple_no": 24, "operator": "WRITE_MAT", "l_operand": null, "r_operand": null, "result": {"row": 2, "col": 2, "start_address": 1000, "end_address": 1003}}
+{"quadruple_no": 25, "operator": "EBDOROC", "l_operand": null, "r_operand": null, "result": null}
+{"quadruple_no": 26, "operator": "EKA", "l_operand": null, "r_operand": null, "result": "capturar"}
+{"quadruple_no": 27, "operator": "GOSUB", "l_operand": null, "r_operand": null, "result": 1}
+{"quadruple_no": 28, "operator": "WRITE", "l_operand": null, "r_operand": null, "result": 15006}
+{"quadruple_no": 29, "operator": "CREATE_MATRIX", "l_operand": 1000, "r_operand": 1003, "result": [2, 2]}
+{"quadruple_no": 30, "operator": "DETERMINANT", "l_operand": null, "r_operand": null, "result": 20000}
+{"quadruple_no": 31, "operator": "WRITE", "l_operand": null, "r_operand": null, "result": 20000}
+{"quadruple_no": 32, "operator": "WRITE", "l_operand": null, "r_operand": null, "result": 15007}
+{"quadruple_no": 33, "operator": "CREATE_MATRIX", "l_operand": 1000, "r_operand": 1003, "result": [2, 2]}
+{"quadruple_no": 34, "operator": "INVERSE", "l_operand": 20001, "r_operand": 20005, "result": null}
+{"quadruple_no": 35, "operator": "WRITE_MAT", "l_operand": null, "r_operand": null, "result": {"row": 2, "col": 2, "start_address": 20001, "end_address": 20004}}
+{"quadruple_no": 36, "operator": "WRITE", "l_operand": null, "r_operand": null, "result": 15008}
+{"quadruple_no": 37, "operator": "CREATE_MATRIX", "l_operand": 1000, "r_operand": 1003, "result": [2, 2]}
+{"quadruple_no": 38, "operator": "TRANSPOSE", "l_operand": 20005, "r_operand": 20009, "result": null}
+{"quadruple_no": 39, "operator": "WRITE_MAT", "l_operand": null, "r_operand": null, "result": {"row": 2, "col": 2, "start_address": 20005, "end_address": 20008}}

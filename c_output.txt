@@ -1,7 +1,9 @@
-{"constant": 5, "type": "int", "v_address": 15000}
+{"constant": 2, "type": "int", "v_address": 15000}
 {"constant": "Captura la matriz: ", "type": "string", "v_address": 15001}
 {"constant": 0, "type": "int", "v_address": 15002}
-{"constant": 4, "type": "int", "v_address": 15003}
+{"constant": 1, "type": "int", "v_address": 15003}
 {"constant": 1000, "type": "int", "v_address": 15004}
-{"constant": 1, "type": "int", "v_address": 15005}
-{"constant": "Matriz capturada: ", "type": "string", "v_address": 15006}
+{"constant": "Matriz capturada: ", "type": "string", "v_address": 15005}
+{"constant": "Determinate:", "type": "string", "v_address": 15006}
+{"constant": "Inversa:", "type": "string", "v_address": 15007}
+{"constant": "Transpuesta:", "type": "string", "v_address": 15008}

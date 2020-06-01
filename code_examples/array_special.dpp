@@ -1,22 +1,21 @@
 %% Victor Hugo Oyervides y Obed Gonzalez Moreno
 %% 31/May/2020
-%% Operaciones especiales con el lenguaje Patito ++
+%% Operaciones especiales con matarices con el lenguaje Patito ++
 %% Calcula el determinante, inversa y transpuesta de una matriz 5x5 introducida por el usuario
 programa arraySpecial;
 var
-    int arreglo[5][5];
+    int arreglo[2][2];
 
 funcion void capturar()
 var
     int rows, columns, i, j;
 {
-    %% Cambiar si se requieren mas o menos
-    rows = 5; 
-    columns = 5 ;
+    rows = 2; 
+    columns = 2 ;
     escribe("Captura la matriz: ");
-    desde i = 0 hasta 4 hacer{
-        desde j = 0 hasta 4 hacer{
-            lee( arreglo[i][j] );
+    desde i = 0 hasta 1 hacer{
+        desde j = 0 hasta 1 hacer{
+            lee( arreglo[j][i] );
         }
     }
     escribe("Matriz capturada: ");
@@ -26,5 +25,12 @@ principal(){
     %% Capturar la matriz
     capturar();
     %% Desplegar determinante
+    escribe("Determinate:");
     escribe(arreglo$);
+    %% Desplegar inversa
+    escribe("Inversa:");
+    escribe(arreglo?);
+    %% Desplegar transpuesta
+    escribe("Transpuesta:");
+    escribe(arreglo¡);
 }

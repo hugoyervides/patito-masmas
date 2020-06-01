@@ -1,34 +1,43 @@
-programa patito;
-var
-    int arreglo1[4][4], arreglo2[4][4], arreglo3[4][4], contador, i, j;
+%% Victor Hugo Oyervides y Obed Gonzalez Moreno
+%% 31/May/2020
+%% Operaciones con matarices con el lenguaje Patito ++
+%% Calcula suma, resta, mult de dos matrices 3x3
 
-funcion void despliega(int valor){
-    escribe(valor);
-}
-funcion int regresa(){
-    return(1+2);
+programa arraySpecial;
+var
+    int arreglo[2][3], arreglo2[3][2];
+
+funcion void capturar()
+var
+    int rows, columns, i, j;
+{
+    rows = 3; 
+    columns = 3 ;
+    escribe("Captura la matriz 1: ");
+    desde i = 0 hasta 2 hacer{
+        desde j = 0 hasta 1 hacer{
+            lee( arreglo[j][i] );
+        }
+    }
+    escribe("Captura la matriz 2: ");
+    desde i = 0 hasta 1 hacer{
+        desde j = 0 hasta 2 hacer{
+            lee( arreglo2[j][i] );
+        }
+    }
+    escribe("Matriz 1 capturada: ");
+    escribe(arreglo);
+    escribe("Matriz 2 capturada: ");
+    escribe(arreglo2);
 }
 principal(){
-    contador = 0;
-    %%Llenar los arreglos con datos para hacer calculos
-    desde i = 0 hasta 3 hacer{
-        desde j = 0 hasta 3 hacer{
-            arreglo2[i][j] = contador;
-            arreglo3[i][j] = contador;
-        }
-        contador = contador + 1;
-    }
-    %%Operacion con arreglos basica
-    arreglo1 = arreglo2 * arreglo3;
-    %%Desplegar resultado de la operacion
-    desde i = 0  hasta 3 hacer{
-        desde j = 0 hasta 3 hacer{
-            despliega( arreglo1[i][j] );
-        }
-    }
-    %%Operacion multiplicacion
-    escribe(arreglo1);
-    %% Desplegar determinante
-    escribe(arreglo1$);
-
+    %% Capturar la matriz
+    capturar();
+    %% Hacer Operaciones
+    escribe("Suma de matrices");
+    escribe(arreglo + arreglo2);
+    escribe("Resta de matrices");
+    escribe(arreglo - arreglo2);
+    escribe("Multiplicacion de matrices:");
+    escribe(arreglo2 * arreglo);
 }
