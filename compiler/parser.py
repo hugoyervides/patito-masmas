@@ -322,7 +322,7 @@ def p_r_new_tran(p):
         'mem_address' : mem_address,
         'dims': variable['dims']
     })
-    e = stacks.array_transpuesta()
+    e = stacks.matrix_operation("transpose")
     if e:
         error_handler(p.lineno(-1), e)
 
@@ -342,7 +342,7 @@ def p_r_new_inv(p):
         'mem_address' : mem_address,
         'dims': variable['dims']
     })
-    e = stacks.array_inversa()
+    e = stacks.matrix_operation("inverse")
     if e:
         error_handler(p.lineno(-1), e)
 
