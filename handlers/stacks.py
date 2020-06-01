@@ -503,23 +503,8 @@ class Stacks:
                 'u_limit': new_row,
                 'u_limit_constant' : None
             })
-        #Ask for temp memory
-        temp_array_start = self.get_result_var()
-        #Move temp memory to prevent collision
-        self.temp_mem += new_row * new_col - 1
-        #Inser the temporal into the operand stack
-        self.operand_stack.append({
-            'mem_address': temp_array_start,
-            'dims': new_dims
-        })
-        self.type_stack.append('int_arr')
-        #Generate quadruple
-        self.quadruples.add_quadruple(
-            'TRANSPOSE',
-            temp_array_start,
-            self.temp_mem,
-            None
-        )
+
+        self.array_op_mem('TRANSPOSE', new_row, new_col, new_dims)
 
     
     def array_inversa(self):
@@ -550,19 +535,25 @@ class Stacks:
                 'u_limit': new_row,
                 'u_limit_constant' : None
             })
+        
+        self.array_op_mem('INVERSE', new_row, new_col, new_dims)
+
+
+
+    def array_op_mem(self, value, row, col, dims):
         #Ask for temp memory
         temp_array_start = self.get_result_var()
         #Move temp memory to prevent collision
-        self.temp_mem += new_row * new_col - 1
+        self.temp_mem += row * col - 1
         #Inser the temporal into the operand stack
         self.operand_stack.append({
             'mem_address': temp_array_start,
-            'dims': new_dims
+            'dims': dims
         })
         self.type_stack.append('int_arr')
         #Generate quadruple
         self.quadruples.add_quadruple(
-            'INVERSE',
+            value.upper(),
             temp_array_start,
             self.temp_mem,
             None
