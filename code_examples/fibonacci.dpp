@@ -1,0 +1,32 @@
+%% Victor Hugo Oyervides y Obed Gonzalez Moreno
+%% 31/May/2020
+%% Serie de fibonacci en lenguaje Patito ++
+%% CDespliega la serie de fibonacci dependiendo de n terminos
+
+programa fibo; 
+var
+    int terminos, i;
+
+funcion int fibo(int x){
+    si(x<=1) entonces{
+        return(x);
+    }
+    sino{
+        return( fibo( x - 1 ) + fibo( x - 2 ) );
+    }
+}
+principal(){
+    %% Preguntar por los terminos
+    escribe("Cantidad de terminos?");
+    lee(terminos);
+    %%Ver si los terminos son mayores a 0
+    si(terminos>0) entonces{
+        i = 0;
+        mientras (i < terminos) haz{
+            escribe(fibo(i));
+            i = i + 1;
+        }
+    }sino{
+        escribe("error, terminos son menor o igual a 0");
+    }
+}

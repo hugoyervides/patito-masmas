@@ -1,0 +1,43 @@
+%% Victor Hugo Oyervides y Obed Gonzalez Moreno
+%% 31/May/2020
+%% Operaciones con matarices con el lenguaje Patito ++
+%% Calcula suma, resta, mult de dos matrices 3x3
+
+programa arraySpecial;
+var
+    int arreglo[2][3], arreglo2[3][2];
+
+funcion void capturar()
+var
+    int rows, columns, i, j;
+{
+    rows = 3; 
+    columns = 3 ;
+    escribe("Captura la matriz 1: ");
+    desde i = 0 hasta 2 hacer{
+        desde j = 0 hasta 1 hacer{
+            lee( arreglo[j][i] );
+        }
+    }
+    escribe("Captura la matriz 2: ");
+    desde i = 0 hasta 1 hacer{
+        desde j = 0 hasta 2 hacer{
+            lee( arreglo2[j][i] );
+        }
+    }
+    escribe("Matriz 1 capturada: ");
+    escribe(arreglo);
+    escribe("Matriz 2 capturada: ");
+    escribe(arreglo2);
+}
+principal(){
+    %% Capturar la matriz
+    capturar();
+    %% Hacer Operaciones
+    escribe("Suma de matrices");
+    escribe(arreglo + arreglo2);
+    escribe("Resta de matrices");
+    escribe(arreglo - arreglo2);
+    escribe("Multiplicacion de matrices:");
+    escribe(arreglo2 * arreglo);
+}

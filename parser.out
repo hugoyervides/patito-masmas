@@ -1,0 +1,248 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    COLON
+    COMMENT
+    DOT
+    INV
+    NULL
+    TRAN
+
+Grammar
+
+Rule 0     S' -> PROG
+Rule 1     EMPTY -> <empty>
+Rule 2     MAIN -> PRINCIPAL r_flush_mem LPAREN RPAREN BLOQUE
+Rule 3     PROG -> r_new_goto PROGRAMA ID SEMI_COLON VARS r_change_local_context FUNCTION r_complete_goto r_change_global_context r_display_var_table MAIN r_display_const
+Rule 4     VARS -> VAR TIPO
+Rule 5     VARS -> EMPTY
+Rule 6     TIPO -> INT r_set_var_type VAR_INT SEMI_COLON TIPO
+Rule 7     TIPO -> FLOAT r_set_var_type VAR_TIPO SEMI_COLON TIPO
+Rule 8     TIPO -> CHAR r_set_var_type VAR_TIPO SEMI_COLON TIPO
+Rule 9     TIPO -> EMPTY
+Rule 10    VAR_INT -> LIST_ID COMMA VAR_INT
+Rule 11    VAR_INT -> ID r_new_variable COMMA VAR_INT
+Rule 12    VAR_INT -> LIST_ID
+Rule 13    VAR_INT -> ID r_new_variable
+Rule 14    VAR_TIPO -> ID r_new_variable COMMA
+Rule 15    VAR_TIPO -> ID r_new_variable
+Rule 16    LIST_ID -> ID r_new_variable LSQ SLEVEL_EXPRESION RSQ
+Rule 17    LIST_ID -> ID r_new_variable LSQ SLEVEL_EXPRESION RSQ LSQ SLEVEL_EXPRESION RSQ
+Rule 18    EXPRESION -> TLEVEL_EXPRESION r_new_quadruple EXPRESION_AUX
+Rule 19    EXPRESION_AUX -> COMPAR r_new_operator EXPRESION
+Rule 20    EXPRESION_AUX -> AND r_new_operator EXPRESION
+Rule 21    EXPRESION_AUX -> OR r_new_operator EXPRESION
+Rule 22    EXPRESION_AUX -> EMPTY
+Rule 23    TLEVEL_EXPRESION -> SLEVEL_EXPRESION r_new_quadruple_tlevel TLEVEL_EXPRESION_AUX
+Rule 24    TLEVEL_EXPRESION_AUX -> NOT_EQ r_new_operator TLEVEL_EXPRESION
+Rule 25    TLEVEL_EXPRESION_AUX -> GREATER_EQ r_new_operator TLEVEL_EXPRESION
+Rule 26    TLEVEL_EXPRESION_AUX -> LESS_EQ r_new_operator TLEVEL_EXPRESION
+Rule 27    TLEVEL_EXPRESION_AUX -> GREATER r_new_operator TLEVEL_EXPRESION
+Rule 28    TLEVEL_EXPRESION_AUX -> LESS r_new_operator TLEVEL_EXPRESION
+Rule 29    TLEVEL_EXPRESION_AUX -> EMPTY
+Rule 30    SLEVEL_EXPRESION -> FLEVEL_EXPRESION r_new_quadruple_slevel SLEVEL_EXPRESION_AUX
+Rule 31    SLEVEL_EXPRESION_AUX -> PLUS r_new_operator SLEVEL_EXPRESION
+Rule 32    SLEVEL_EXPRESION_AUX -> MINUS r_new_operator SLEVEL_EXPRESION
+Rule 33    SLEVEL_EXPRESION_AUX -> EMPTY
+Rule 34    FLEVEL_EXPRESION -> VALUE_EXPRESION r_new_quadruple_flevel FLEVEL_EXPRESION_AUX
+Rule 35    FLEVEL_EXPRESION_AUX -> MULT r_new_operator FLEVEL_EXPRESION
+Rule 36    FLEVEL_EXPRESION_AUX -> DIV r_new_operator FLEVEL_EXPRESION
+Rule 37    FLEVEL_EXPRESION_AUX -> EMPTY
+Rule 38    VALUE_EXPRESION -> ID r_new_id
+Rule 39    VALUE_EXPRESION -> ID DET
+Rule 40    VALUE_EXPRESION -> LIST_ID
+Rule 41    VALUE_EXPRESION -> CONSTANTE
+Rule 42    VALUE_EXPRESION -> LLAMADA
+Rule 43    VALUE_EXPRESION -> r_new_lparen LPAREN EXPRESION RPAREN r_new_rparen
+Rule 44    CONSTANTE -> CTE_I r_new_c_int
+Rule 45    CONSTANTE -> CTE_F r_new_c_float
+Rule 46    CONSTANTE -> CTE_C r_new_c_char
+Rule 47    CONSTANTE -> CTE_S r_new_c_string
+Rule 48    BLOQUE -> LBRACKET OPCION_BLOQUE RBRACKET
+Rule 49    OPCION_BLOQUE -> LECTURA SEMI_COLON OPCION_BLOQUE
+Rule 50    OPCION_BLOQUE -> ESCRITURA SEMI_COLON OPCION_BLOQUE
+Rule 51    OPCION_BLOQUE -> LLAMADA SEMI_COLON OPCION_BLOQUE
+Rule 52    OPCION_BLOQUE -> IF_STMT OPCION_BLOQUE
+Rule 53    OPCION_BLOQUE -> IF_ELSE_STMT OPCION_BLOQUE
+Rule 54    OPCION_BLOQUE -> MIENTRAS_CICLO OPCION_BLOQUE
+Rule 55    OPCION_BLOQUE -> DESDE_CICLO OPCION_BLOQUE
+Rule 56    OPCION_BLOQUE -> ASIGNACION SEMI_COLON OPCION_BLOQUE
+Rule 57    OPCION_BLOQUE -> RETURN_STM SEMI_COLON OPCION_BLOQUE
+Rule 58    OPCION_BLOQUE -> EMPTY
+Rule 59    FUNCTION -> r_new_function FUNCION TIPO_FUNC r_clear_mem ID r_set_fun_name r_new_vartable LPAREN PARAMETROS RPAREN VARS r_insert_parameters BLOQUE r_end_function FUNCTION
+Rule 60    FUNCTION -> EMPTY
+Rule 61    TIPO_FUNC -> INT r_set_fun_type
+Rule 62    TIPO_FUNC -> FLOAT r_set_fun_type
+Rule 63    TIPO_FUNC -> CHAR r_set_fun_type
+Rule 64    TIPO_FUNC -> VOID r_set_fun_type
+Rule 65    PARAMETROS -> AUX_PARAM
+Rule 66    PARAMETROS -> EMPTY
+Rule 67    AUX_PARAM -> INT r_set_var_type r_insert_type ID r_new_variable NEXT_PARAM
+Rule 68    AUX_PARAM -> FLOAT r_set_var_type r_insert_type ID r_new_variable NEXT_PARAM
+Rule 69    AUX_PARAM -> CHAR r_set_var_type r_insert_type ID r_new_variable NEXT_PARAM
+Rule 70    NEXT_PARAM -> COMMA AUX_PARAM
+Rule 71    NEXT_PARAM -> EMPTY
+Rule 72    RETURN_STM -> RETURN LPAREN EXPRESION RPAREN r_generate_return
+Rule 73    DESDE_CICLO -> DESDE ID r_new_id_for EQ r_new_operator CTE_I r_new_c_int r_new_equal HASTA CTE_I r_new_c_int r_new_migajita r_compara_for HACER r_new_gotof BLOQUE r_update_for r_new_goto r_complete_gotof r_clear_for
+Rule 74    MIENTRAS_CICLO -> MIENTRAS r_new_migajita LPAREN EXPRESION RPAREN r_new_gotof HAZ BLOQUE r_new_goto r_complete_gotof
+Rule 75    LECTURA -> LEE LPAREN ID r_new_id r_new_read RPAREN
+Rule 76    ESCRITURA -> ESCRIBE LPAREN PARAMETRO_ESCRITURA RPAREN
+Rule 77    PARAMETRO_ESCRITURA -> PARAMETRO_ESCRITURA_AUX
+Rule 78    PARAMETRO_ESCRITURA -> EMPTY
+Rule 79    PARAMETRO_ESCRITURA_AUX -> EXPRESION r_new_write
+Rule 80    PARAMETRO_ESCRITURA_AUX -> EXPRESION r_new_write COMMA PARAMETRO_ESCRITURA_AUX
+Rule 81    LLAMADA -> ID r_verify_function r_generate_era LPAREN r_new_lparen TIPO_PARAMETROS r_new_rparen RPAREN r_verify_last_parameter r_generate_gosub
+Rule 82    TIPO_PARAMETROS -> TIPO_PARAMETROS_AUX
+Rule 83    TIPO_PARAMETROS -> EMPTY
+Rule 84    TIPO_PARAMETROS_AUX -> EXPRESION r_verify_parameter
+Rule 85    TIPO_PARAMETROS_AUX -> EXPRESION r_verify_parameter COMMA TIPO_PARAMETROS_AUX
+Rule 86    IF_STMT -> SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_complete_gotof
+Rule 87    IF_ELSE_STMT -> SI LPAREN EXPRESION RPAREN r_new_gotof ENTONCES BLOQUE r_new_goto r_complete_gotof SINO BLOQUE r_complete_goto
+Rule 88    ASIGNACION -> EXPRESION ASIGNACION_AUX r_new_equal
+Rule 89    ASIGNACION_AUX -> EQ r_new_operator ASIGNACION
+Rule 90    ASIGNACION_AUX -> EMPTY
+
+Terminals, with rules where they appear
+
+AND                  : 20
+CHAR                 : 8 63 69
+COLON                : 
+COMMA                : 10 11 14 70 80 85
+COMMENT              : 
+COMPAR               : 19
+CTE_C                : 46
+CTE_F                : 45
+CTE_I                : 44 73 73
+CTE_S                : 47
+DESDE                : 73
+DET                  : 39
+DIV                  : 36
+DOT                  : 
+ENTONCES             : 86 87
+EQ                   : 73 89
+ESCRIBE              : 76
+FLOAT                : 7 62 68
+FUNCION              : 59
+GREATER              : 27
+GREATER_EQ           : 25
+HACER                : 73
+HASTA                : 73
+HAZ                  : 74
+ID                   : 3 11 13 14 15 16 17 38 39 59 67 68 69 73 75 81
+INT                  : 6 61 67
+INV                  : 
+LBRACKET             : 48
+LEE                  : 75
+LESS                 : 28
+LESS_EQ              : 26
+LPAREN               : 2 43 59 72 74 75 76 81 86 87
+LSQ                  : 16 17 17
+MIENTRAS             : 74
+MINUS                : 32
+MULT                 : 35
+NOT_EQ               : 24
+NULL                 : 
+OR                   : 21
+PLUS                 : 31
+PRINCIPAL            : 2
+PROGRAMA             : 3
+RBRACKET             : 48
+RETURN               : 72
+RPAREN               : 2 43 59 72 74 75 76 81 86 87
+RSQ                  : 16 17 17
+SEMI_COLON           : 3 6 7 8 49 50 51 56 57
+SI                   : 86 87
+SINO                 : 87
+TRAN                 : 
+VAR                  : 4
+VOID                 : 64
+error                : 
+
+Nonterminals, with rules where they appear
+
+ASIGNACION           : 56 89
+ASIGNACION_AUX       : 88
+AUX_PARAM            : 65 70
+BLOQUE               : 2 59 73 74 86 87 87
+CONSTANTE            : 41
+DESDE_CICLO          : 55
+EMPTY                : 5 9 22 29 33 37 58 60 66 71 78 83 90
+ESCRITURA            : 50
+EXPRESION            : 19 20 21 43 72 74 79 80 84 85 86 87 88
+EXPRESION_AUX        : 18
+FLEVEL_EXPRESION     : 30 35 36
+FLEVEL_EXPRESION_AUX : 34
+FUNCTION             : 3 59
+IF_ELSE_STMT         : 53
+IF_STMT              : 52
+LECTURA              : 49
+LIST_ID              : 10 12 40
+LLAMADA              : 42 51
+MAIN                 : 3
+MIENTRAS_CICLO       : 54
+NEXT_PARAM           : 67 68 69
+OPCION_BLOQUE        : 48 49 50 51 52 53 54 55 56 57
+PARAMETROS           : 59
+PARAMETRO_ESCRITURA  : 76
+PARAMETRO_ESCRITURA_AUX : 77 80
+PROG                 : 0
+RETURN_STM           : 57
+SLEVEL_EXPRESION     : 16 17 17 23 31 32
+SLEVEL_EXPRESION_AUX : 30
+TIPO                 : 4 6 7 8
+TIPO_FUNC            : 59
+TIPO_PARAMETROS      : 81
+TIPO_PARAMETROS_AUX  : 82 85
+TLEVEL_EXPRESION     : 18 24 25 26 27 28
+TLEVEL_EXPRESION_AUX : 23
+VALUE_EXPRESION      : 34
+VARS                 : 3 59
+VAR_INT              : 6 10 11
+VAR_TIPO             : 7 8
+r_change_global_context : 3
+r_change_local_context : 3
+r_clear_for          : 73
+r_clear_mem          : 59
+r_compara_for        : 73
+r_complete_goto      : 3 87
+r_complete_gotof     : 73 74 86 87
+r_display_const      : 3
+r_display_var_table  : 3
+r_end_function       : 59
+r_flush_mem          : 2
+r_generate_era       : 81
+r_generate_gosub     : 81
+r_generate_return    : 72
+r_insert_parameters  : 59
+r_insert_type        : 67 68 69
+r_new_c_char         : 46
+r_new_c_float        : 45
+r_new_c_int          : 44 73 73
+r_new_c_string       : 47
+r_new_equal          : 73 88
+r_new_function       : 59
+r_new_goto           : 3 73 74 87
+r_new_gotof          : 73 74 86 87
+r_new_id             : 38 75
+r_new_id_for         : 73
+r_new_lparen         : 43 81
+r_new_migajita       : 73 74
+r_new_operator       : 19 20 21 24 25 26 27 28 31 32 35 36 73 89
+r_new_quadruple      : 18
+r_new_quadruple_flevel : 34
+r_new_quadruple_slevel : 30
+r_new_quadruple_tlevel : 23
+r_new_read           : 75
+r_new_rparen         : 43 81
+r_new_variable       : 11 13 14 15 16 17 67 68 69
+r_new_vartable       : 59
+r_new_write          : 79 80
+r_set_fun_name       : 59
+r_set_fun_type       : 61 62 63 64
+r_set_var_type       : 6 7 8 67 68 69
+r_update_for         : 73
+r_verify_function    : 81
+r_verify_last_parameter : 81
+r_verify_parameter   : 84 85
+

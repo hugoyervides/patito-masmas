@@ -1,0 +1,21 @@
+Bitacora 4/5/2020
+
+Victor Hugo Oyervides:
+Durante esta semana repare la gramatica para poder agregar los
+puntos neuralgicos, una vez reparada agregue los puntos neuralgicos
+para los estatutos lineales y cree las clases de quadruplos y
+stacks para adminsitrar la creacion de quadruplos y la administracion de
+los stacks dentro de una calse
+
+Obed Gonzalez:
+Realice el cubo semantico y lo implemente, refactorice la tabla de
+variables para que funcionara con la gramatica, arregle la gramatica
+de parametros, ayude a colocar puntos neuralgicos y generar cuadruplos
+
+
+#TODO
+*Reparar problema de llamadas a funciones dentro de expresiones
+*Integrar Arreglos
+*Integrar Direcciones virtuales
+*Maquina Virtual
+*Quadruplos lectura y escritura
