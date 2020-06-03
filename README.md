@@ -123,6 +123,26 @@ Please note that the type of parameters a function can accept are the ones accep
 -	FLOAT
 -	CHAR
 
+###  :telephone_receiver: Function calls and recursive algorithms
+Patito ++ handles function calls just like any other programing language out there, first in any chunk of code call the function by using his name and make sure to send the correct parameters to the function! (Otherwise it will generate a compilation error)
+```
+principal(){
+	valor = sumaValores( 1 , 2 );
+}
+```
+Patito ++ also supports recursive calls, here is an example for calculating the Fibonacci sequence in a recursive way,  you can find this full example in the "code_examples" folder inside this repository
+```
+funcion int fibo(int x){
+	si(x<=1) entonces{
+		return(x);
+	}sino{
+		return( fibo( x - 1 ) + fibo( x - 2 ) );
+	}
+}
+```
+
+
+
 By default the return statement is enabled on all functions but doing it with a void function will generate a compilation error.
 ### :star: Main function
 This is the core of our code, where we will need to put all the code that the virtual machine will evaluate first during execution, its important to have this part in the code otherwise the compilation process will file to compile a code without this function.
@@ -143,6 +163,18 @@ escribe(array);
 escribe(1, value);
 ```
 As you can see, we can use one "escribe" call to display multiple variables separated by a comma.
+We can also ask the user to input some data if we need to, using the keyword "lee" followed by a left parenthesis, the variable where we will save the input and the right parenthesis.
+```
+principal(){
+	%% Preguntar por los terminos
+	escribe("Cantidad de terminos?");
+	lee(terminos);
+}
+```
+Please note that this module only supports as an input a single variable (not an expression) and it will cause a Run Time error if the type of the variable mismatch the input from the user.
+Also the Virtual Machine know when its a Integer a Float or a String automatically.
+
+
 ### :pencil: Comments
 When developing a large or complex code, its must to include comments in it to make it easier for other developers to understand you code, in Patito ++ you can use the character %% to let the Compiler know that its a commend and it should be ignored
 ```
@@ -353,4 +385,12 @@ Below you will find a complete map of each module and where its located, and its
 * **Obed Gonzalez Moreno** - *Initial work* - [obedgm](https://github.com/obedgm)
 
 ##  :lock: License
-Add a license here, or a link to it.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+Copyright 2020 Victor Hugo Oyervides and Obed Gonzalez Moreno
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
