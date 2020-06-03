@@ -116,6 +116,15 @@ class Operations:
         )
         return None
 
+    def or_op(self, quadruple):
+        l_operand = self.virtual_memory.get_value(quadruple['l_operand'])
+        r_operand = self.virtual_memory.get_value(quadruple['r_operand'])
+        self.virtual_memory.update_memory(
+            quadruple['result'],
+            l_operand or r_operand
+        )
+        return None
+
     def not_eq_op(self, quadruple):
         l_operand = self.virtual_memory.get_value(quadruple['l_operand'])
         r_operand = self.virtual_memory.get_value(quadruple['r_operand'])
