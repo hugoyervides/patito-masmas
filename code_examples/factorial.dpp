@@ -1,0 +1,19 @@
+programa fact; 
+var
+    int numFact, res;
+
+principal(){
+    escribe("Numero factorial?");
+    lee(numFact);
+    res = numFact;
+
+    si(numFact == 1) entonces{
+        escribe(numFact);
+    }sino{
+        mientras (numFact > 1) haz{
+             res = res * (numFact - 1);
+             numFact = numFact - 1;   
+        }
+    }
+    escribe(res);
+}

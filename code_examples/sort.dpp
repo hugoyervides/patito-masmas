@@ -1,0 +1,40 @@
+programa fact; 
+var
+    int arr[100], size, i, count, temp;
+
+principal(){
+    escribe("dame el tamano del arreglo");
+    lee(size);
+    count = 1;
+    temp = 0;
+    i = 0;
+    
+    escribe("Dame los datos de tu arreglo");
+
+    mientras(i < size) haz{
+        lee(arr[i]);
+        i = i + 1;
+    }
+    i = 0;
+    mientras(count > 0) haz{
+        count = 0;
+        i = 0;
+        mientras(i < size - 1) haz{
+            si(arr[i] > arr[i + 1]) entonces{
+                temp = arr[i + 1];
+                arr[i + 1] = arr[i];
+                arr[i] = temp;
+                count = count + 1;
+            }
+            i = i + 1;
+        }
+    }
+
+    i = 0;
+    escribe("Tu arreglo ordenado: ");
+    mientras(i < size) haz{
+        escribe(arr[i]);
+        i = i + 1;
+    }
+    
+}
