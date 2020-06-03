@@ -1,0 +1,23 @@
+%% Victor Hugo Oyervides y Obed Gonzalez Moreno
+%% 31/May/2020
+%% Metodo find para encontrar valores enteros dentro de un arreglon con su indice
+
+programa fibo; 
+var
+    int arreglo[10], i, buscar;
+
+principal(){
+    escribe("Introduce 10 elementos para el arreglo");
+    desde i = 0 hasta 9 hacer{
+        lee(arreglo[i]);
+    } 
+    escribe("Arreglo capturado:");
+    escribe(arreglo);
+    escribe("Introduce el valor que quieres buscar:");
+    lee(buscar);
+    desde i = 0 hasta 9 hacer{
+        si( arreglo[i] == buscar ) entonces{
+            escribe("Elemento encontrado en la posicion: ", i);
+        }
+    }
+}
