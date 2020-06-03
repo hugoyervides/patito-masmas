@@ -16,6 +16,7 @@ op_list = {
     "/" :               operations.div_op,
     "==" :              operations.eq_op,
     "&&" :              operations.and_op,
+    "||" :              operations.or_op,
     "!=" :              operations.not_eq_op,
     ">=" :              operations.greater_eq_op,
     "<=" :              operations.less_qp_op,
