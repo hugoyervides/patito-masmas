@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+
+# PLY debug output
+parser.out
+
+# Compiled Patito ++ artifacts
+output.txt
+c_output.txt
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Editor
+.vscode/

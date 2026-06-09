@@ -71,6 +71,46 @@ Install requirements file
 $ pip install
 ```
 
+## :duck: Web IDE
+Patito ++ now ships with a browser-based IDE: a [Next.js](https://nextjs.org/) + React frontend with the [Monaco editor](https://microsoft.github.io/monaco-editor/) (the editor that powers VS Code) including full Patito ++ syntax highlighting, autocompletion and snippets, plus a FastAPI backend that compiles and executes the code on the server.
+
+### Run it with Docker (recommended)
+```
+$ docker compose up --build
+```
+Then open http://localhost:8080 in your browser. You can write code, pre-load the bundled examples, provide stdin for `lee(...)` calls, and run programs directly from the browser.
+
+### :shield: Security model
+Anyone reaching the web UI can execute code on your server, so execution is locked down in layers:
+
+**What user code can actually do:** Patito ++ programs are interpreted quadruples — the language has no file, network or system call primitives. The only I/O is console read/write. The remaining risks are resource exhaustion (infinite loops, memory bombs, giant output), which is what the sandbox targets.
+
+**Per-run process sandbox (backend):**
+- Every compile/run happens in a fresh subprocess inside a throwaway temp directory, with a scrubbed environment
+- `RLIMIT_CPU` (5 s), `RLIMIT_AS` (1 GB), `RLIMIT_FSIZE` (8 MB), `RLIMIT_NOFILE` (64) and no core dumps
+- Wall-clock timeout with process-group kill, so even sleeping/blocked processes die
+- Output truncated (64 KB), code size (64 KB) and stdin size (16 KB) capped
+- Concurrency limit (2 simultaneous runs) and per-IP rate limiting (30 runs/min)
+
+**Container hardening (docker-compose.yml):**
+- Runs as an unprivileged user (UID 10001), `no-new-privileges`, all capabilities dropped
+- Read-only root filesystem; only `/tmp` is writable (in-memory tmpfs, 64 MB)
+- `pids_limit`, memory limit (1 GB) and CPU quota at the container level as a second line of defense
+
+All limits are tunable via `PATITO_*` environment variables (see `server/app.py`). If you expose this to the public internet, put it behind your reverse proxy with TLS, set `PATITO_TRUST_PROXY=1` so rate limiting sees real client IPs, and consider adding an auth layer (e.g. basic auth or your SSO) at the proxy.
+
+### Local development
+```
+# Backend (API on :8000)
+$ pip install -r requirements.txt
+$ PATITO_CORS_ORIGINS=http://localhost:3000 uvicorn server.app:app --port 8000
+
+# Frontend (Next.js dev server on :3000)
+$ cd frontend
+$ npm install
+$ NEXT_PUBLIC_API_BASE=http://localhost:8000 npm run dev
+```
+
 ##  :running: Getting started
 This guide will help you get started in Patito ++ with basic examples and explanation of how to structure your code and how to use the diferent implemented functions and modules
 ####  :nut_and_bolt: Compile
