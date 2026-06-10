@@ -59,11 +59,12 @@ button {
 }
 button:hover { filter: brightness(1.1); }
 button:disabled { opacity: 0.5; cursor: wait; }
+button.stop { background: var(--error); color: #14161c; }
 
 main {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: 1fr 480px;
   min-height: 0;
 }
 
@@ -95,14 +96,16 @@ details.panel summary { cursor: pointer; }
 .panel.grow { flex: 1; display: flex; flex-direction: column; min-height: 120px; }
 .panel.grow .output { flex: 1; }
 
-textarea {
-  width: 100%;
-  height: 70px;
-  resize: vertical;
-  padding: 8px;
-  font-family: "SF Mono", Menlo, Consolas, monospace;
-  font-size: 13px;
+.terminal {
+  flex: 1;
+  min-height: 200px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px;
+  overflow: hidden;
 }
+.panel.grow .terminal { height: 100%; }
 
 .output {
   background: var(--bg);

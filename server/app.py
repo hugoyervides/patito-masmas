@@ -1,6 +1,7 @@
 #Patito ++ Web IDE backend
 #Serves the Monaco editor frontend and compiles/runs Patito ++ code in
 #resource-limited subprocesses so untrusted code can't take down the host.
+import asyncio
 import os
 import resource
 import shutil
@@ -12,7 +13,7 @@ import threading
 import time
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -30,6 +31,9 @@ MAX_STDIN_BYTES = int(os.environ.get("PATITO_MAX_STDIN_BYTES", 16 * 1024))
 MAX_OUTPUT_BYTES = int(os.environ.get("PATITO_MAX_OUTPUT_BYTES", 64 * 1024))
 COMPILE_TIMEOUT_S = int(os.environ.get("PATITO_COMPILE_TIMEOUT", 15))
 RUN_TIMEOUT_S = int(os.environ.get("PATITO_RUN_TIMEOUT", 10))
+#Interactive sessions may legitimately sit waiting for user input, so they
+#get a generous wall-clock limit; RLIMIT_CPU still kills busy loops fast
+SESSION_TIMEOUT_S = int(os.environ.get("PATITO_SESSION_TIMEOUT", 300))
 CPU_SECONDS = int(os.environ.get("PATITO_CPU_SECONDS", 5))
 MEMORY_BYTES = int(os.environ.get("PATITO_MEMORY_BYTES", 1024 * 1024 * 1024))
 MAX_FILE_BYTES = int(os.environ.get("PATITO_MAX_FILE_BYTES", 8 * 1024 * 1024))
@@ -167,19 +171,10 @@ def _compile_and_run(payload: RunRequest):
     started = time.monotonic()
     workdir = tempfile.mkdtemp(prefix="patito_")
     try:
-        source = Path(workdir) / "program.dpp"
-        source.write_text(payload.code, encoding="utf-8")
-        quads = Path(workdir) / "quads.out"
-
-        compiler_stdout, compiler_stderr, _, compile_timed_out = _run_sandboxed(
-            [sys.executable, str(COMPILER), str(source), "quads.out"],
-            cwd=workdir,
-            stdin_data=b"",
-            timeout=COMPILE_TIMEOUT_S,
+        compile_ok, compiler_stdout, compiler_stderr, compile_timed_out = _compile_in_workdir(
+            payload.code, workdir
         )
-        #The compiler exits with status 0 even on syntax errors, so success
-        #is determined by whether the quadruple file was produced
-        if compile_timed_out or not quads.exists():
+        if not compile_ok:
             return {
                 "ok": False,
                 "phase": "compile",
@@ -212,6 +207,177 @@ def _compile_and_run(payload: RunRequest):
             "duration_ms": int((time.monotonic() - started) * 1000),
         }
     finally:
+        shutil.rmtree(workdir, ignore_errors=True)
+
+
+def _kill_group(pid: int):
+    try:
+        os.killpg(pid, signal.SIGKILL)
+    except (ProcessLookupError, PermissionError):
+        pass
+
+
+def _compile_in_workdir(code: str, workdir: str):
+    #Shared by the REST endpoint and the interactive WebSocket session
+    source = Path(workdir) / "program.dpp"
+    source.write_text(code, encoding="utf-8")
+    stdout, stderr, _, timed_out = _run_sandboxed(
+        [sys.executable, str(COMPILER), str(source), "quads.out"],
+        cwd=workdir,
+        stdin_data=b"",
+        timeout=COMPILE_TIMEOUT_S,
+    )
+    #The compiler exits with status 0 even on syntax errors, so success
+    #is determined by whether the quadruple file was produced
+    ok = not timed_out and (Path(workdir) / "quads.out").exists()
+    return ok, stdout, stderr, timed_out
+
+
+@app.websocket("/api/session")
+async def interactive_session(ws: WebSocket):
+    #Interactive run: the browser terminal sends {"type": "run", "code": ...}
+    #then {"type": "stdin", "data": ...} lines; the server streams stdout and
+    #stderr back as they are produced so 'lee'/'escribe' work like a console
+    await ws.accept()
+    try:
+        msg = await asyncio.wait_for(ws.receive_json(), timeout=30)
+    except (asyncio.TimeoutError, WebSocketDisconnect, ValueError):
+        await ws.close()
+        return
+
+    code = msg.get("code", "") if msg.get("type") == "run" else None
+    if code is None:
+        await ws.send_json({"type": "error", "message": "Se esperaba un mensaje 'run'"})
+        await ws.close()
+        return
+    if len(code.encode("utf-8")) > MAX_CODE_BYTES:
+        await ws.send_json({"type": "error", "message": "El codigo es demasiado grande"})
+        await ws.close()
+        return
+    if _rate_limited(_client_ip(ws)):
+        await ws.send_json({"type": "error", "message": "Demasiadas ejecuciones, espera un momento"})
+        await ws.close()
+        return
+    if not _run_slots.acquire(blocking=False):
+        await ws.send_json({"type": "error", "message": "Servidor ocupado, intenta en un momento"})
+        await ws.close()
+        return
+
+    started = time.monotonic()
+    workdir = tempfile.mkdtemp(prefix="patito_")
+    proc = None
+    try:
+        loop = asyncio.get_running_loop()
+        compile_ok, compiler_stdout, compiler_stderr, compile_timed_out = await loop.run_in_executor(
+            None, _compile_in_workdir, code, workdir
+        )
+        await ws.send_json({"type": "compiler", "data": compiler_stdout + compiler_stderr})
+        if not compile_ok:
+            await ws.send_json({
+                "type": "compile_error",
+                "data": compiler_stdout + compiler_stderr,
+                "timed_out": compile_timed_out,
+                "duration_ms": int((time.monotonic() - started) * 1000),
+            })
+            await ws.close()
+            return
+
+        env = {
+            "PATH": os.defpath,
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTHONIOENCODING": "utf-8",
+            #Unbuffered so 'escribe' prompts reach the terminal before 'lee' blocks
+            "PYTHONUNBUFFERED": "1",
+            "LANG": "C.UTF-8",
+            "LC_ALL": "C.UTF-8",
+        }
+        proc = await asyncio.create_subprocess_exec(
+            sys.executable, "-u", str(VM), "quads.out",
+            cwd=workdir,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            env=env,
+            preexec_fn=_apply_rlimits,
+            start_new_session=True,
+        )
+
+        output_bytes = 0
+
+        async def pump(stream, kind):
+            nonlocal output_bytes
+            while True:
+                chunk = await stream.read(4096)
+                if not chunk:
+                    return
+                output_bytes += len(chunk)
+                try:
+                    await ws.send_json({"type": kind, "data": chunk.decode("utf-8", "replace")})
+                except Exception:
+                    return
+                if output_bytes > MAX_OUTPUT_BYTES:
+                    try:
+                        await ws.send_json({"type": "stderr", "data": "\n[Salida truncada: se excedio el limite]\n"})
+                    except Exception:
+                        pass
+                    _kill_group(proc.pid)
+                    return
+
+        async def feed_stdin():
+            #Returns when the client disconnects or asks to kill the run
+            stdin_bytes = 0
+            while True:
+                message = await ws.receive_json()
+                if message.get("type") == "stdin":
+                    data = str(message.get("data", "")).encode("utf-8")
+                    stdin_bytes += len(data)
+                    if stdin_bytes > MAX_STDIN_BYTES:
+                        return
+                    try:
+                        proc.stdin.write(data)
+                        await proc.stdin.drain()
+                    except (ConnectionResetError, BrokenPipeError):
+                        return
+                elif message.get("type") == "kill":
+                    return
+
+        pump_out = asyncio.create_task(pump(proc.stdout, "stdout"))
+        pump_err = asyncio.create_task(pump(proc.stderr, "stderr"))
+        wait_task = asyncio.create_task(proc.wait())
+        feeder = asyncio.create_task(feed_stdin())
+
+        timed_out = False
+        done, _ = await asyncio.wait(
+            {wait_task, feeder}, timeout=SESSION_TIMEOUT_S, return_when=asyncio.FIRST_COMPLETED
+        )
+        if wait_task not in done:
+            #Session hit the wall-clock limit, or the client went away/asked
+            #to stop: kill the program either way
+            timed_out = not done
+            _kill_group(proc.pid)
+            await wait_task
+        feeder.cancel()
+        await asyncio.gather(pump_out, pump_err, feeder, return_exceptions=True)
+
+        returncode = proc.returncode
+        if returncode == -signal.SIGXCPU:
+            timed_out = True
+        try:
+            await ws.send_json({
+                "type": "exit",
+                "code": returncode,
+                "timed_out": timed_out,
+                "duration_ms": int((time.monotonic() - started) * 1000),
+            })
+            await ws.close()
+        except Exception:
+            pass
+    except WebSocketDisconnect:
+        pass
+    finally:
+        if proc is not None and proc.returncode is None:
+            _kill_group(proc.pid)
+        _run_slots.release()
         shutil.rmtree(workdir, ignore_errors=True)
 
 

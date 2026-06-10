@@ -31,3 +31,6 @@ services:
       - PATITO_CPU_SECONDS=5
       - PATITO_RUN_TIMEOUT=10
       - PATITO_MEMORY_BYTES=1073741824
+      # Max wall-clock lifetime of an interactive terminal session; a
+      # program can idle on lee() input up to this long before being killed
+      - PATITO_SESSION_TIMEOUT=300

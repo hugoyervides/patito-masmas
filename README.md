@@ -72,13 +72,16 @@ $ pip install
 ```
 
 ## :duck: Web IDE
-Patito ++ now ships with a browser-based IDE: a [Next.js](https://nextjs.org/) + React frontend with the [Monaco editor](https://microsoft.github.io/monaco-editor/) (the editor that powers VS Code) including full Patito ++ syntax highlighting, autocompletion and snippets, plus a FastAPI backend that compiles and executes the code on the server.
+Patito ++ now ships with a browser-based IDE: a [Next.js](https://nextjs.org/) + React frontend with the [Monaco editor](https://microsoft.github.io/monaco-editor/) (the editor that powers VS Code) including full Patito ++ syntax highlighting, autocompletion and snippets, an interactive [xterm.js](https://xtermjs.org/) terminal, plus a FastAPI backend that compiles and executes the code on the server.
 
 ### Run it with Docker (recommended)
 ```
 $ docker compose up --build
 ```
-Then open http://localhost:8080 in your browser. You can write code, pre-load the bundled examples, provide stdin for `lee(...)` calls, and run programs directly from the browser.
+Then open http://localhost:8080 in your browser. You can write code, pre-load the bundled examples, and run programs directly from the browser.
+
+### Interactive terminal
+Program I/O works like a real console: output from `escribe(...)` streams live into the terminal next to the editor, and when the program reaches a `lee(...)` you type the input right there. Under the hood each run is an interactive session over a WebSocket (`/api/session`): the browser terminal forwards your keystrokes line-by-line to the program's stdin and the server streams stdout/stderr back as the program produces them. `Ctrl+C` in the terminal (or the Detener button) stops a running program.
 
 ### :shield: Security model
 Anyone reaching the web UI can execute code on your server, so execution is locked down in layers:
@@ -88,7 +91,8 @@ Anyone reaching the web UI can execute code on your server, so execution is lock
 **Per-run process sandbox (backend):**
 - Every compile/run happens in a fresh subprocess inside a throwaway temp directory, with a scrubbed environment
 - `RLIMIT_CPU` (5 s), `RLIMIT_AS` (1 GB), `RLIMIT_FSIZE` (8 MB), `RLIMIT_NOFILE` (64) and no core dumps
-- Wall-clock timeout with process-group kill, so even sleeping/blocked processes die
+- Wall-clock timeout with process-group kill, so even sleeping/blocked processes die; interactive sessions get a longer wall-clock budget (5 min) since waiting on `lee(...)` is legitimate, but the CPU limit still kills busy loops within seconds
+- Programs are killed immediately if the browser disconnects mid-run
 - Output truncated (64 KB), code size (64 KB) and stdin size (16 KB) capped
 - Concurrency limit (2 simultaneous runs) and per-IP rate limiting (30 runs/min)
 
