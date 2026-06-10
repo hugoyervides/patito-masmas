@@ -60,6 +60,29 @@ button {
 button:hover { filter: brightness(1.1); }
 button:disabled { opacity: 0.5; cursor: wait; }
 button.stop { background: var(--error); color: #14161c; }
+button.secondary {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.tabs { display: flex; gap: 4px; }
+.tab {
+  flex: 1;
+  background: var(--bg);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 6px 6px 0 0;
+  padding: 6px 10px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.panel.hidden { display: none; }
+.panel.scroll { overflow-y: auto; }
 
 main {
   flex: 1;
@@ -121,6 +144,72 @@ details.panel summary { cursor: pointer; }
 }
 .output.error { color: var(--error); }
 .output.small { font-size: 11px; max-height: 200px; }
+
+/* --- Quadruples view --- */
+.quads { font-size: 12px; }
+.quads-empty { color: var(--muted); padding: 16px 8px; font-size: 13px; }
+
+.quads-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.legend-chip {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.quads-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  margin-bottom: 12px;
+}
+.quads-table th {
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--panel);
+}
+.quads-table td {
+  padding: 3px 8px;
+  border-bottom: 1px solid #232733;
+  vertical-align: top;
+}
+.quads-table tbody tr:hover { background: #20242f; }
+
+.quads-subtitle {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 14px 0 6px;
+}
+
+.quad-no { color: var(--muted); }
+.quad-op { color: #c586c0; font-weight: 600; }
+.quad-empty { color: #4a4f5e; }
+.quad-jump { color: var(--accent); font-weight: 600; }
+.quad-name { color: #4ec9b0; }
+.quad-obj { color: var(--muted); font-size: 11px; }
+.quad-const-value { color: #ce9178; font-size: 11px; }
+
+.quad-addr { border-bottom: 1px dotted; padding-bottom: 1px; }
+.seg-global { color: #569cd6; }
+.seg-local { color: #4ec9b0; }
+.seg-const { color: #ce9178; }
+.seg-temp { color: #b5cea8; }
+.seg-ptr { color: #d16969; }
 
 footer {
   display: flex;

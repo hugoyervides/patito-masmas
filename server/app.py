@@ -2,6 +2,7 @@
 #Serves the Monaco editor frontend and compiles/runs Patito ++ code in
 #resource-limited subprocesses so untrusted code can't take down the host.
 import asyncio
+import json
 import os
 import resource
 import shutil
@@ -151,6 +152,35 @@ def list_examples():
     return {"examples": examples}
 
 
+@app.post("/api/compile")
+def compile_only(payload: RunRequest, request: Request):
+    #Compile without running: returns the quadruples and constant table so
+    #students can study the intermediate representation the compiler emits
+    if len(payload.code.encode("utf-8")) > MAX_CODE_BYTES:
+        raise HTTPException(status_code=413, detail="Code too large")
+    if _rate_limited(_client_ip(request)):
+        raise HTTPException(status_code=429, detail="Too many runs, slow down")
+    if not _run_slots.acquire(blocking=False):
+        raise HTTPException(status_code=429, detail="Server busy, try again in a moment")
+    started = time.monotonic()
+    workdir = tempfile.mkdtemp(prefix="patito_")
+    try:
+        ok, stdout, stderr, timed_out = _compile_in_workdir(payload.code, workdir)
+        quadruples, constants = _read_artifacts(workdir)
+        return {
+            "ok": ok,
+            "compiler_output": stdout,
+            "compiler_errors": stderr,
+            "timed_out": timed_out,
+            "quadruples": quadruples,
+            "constants": constants,
+            "duration_ms": int((time.monotonic() - started) * 1000),
+        }
+    finally:
+        _run_slots.release()
+        shutil.rmtree(workdir, ignore_errors=True)
+
+
 @app.post("/api/run")
 def run_code(payload: RunRequest, request: Request):
     if len(payload.code.encode("utf-8")) > MAX_CODE_BYTES:
@@ -174,6 +204,7 @@ def _compile_and_run(payload: RunRequest):
         compile_ok, compiler_stdout, compiler_stderr, compile_timed_out = _compile_in_workdir(
             payload.code, workdir
         )
+        quadruples, constants = _read_artifacts(workdir)
         if not compile_ok:
             return {
                 "ok": False,
@@ -182,6 +213,8 @@ def _compile_and_run(payload: RunRequest):
                 "stderr": "",
                 "compiler_output": compiler_stdout,
                 "compiler_errors": compiler_stderr,
+                "quadruples": quadruples,
+                "constants": constants,
                 "timed_out": compile_timed_out,
                 "duration_ms": int((time.monotonic() - started) * 1000),
             }
@@ -203,6 +236,8 @@ def _compile_and_run(payload: RunRequest):
             "stderr": stderr,
             "compiler_output": compiler_stdout,
             "compiler_errors": compiler_stderr,
+            "quadruples": quadruples,
+            "constants": constants,
             "timed_out": run_timed_out,
             "duration_ms": int((time.monotonic() - started) * 1000),
         }
@@ -231,6 +266,24 @@ def _compile_in_workdir(code: str, workdir: str):
     #is determined by whether the quadruple file was produced
     ok = not timed_out and (Path(workdir) / "quads.out").exists()
     return ok, stdout, stderr, timed_out
+
+
+def _read_artifacts(workdir):
+    #Parse the generated quadruples and constant table so the UI can show
+    #the intermediate representation for teaching/debugging
+    quadruples = []
+    constants = []
+    quads_file = Path(workdir) / "quads.out"
+    consts_file = Path(workdir) / "c_quads.out"
+    if quads_file.exists():
+        for line in quads_file.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                quadruples.append(json.loads(line))
+    if consts_file.exists():
+        for line in consts_file.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                constants.append(json.loads(line))
+    return quadruples, constants
 
 
 @app.websocket("/api/session")
@@ -272,6 +325,9 @@ async def interactive_session(ws: WebSocket):
             None, _compile_in_workdir, code, workdir
         )
         await ws.send_json({"type": "compiler", "data": compiler_stdout + compiler_stderr})
+        if compile_ok:
+            quadruples, constants = await loop.run_in_executor(None, _read_artifacts, workdir)
+            await ws.send_json({"type": "quadruples", "quadruples": quadruples, "constants": constants})
         if not compile_ok:
             await ws.send_json({
                 "type": "compile_error",

@@ -83,6 +83,16 @@ Then open http://localhost:8080 in your browser. You can write code, pre-load th
 ### Interactive terminal
 Program I/O works like a real console: output from `escribe(...)` streams live into the terminal next to the editor, and when the program reaches a `lee(...)` you type the input right there. Under the hood each run is an interactive session over a WebSocket (`/api/session`): the browser terminal forwards your keystrokes line-by-line to the program's stdin and the server streams stdout/stderr back as the program produces them. `Ctrl+C` in the terminal (or the Detener button) stops a running program.
 
+### :mortar_board: Quadruple explorer (learn how the compiler works)
+The IDE is also a teaching tool: the **Cuadruplos** tab next to the terminal shows the intermediate representation the compiler generates. Press **⚙ Compilar** to compile without running (or just run the program — the quadruples appear either way) and inspect:
+
+- Every quadruple in execution order: operator, left/right operands and result
+- Jump targets for `GOTO` / `GOTOF` / `GOSUB` rendered as `→ N` pointing at the destination quadruple
+- Virtual memory addresses color-coded by segment — global (1000–7999), local (8000–14999), constant (15000–19999), temporal (20000–29999) and pointer (30000+) — with the segment legend on top and hover tooltips
+- Constant addresses annotated inline with their value, plus the full constant table below
+
+This makes it easy to follow how a `mientras` loop becomes a comparison, a `GOTOF` and a back-`GOTO`, or how expressions are decomposed into temporals — the classic compilers-class exercise, but interactive. The same data is available programmatically via `POST /api/compile` and in the `quadruples`/`constants` fields of `POST /api/run`.
+
 ### :shield: Security model
 Anyone reaching the web UI can execute code on your server, so execution is locked down in layers:
 

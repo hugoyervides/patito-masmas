@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { DEFAULT_CODE, registerPatitoLanguage } from '@/lib/patito-language';
 import TerminalPane from '@/components/TerminalPane';
+import QuadruplesView from '@/components/QuadruplesView';
 
 const Editor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 
@@ -24,6 +25,10 @@ export default function Home() {
   const [compilerOutput, setCompilerOutput] = useState('');
   const [status, setStatus] = useState('');
   const [running, setRunning] = useState(false);
+  const [compiling, setCompiling] = useState(false);
+  const [quadruples, setQuadruples] = useState([]);
+  const [constants, setConstants] = useState([]);
+  const [activeTab, setActiveTab] = useState('terminal');
 
   const editorRef = useRef(null);
   const termRef = useRef(null);
@@ -64,6 +69,7 @@ export default function Home() {
     lineBufferRef.current = '';
     setStatus('Ejecutando...');
     setCompilerOutput('');
+    setActiveTab('terminal');
     setRunningState(true);
 
     const ws = new WebSocket(wsUrl());
@@ -84,6 +90,10 @@ export default function Home() {
           break;
         case 'compiler':
           setCompilerOutput(msg.data);
+          break;
+        case 'quadruples':
+          setQuadruples(msg.quadruples || []);
+          setConstants(msg.constants || []);
           break;
         case 'compile_error':
           term.write(`${RED}Error de compilacion:\n\n${msg.data}${RESET}`);
@@ -117,6 +127,44 @@ export default function Home() {
       setRunningState(false);
     };
   }, [setRunningState, stopProgram]);
+
+  const compileOnly = useCallback(async () => {
+    if (!editorRef.current || runningRef.current) return;
+    setCompiling(true);
+    setStatus('Compilando...');
+    try {
+      const res = await fetch(`${API_BASE}/api/compile`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: editorRef.current.getValue() }),
+      });
+      if (!res.ok) {
+        const detail = (await res.json().catch(() => ({}))).detail || res.statusText;
+        setStatus(`Error: ${detail}`);
+        return;
+      }
+      const result = await res.json();
+      setCompilerOutput((result.compiler_output || '') + (result.compiler_errors || ''));
+      setQuadruples(result.quadruples || []);
+      setConstants(result.constants || []);
+      if (result.ok) {
+        setActiveTab('quads');
+        setStatus(`Compilacion exitosa: ${result.quadruples.length} cuadruplos (${result.duration_ms} ms)`);
+      } else {
+        const term = termRef.current;
+        if (term) {
+          term.reset();
+          term.write(`${RED}Error de compilacion:\n\n${result.compiler_output || ''}${result.compiler_errors || ''}${RESET}`);
+        }
+        setActiveTab('terminal');
+        setStatus(`Fallo la compilacion (${result.duration_ms} ms)`);
+      }
+    } catch (err) {
+      setStatus(`Error de red: ${err.message}`);
+    } finally {
+      setCompiling(false);
+    }
+  }, []);
 
   // The terminal's onData handler is registered once, so it reaches the
   // current run through refs
@@ -185,8 +233,17 @@ export default function Home() {
             ))}
           </select>
           <button
+            className="secondary"
+            onClick={compileOnly}
+            disabled={running || compiling}
+            title="Compilar sin ejecutar para inspeccionar los cuadruplos"
+          >
+            ⚙ Compilar
+          </button>
+          <button
             className={running ? 'stop' : ''}
             onClick={runProgram}
+            disabled={compiling}
             title="Ctrl/Cmd + Enter"
           >
             {running ? '■ Detener' : '▶ Ejecutar'}
@@ -212,9 +269,26 @@ export default function Home() {
           />
         </div>
         <div className="side">
-          <section className="panel grow">
-            <h2>Terminal</h2>
+          <div className="tabs">
+            <button
+              className={`tab${activeTab === 'terminal' ? ' active' : ''}`}
+              onClick={() => setActiveTab('terminal')}
+            >
+              Terminal
+            </button>
+            <button
+              className={`tab${activeTab === 'quads' ? ' active' : ''}`}
+              onClick={() => setActiveTab('quads')}
+            >
+              Cuadruplos{quadruples.length > 0 ? ` (${quadruples.length})` : ''}
+            </button>
+          </div>
+          {/* The terminal stays mounted (xterm keeps its buffer); only hidden via CSS */}
+          <section className={`panel grow${activeTab === 'terminal' ? '' : ' hidden'}`}>
             <TerminalPane onReady={handleTermReady} />
+          </section>
+          <section className={`panel grow scroll${activeTab === 'quads' ? '' : ' hidden'}`}>
+            <QuadruplesView quadruples={quadruples} constants={constants} />
           </section>
           <details className="panel">
             <summary>Salida del compilador</summary>
