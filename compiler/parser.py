@@ -1,5 +1,5 @@
 from ply import yacc
-from .scanner import tokens, reserved
+from .scanner import tokens, reserved, lexer
 from handlers import Stacks
 from handlers import Vartables
 from handlers import Funhandler
@@ -756,6 +756,8 @@ def p_r_quad_arr(p):
 
 #Export quadruples and constants
 final_quadruples = stacks.quadruples
+#Let the quadruples stamp each entry with the line being parsed
+final_quadruples.line_source = lexer
 
 #Construct the parser
 parser = yacc.yacc()

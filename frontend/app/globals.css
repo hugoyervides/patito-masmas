@@ -100,6 +100,17 @@ button.secondary {
   outline: 1px solid var(--accent);
 }
 .quads-table tr.quad-current .quad-no { color: var(--accent); font-weight: 700; }
+.quads-table tr.quad-clickable { cursor: pointer; }
+.quad-line { color: var(--muted); }
+
+/* Monaco decoration for the source line being executed (global on purpose:
+   Monaco injects these class names outside the React tree) */
+.debug-line-highlight { background: rgba(230, 180, 34, 0.12); }
+.debug-line-margin {
+  background: var(--accent);
+  width: 3px !important;
+  margin-left: 3px;
+}
 
 .mem-value { color: var(--text); }
 @keyframes mem-flash {

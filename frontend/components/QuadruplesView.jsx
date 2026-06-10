@@ -50,7 +50,7 @@ function Operand({ value, constantsByAddress }) {
   return <span className="quad-name">{String(value)}</span>;
 }
 
-export default function QuadruplesView({ quadruples, constants, currentQuad = null }) {
+export default function QuadruplesView({ quadruples, constants, currentQuad = null, onSelectLine = null }) {
   const constantsByAddress = useMemo(
     () => new Map(constants.map((entry) => [entry.v_address, entry.constant])),
     [constants],
@@ -84,6 +84,7 @@ export default function QuadruplesView({ quadruples, constants, currentQuad = nu
         <thead>
           <tr>
             <th>#</th>
+            <th title="Linea de codigo fuente">Lin</th>
             <th>Operador</th>
             <th>Op. izq</th>
             <th>Op. der</th>
@@ -95,9 +96,12 @@ export default function QuadruplesView({ quadruples, constants, currentQuad = nu
             <tr
               key={index}
               ref={index === currentQuad ? currentRowRef : null}
-              className={index === currentQuad ? 'quad-current' : ''}
+              className={`${index === currentQuad ? 'quad-current' : ''}${quad.line && onSelectLine ? ' quad-clickable' : ''}`}
+              title={quad.line ? `Click para ir a la linea ${quad.line} en el editor` : undefined}
+              onClick={() => quad.line && onSelectLine && onSelectLine(quad.line)}
             >
               <td className="quad-no">{index === currentQuad ? '▶ ' : ''}{index}</td>
+              <td className="quad-line">{quad.line ?? '—'}</td>
               <td className="quad-op">{quad.operator}</td>
               <td><Operand value={quad.l_operand} constantsByAddress={constantsByAddress} /></td>
               <td><Operand value={quad.r_operand} constantsByAddress={constantsByAddress} /></td>

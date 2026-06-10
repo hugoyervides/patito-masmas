@@ -6,6 +6,9 @@ class Quadruples:
     def __init__(self):
         #Variables
         self.quadruples = []
+        #Lexer injected by the compiler so each quadruple can be stamped
+        #with the source line it came from (used by the web IDE debugger)
+        self.line_source = None
     #Methods
     def add_quadruple(self, operator, l_operand, r_operand, result):
         self.quadruples.append({
@@ -13,7 +16,8 @@ class Quadruples:
             'operator':         operator,
             'l_operand':        l_operand,
             'r_operand':        r_operand,
-            'result':           result
+            'result':           result,
+            'line':             self.line_source.lineno if self.line_source else None
         })
     
     def display_quadruples(self):
@@ -31,5 +35,7 @@ class Quadruples:
             'operator': operator,
             'l_operand': l_operand,
             'r_operand': r_operand,
-            'result': result
+            'result': result,
+            #Backpatching a jump target must keep the original source line
+            'line': self.quadruples[address].get("line")
         }

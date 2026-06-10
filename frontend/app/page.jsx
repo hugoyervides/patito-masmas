@@ -38,6 +38,8 @@ export default function Home() {
   const [debugStep, setDebugStep] = useState(0);
 
   const editorRef = useRef(null);
+  const monacoRef = useRef(null);
+  const decorationsRef = useRef(null);
   const termRef = useRef(null);
   const wsRef = useRef(null);
   const runningRef = useRef(false);
@@ -257,7 +259,40 @@ export default function Home() {
 
   const handleEditorMount = useCallback((editor, monaco) => {
     editorRef.current = editor;
+    monacoRef.current = monaco;
+    decorationsRef.current = editor.createDecorationsCollection([]);
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => runRef.current());
+  }, []);
+
+  //While debugging, highlight the source line of the quadruple about to
+  //execute so the student can follow the program in the editor
+  useEffect(() => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    const decorations = decorationsRef.current;
+    if (!editor || !monaco || !decorations) return;
+    const line = debugging && currentQuad !== null ? quadruples[currentQuad]?.line : null;
+    if (!line) {
+      decorations.clear();
+      return;
+    }
+    decorations.set([{
+      range: new monaco.Range(line, 1, line, 1),
+      options: {
+        isWholeLine: true,
+        className: 'debug-line-highlight',
+        linesDecorationsClassName: 'debug-line-margin',
+      },
+    }]);
+    editor.revealLineInCenterIfOutsideViewport(line);
+  }, [debugging, currentQuad, quadruples]);
+
+  const jumpToLine = useCallback((line) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    editor.revealLineInCenter(line);
+    editor.setPosition({ lineNumber: line, column: 1 });
+    editor.focus();
   }, []);
 
   const loadExample = useCallback((event) => {
@@ -370,6 +405,7 @@ export default function Home() {
               quadruples={quadruples}
               constants={constants}
               currentQuad={debugging ? currentQuad : null}
+              onSelectLine={jumpToLine}
             />
           </section>
           <section className={`panel grow scroll mem-section${debugging || activeTab === 'memory' ? '' : ' hidden'}`}>
