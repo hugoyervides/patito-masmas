@@ -84,6 +84,31 @@ button.secondary {
 .panel.hidden { display: none; }
 .panel.scroll { overflow-y: auto; }
 
+/* --- Debug mode: quadruples, memory and terminal stacked --- */
+.debug-controls .tab { color: var(--text); }
+.debug-controls .tab:disabled { opacity: 0.4; }
+.debug-controls .tab:not(:disabled):hover { color: var(--accent); cursor: pointer; }
+.tab.stop-tab { color: var(--error); }
+
+.side.debug .quads-section { order: 1; flex: 3 1 0; min-height: 0; }
+.side.debug .mem-section { order: 2; flex: 2 1 0; min-height: 0; }
+.side.debug .term-section { order: 3; flex: 0 0 150px; min-height: 150px; }
+.side.debug .compiler-details { order: 4; }
+
+.quads-table tr.quad-current {
+  background: #2b3247;
+  outline: 1px solid var(--accent);
+}
+.quads-table tr.quad-current .quad-no { color: var(--accent); font-weight: 700; }
+
+.mem-value { color: var(--text); }
+@keyframes mem-flash {
+  from { background: #5a4a17; }
+  to { background: transparent; }
+}
+.quads-table tr.mem-changed { animation: mem-flash 0.9s ease-out; }
+.quads-table tr.mem-changed .mem-value { color: var(--accent); font-weight: 600; }
+
 main {
   flex: 1;
   display: grid;

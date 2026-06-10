@@ -93,6 +93,15 @@ The IDE is also a teaching tool: the **Cuadruplos** tab next to the terminal sho
 
 This makes it easy to follow how a `mientras` loop becomes a comparison, a `GOTOF` and a back-`GOTO`, or how expressions are decomposed into temporals — the classic compilers-class exercise, but interactive. The same data is available programmatically via `POST /api/compile` and in the `quadruples`/`constants` fields of `POST /api/run`.
 
+### :bug: Live debugger — step through the virtual machine
+Press **🐞 Depurar** to run the program under the visual debugger. The side panel switches to a stacked view with the quadruple list, the virtual memory and the terminal, all live:
+
+- **Step-by-step execution**: the VM pauses before every quadruple; **⏭ Paso** executes exactly one, **▶ Continuar** runs at a human-followable pace (~40 quads/s) and **⏸ Pausar** stops it again at the current instruction. `lee(...)` still reads from the terminal mid-debug
+- **Current instruction highlight**: the quadruple about to execute is marked with `▶` and kept in view, so you can watch `GOTO`/`GOTOF` jumps happen
+- **Live virtual memory**: after every operation the panel shows the whole memory state grouped by segment (global, local, temporal, pointers, constants), and the addresses written by the last operation flash — watch a variable double on each loop iteration, or the local segment swap on a `GOSUB`/`EBDOROC`
+
+Under the hood the VM gets a debug mode (`patito_vm.py <file> --debug <event_fd> <command_fd>`): it emits one JSON trace event per executed quadruple (with a full memory snapshot, so function-call scope switches are always accurate) over a dedicated pipe and accepts `step`/`continue`/`pause` commands over another, leaving the program's stdin/stdout untouched for `lee`/`escribe`. The normal CLI behaviour is unchanged. All debug execution runs inside the same sandbox as regular runs.
+
 ### :shield: Security model
 Anyone reaching the web UI can execute code on your server, so execution is locked down in layers:
 

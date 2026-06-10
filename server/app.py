@@ -299,6 +299,7 @@ async def interactive_session(ws: WebSocket):
         return
 
     code = msg.get("code", "") if msg.get("type") == "run" else None
+    debug_mode = bool(msg.get("debug"))
     if code is None:
         await ws.send_json({"type": "error", "message": "Se esperaba un mensaje 'run'"})
         await ws.close()
@@ -347,8 +348,20 @@ async def interactive_session(ws: WebSocket):
             "LANG": "C.UTF-8",
             "LC_ALL": "C.UTF-8",
         }
+        #In debug mode the VM gets two extra pipes: one to emit JSON trace
+        #events (current quadruple, memory snapshots) and one to receive
+        #step/continue/pause commands, keeping stdin/stdout for the program
+        vm_cmd = [sys.executable, "-u", str(VM), "quads.out"]
+        pass_fds = ()
+        event_read_fd = command_write_fd = None
+        if debug_mode:
+            event_read_fd, event_write_fd = os.pipe()
+            command_read_fd, command_write_fd = os.pipe()
+            vm_cmd += ["--debug", str(event_write_fd), str(command_read_fd)]
+            pass_fds = (event_write_fd, command_read_fd)
+
         proc = await asyncio.create_subprocess_exec(
-            sys.executable, "-u", str(VM), "quads.out",
+            *vm_cmd,
             cwd=workdir,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
@@ -356,7 +369,24 @@ async def interactive_session(ws: WebSocket):
             env=env,
             preexec_fn=_apply_rlimits,
             start_new_session=True,
+            pass_fds=pass_fds,
         )
+
+        command_pipe = None
+        event_reader = None
+        event_transport = None
+        if debug_mode:
+            #Close the child's ends in this process and wrap ours
+            os.close(event_write_fd)
+            os.close(command_read_fd)
+            command_pipe = os.fdopen(command_write_fd, "w", buffering=1)
+            command_write_fd = None
+            event_reader = asyncio.StreamReader()
+            event_transport, _ = await loop.connect_read_pipe(
+                lambda: asyncio.StreamReaderProtocol(event_reader),
+                os.fdopen(event_read_fd, "rb"),
+            )
+            event_read_fd = None
 
         output_bytes = 0
 
@@ -379,12 +409,27 @@ async def interactive_session(ws: WebSocket):
                     _kill_group(proc.pid)
                     return
 
+        async def pump_debug_events():
+            while True:
+                line = await event_reader.readline()
+                if not line:
+                    return
+                try:
+                    event = json.loads(line)
+                except ValueError:
+                    continue
+                try:
+                    await ws.send_json({"type": "debug", **event})
+                except Exception:
+                    return
+
         async def feed_stdin():
             #Returns when the client disconnects or asks to kill the run
             stdin_bytes = 0
             while True:
                 message = await ws.receive_json()
-                if message.get("type") == "stdin":
+                msg_type = message.get("type")
+                if msg_type == "stdin":
                     data = str(message.get("data", "")).encode("utf-8")
                     stdin_bytes += len(data)
                     if stdin_bytes > MAX_STDIN_BYTES:
@@ -394,11 +439,17 @@ async def interactive_session(ws: WebSocket):
                         await proc.stdin.drain()
                     except (ConnectionResetError, BrokenPipeError):
                         return
-                elif message.get("type") == "kill":
+                elif msg_type in ("step", "continue", "pause") and command_pipe is not None:
+                    try:
+                        command_pipe.write(msg_type + "\n")
+                    except (BrokenPipeError, ValueError):
+                        pass
+                elif msg_type == "kill":
                     return
 
         pump_out = asyncio.create_task(pump(proc.stdout, "stdout"))
         pump_err = asyncio.create_task(pump(proc.stderr, "stderr"))
+        pump_dbg = asyncio.create_task(pump_debug_events()) if debug_mode else None
         wait_task = asyncio.create_task(proc.wait())
         feeder = asyncio.create_task(feed_stdin())
 
@@ -413,7 +464,17 @@ async def interactive_session(ws: WebSocket):
             _kill_group(proc.pid)
             await wait_task
         feeder.cancel()
-        await asyncio.gather(pump_out, pump_err, feeder, return_exceptions=True)
+        pending = [pump_out, pump_err, feeder]
+        if pump_dbg is not None:
+            pending.append(pump_dbg)
+        await asyncio.gather(*pending, return_exceptions=True)
+        if event_transport is not None:
+            event_transport.close()
+        if command_pipe is not None:
+            try:
+                command_pipe.close()
+            except (BrokenPipeError, OSError):
+                pass
 
         returncode = proc.returncode
         if returncode == -signal.SIGXCPU:

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 // Virtual memory layout of the Patito ++ compiler (see data_structures/vm_memory.py)
 const SEGMENTS = [
@@ -50,11 +50,17 @@ function Operand({ value, constantsByAddress }) {
   return <span className="quad-name">{String(value)}</span>;
 }
 
-export default function QuadruplesView({ quadruples, constants }) {
+export default function QuadruplesView({ quadruples, constants, currentQuad = null }) {
   const constantsByAddress = useMemo(
     () => new Map(constants.map((entry) => [entry.v_address, entry.constant])),
     [constants],
   );
+
+  //Keep the instruction about to execute visible while debugging
+  const currentRowRef = useRef(null);
+  useEffect(() => {
+    currentRowRef.current?.scrollIntoView({ block: 'nearest' });
+  }, [currentQuad]);
 
   if (!quadruples.length) {
     return (
@@ -86,8 +92,12 @@ export default function QuadruplesView({ quadruples, constants }) {
         </thead>
         <tbody>
           {quadruples.map((quad, index) => (
-            <tr key={index}>
-              <td className="quad-no">{index}</td>
+            <tr
+              key={index}
+              ref={index === currentQuad ? currentRowRef : null}
+              className={index === currentQuad ? 'quad-current' : ''}
+            >
+              <td className="quad-no">{index === currentQuad ? '▶ ' : ''}{index}</td>
               <td className="quad-op">{quad.operator}</td>
               <td><Operand value={quad.l_operand} constantsByAddress={constantsByAddress} /></td>
               <td><Operand value={quad.r_operand} constantsByAddress={constantsByAddress} /></td>
