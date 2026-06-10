@@ -81,7 +81,6 @@ button.secondary {
 }
 .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-.panel.hidden { display: none; }
 .panel.scroll { overflow-y: auto; }
 
 /* --- Debug mode: quadruples, memory and terminal stacked --- */
@@ -154,6 +153,8 @@ details.panel summary { cursor: pointer; }
 
 .panel.grow { flex: 1; display: flex; flex-direction: column; min-height: 120px; }
 .panel.grow .output { flex: 1; }
+/* Utility: must beat .panel.grow's display:flex regardless of rule order */
+.panel.hidden { display: none !important; }
 
 .terminal {
   flex: 1;
